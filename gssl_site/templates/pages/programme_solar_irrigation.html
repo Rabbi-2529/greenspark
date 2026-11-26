@@ -5,7 +5,7 @@
 {% block body_class %}has-dark-hero{% endblock %}
 
 {% block content %}
-<section class="page-hero grain" data-programme="irrigation">
+{% if sections.page_hero %}<section class="page-hero grain" data-programme="irrigation">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/solar-field-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/solar-field-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/solar-field-1280.webp' %} 1280w, {% static 'img/illustrations/solar-field-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/solar-field-1280.jpg' %}" srcset="{% static 'img/illustrations/solar-field-1280.jpg' %} 1280w, {% static 'img/illustrations/solar-field-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:projects' %}#pipeline">Projects in pipeline</a></li><li aria-current="page">Solar Irrigation</li></ol></nav>
@@ -15,8 +15,8 @@
     <div class="page-hero__meta"><span class="badge badge--development">In development</span></div>
     <div class="page-hero__actions"><a class="btn btn--primary " href="{% url 'website:enquire' %}"><span class="btn__label">Register your interest</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a><a class="btn btn--outline-light " href="{% url 'website:projects' %}#pipeline"><span class="btn__label">All programmes</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
   </div>
-</section>
-<section class="section" data-programme="irrigation">
+</section>{% endif %}
+{% if sections.about %}<section class="section" data-programme="irrigation">
   <div class="container-gs">
     <div class="row g-5">
       <div class="col-lg-7 stack-lg">
@@ -48,8 +48,8 @@
       </aside>
     </div>
   </div>
-</section>
-<section class="section section--surface">
+</section>{% endif %}
+{% if sections.other_programmes %}<section class="section section--surface">
   <div class="container-gs">
     <div class="section-heading section-heading--split" data-reveal><div class="stack"><p class="eyebrow">Other programmes</p><h2>More programmes in development</h2></div><div class="section-heading__aside"><a class="btn btn--outline " href="{% url 'website:projects' %}#pipeline"><span class="btn__label">All programmes</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
     <div class="row g-4"><!-- loop:start other-programmes -->
@@ -58,5 +58,5 @@
 <div class="col-md-6 col-lg-4"><a data-glow class="prog-card reveal-d2" href="{% url 'website:programme_rural_productive_use_solar' %}" data-programme="rural" data-reveal><div class="prog-card__media"><picture data-photo="rural-solar"><source type="image/webp" srcset="{% static 'img/photos/rural-solar-480.webp' %} 480w, {% static 'img/photos/rural-solar-960.webp' %} 960w, {% static 'img/photos/rural-solar-1600.webp' %} 1600w" sizes="(min-width: 992px) 33vw, (min-width: 768px) 50vw, 100vw"><img src="{% static 'img/photos/rural-solar-960.jpg' %}" srcset="{% static 'img/photos/rural-solar-480.jpg' %} 480w, {% static 'img/photos/rural-solar-960.jpg' %} 960w, {% static 'img/photos/rural-solar-1600.jpg' %} 1600w" sizes="(min-width: 992px) 33vw, (min-width: 768px) 50vw, 100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="prog-card__body"><div class="cluster"><span class="badge badge--development">In development</span></div><h3 class="prog-card__title glow-text">Rural Productive-Use Solar</h3><p class="prog-card__text glow-body">Solar power for cold storage, crop processing, water pumping and rural businesses.</p><div class="prog-card__foot"><span class="link-arrow" aria-hidden="true">Learn more</span></div></div></a></div>
 <!-- loop:end other-programmes --></div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

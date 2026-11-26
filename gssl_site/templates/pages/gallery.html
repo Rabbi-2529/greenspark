@@ -5,7 +5,7 @@
 {% block body_class %}has-dark-hero{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/leaves-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/leaves-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/leaves-1280.webp' %} 1280w, {% static 'img/illustrations/leaves-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/leaves-1280.jpg' %}" srcset="{% static 'img/illustrations/leaves-1280.jpg' %} 1280w, {% static 'img/illustrations/leaves-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:about' %}">About Us</a></li><li aria-current="page">Gallery</li></ol></nav>
@@ -15,8 +15,8 @@
     
     
   </div>
-</section>
-<section class="section">
+</section>{% endif %}
+{% if sections.albums %}<section class="section">
   <div class="container-gs">
     <div class="row g-5">
 <!-- loop:start albums -->
@@ -45,5 +45,5 @@
     </div>
     {% comment %} HIDDEN: pagination, until there is more than one page. <nav class="pagination" aria-label="Gallery pages"><span class="pagination__step is-disabled"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.65 11.98C14.82 12.05 9.98 12.02 4.93 12.05M10.94 6.24C9.11 8.25 7.14 10.11 4.93 11.96M5 11.94C7.04 13.73 8.93 15.68 10.83 17.77"/></svg> Previous</span><a href="{% url 'website:gallery' %}" aria-current="page">1</a><a href="{% url 'website:gallery' %}">2</a><a class="pagination__step" href="{% url 'website:gallery' %}">Next <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></nav> {% endcomment %}
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

@@ -5,7 +5,7 @@
 {% block body_class %}has-dark-hero{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/smoke-to-air-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/smoke-to-air-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/smoke-to-air-1280.webp' %} 1280w, {% static 'img/illustrations/smoke-to-air-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/smoke-to-air-1280.jpg' %}" srcset="{% static 'img/illustrations/smoke-to-air-1280.jpg' %} 1280w, {% static 'img/illustrations/smoke-to-air-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:events' %}">Events</a></li><li aria-current="page">Feedback round</li></ol></nav>
@@ -16,8 +16,8 @@
 <span class="badge badge--upcoming badge--lg" data-event-status data-start="2026-11-10" data-end="2027-01-09" data-feedback-start="2026-11-10" data-feedback-end="2027-01-09">Upcoming</span></div>
     <div class="page-hero__actions"><a class="btn btn--primary " href="{% url 'website:feedback' %}#event=feedback-round-ics-2026"><span class="btn__label">Give feedback now</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a><a class="btn btn--outline-light " href="{% url 'website:programme_improved_cookstove' %}"><span class="btn__label">About the programme</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11.95 3.54C11.79 7.27 11.85 11 12.08 15.15M6.9 10.39C8.56 12.06 10.23 13.72 12.16 15.48M11.95 15.44C13.54 13.7 15.24 12.06 17.18 10.25M4.3 19.96C9.3 19.96 14.3 19.96 19.68 19.96"/></svg></a></div>
   </div>
-</section>
-<section class="section">
+</section>{% endif %}
+{% if sections.about %}<section class="section">
   <div class="container-gs">
     <div class="row g-5 align-items-start">
       <div class="col-lg-7 stack-lg">
@@ -47,5 +47,5 @@
       </aside>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

@@ -6,7 +6,7 @@
 {% block modals %}{% include "partials/meet_gssl_modal.html" %}{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/dawn-paddy-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/dawn-paddy-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/dawn-paddy-1280.webp' %} 1280w, {% static 'img/illustrations/dawn-paddy-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/dawn-paddy-1280.jpg' %}" srcset="{% static 'img/illustrations/dawn-paddy-1280.jpg' %} 1280w, {% static 'img/illustrations/dawn-paddy-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li aria-current="page">About Us</li></ol></nav>
@@ -16,8 +16,8 @@
     
     <div class="page-hero__actions"><button class="btn btn--primary btn--meet" type="button" data-modal-open="meet-gssl"><span class="btn__play" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9 7.2v9.6a.6.6 0 0 0 .9.5l7.6-4.8a.6.6 0 0 0 0-1L9.9 6.7a.6.6 0 0 0-.9.5z"/></svg></span><span class="btn__label">Meet GSSL</span></button>{% comment %} HIDDEN: Why GSSL page. <a class="btn btn--outline-light " href="{% url 'website:why_gssl' %}"><span class="btn__label">Why GSSL</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a> {% endcomment %}</div>
   </div>
-</section>
-<section class="section">
+</section>{% endif %}
+{% if sections.intro %}<section class="section">
   <div class="container-gs">
     <div class="row g-5">
       <div class="col-lg-8"><p class="eyebrow mb-4">Who we are</p>
@@ -29,8 +29,8 @@
       </div></div>
     </div>
   </div>
-</section>
-<section class="section section--surface" aria-labelledby="vision-title">
+</section>{% endif %}
+{% if sections.vision %}<section class="section section--surface" aria-labelledby="vision-title">
   <div class="container-gs">
     <div data-glow class="split split--reverse">
       <div class="split__media" data-glow-trigger data-reveal="clip"><div class="ratio-box ratio-4x3"><picture><source type="image/webp" srcset="{% static 'img/photos/ics-phase-3-480.webp' %} 480w, {% static 'img/photos/ics-phase-3-960.webp' %} 960w, {% static 'img/photos/ics-phase-3-1600.webp' %} 1600w" sizes="(min-width: 992px) 45vw, 100vw"><img src="{% static 'img/photos/ics-phase-3-960.jpg' %}" srcset="{% static 'img/photos/ics-phase-3-480.jpg' %} 480w, {% static 'img/photos/ics-phase-3-960.jpg' %} 960w, {% static 'img/photos/ics-phase-3-1600.jpg' %} 1600w" sizes="(min-width: 992px) 45vw, 100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div></div>
@@ -47,8 +47,8 @@
       </div>
     </div>
   </div>
-</section>
-<section class="section" id="approach" aria-labelledby="approach-title">
+</section>{% endif %}
+{% if sections.approach %}<section class="section" id="approach" aria-labelledby="approach-title">
   <div class="container-gs">
     <div class="section-heading" data-reveal><p class="eyebrow">Our approach</p><h2>A holistic approach to every project</h2><p class="lead">We focus on three things that make programmes last.</p></div>
     <div class="attr-grid">
@@ -59,8 +59,8 @@
 <!-- loop:end approach-attributes -->
     </div>
   </div>
-</section>
-<section class="section theme-dark" aria-labelledby="who-title">
+</section>{% endif %}
+{% if sections.who %}<section class="section theme-dark" aria-labelledby="who-title">
   <div class="container-gs">
     <div class="section-heading" data-reveal><p class="eyebrow">Who we work with</p><h2 id="who-title">Partners from the village to the carbon market</h2></div>
     <div class="impact-grid">
@@ -74,8 +74,8 @@
 <!-- loop:end audiences -->
     </div>
   </div>
-</section>
-<section class="section section--surface" id="careers" aria-labelledby="careers-title">
+</section>{% endif %}
+{% if sections.careers %}<section class="section section--surface" id="careers" aria-labelledby="careers-title">
   <div class="container-gs">
     <div data-glow class="split">
       <div class="split__media" data-glow-trigger data-reveal="clip"><div class="ratio-box ratio-4x3"><picture><source type="image/webp" srcset="{% static 'img/photos/team-480.webp' %} 480w, {% static 'img/photos/team-960.webp' %} 960w, {% static 'img/photos/team-1600.webp' %} 1600w" sizes="(min-width: 992px) 45vw, 100vw"><img src="{% static 'img/photos/team-960.jpg' %}" srcset="{% static 'img/photos/team-480.jpg' %} 480w, {% static 'img/photos/team-960.jpg' %} 960w, {% static 'img/photos/team-1600.jpg' %} 1600w" sizes="(min-width: 992px) 45vw, 100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div></div>
@@ -100,5 +100,5 @@
       </div>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

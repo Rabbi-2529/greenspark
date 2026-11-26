@@ -5,7 +5,7 @@
 {% block body_class %}has-dark-hero{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/rooftop-city-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/rooftop-city-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/rooftop-city-1280.webp' %} 1280w, {% static 'img/illustrations/rooftop-city-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/rooftop-city-1280.jpg' %}" srcset="{% static 'img/illustrations/rooftop-city-1280.jpg' %} 1280w, {% static 'img/illustrations/rooftop-city-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:news' %}">News &amp; Insights</a></li><li aria-current="page">How MRV works for rooftop solar</li></ol></nav>
@@ -14,8 +14,8 @@
     <p class="lead">Measure, report, verify: how generation from many rooftops can become one carbon programme that buyers can check.</p>
     <div class="article-meta"><span>By the GSSL team</span><time datetime="2026-11-12">12 November 2026</time><span>6 min read</span></div>
   </div>
-</section>
-<section class="section">
+</section>{% endif %}
+{% if sections.article %}<section class="section">
   <div class="container-gs">
     <div class="row g-5">
       <div class="col-lg-8">
@@ -52,8 +52,8 @@
       </aside>
     </div>
   </div>
-</section>
-<section class="section section--surface" aria-labelledby="related-title">
+</section>{% endif %}
+{% if sections.related %}<section class="section section--surface" aria-labelledby="related-title">
   <div class="container-gs">
     <div class="section-heading section-heading--split" data-reveal><div><p class="eyebrow">Keep reading</p><h2 id="related-title">More news &amp; insights</h2></div>
       <div class="section-heading__aside"><a class="btn btn--outline" href="{% url 'website:news' %}"><span class="btn__label">All news &amp; insights</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
@@ -63,5 +63,5 @@
 <!-- loop:end related-posts -->
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

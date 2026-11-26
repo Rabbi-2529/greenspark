@@ -5,15 +5,15 @@
 {% block modals %}{% include "partials/meet_gssl_modal.html" %}{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero--light">
+{% if sections.page_hero %}<section class="page-hero page-hero--light">
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:about' %}">About Us</a></li><li aria-current="page">FAQ</li></ol></nav>
     <p class="eyebrow">Help centre</p>
     <h1>Frequently asked questions</h1>
     <p class="lead">Clear answers about our programmes, Gold Standard registration, feedback and privacy.</p>
   </div>
-</section>
-<section class="section section--flush-top">
+</section>{% endif %}
+{% if sections.questions %}<section class="section section--flush-top">
   <div class="container-gs">
     <div class="faq-layout">
       <nav class="faq-nav" aria-label="FAQ topics"><a href="#about">About Green Spark</a><a href="#cooking">Clean cooking</a><a href="#carbon">Carbon credits and Gold Standard</a><a href="#programmes">Programmes in development</a><a href="#feedback">Feedback and privacy</a></nav>
@@ -55,5 +55,5 @@
       </div>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

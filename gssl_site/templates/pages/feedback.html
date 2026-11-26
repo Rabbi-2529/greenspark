@@ -5,7 +5,7 @@
 {% block cta %}{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero--light">
+{% if sections.page_hero %}<section class="page-hero page-hero--light">
   
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:events' %}">Events</a></li><li aria-current="page">Give feedback</li></ol></nav>
@@ -15,8 +15,8 @@
     
     
   </div>
-</section>
-<section class="section section--flush-top">
+</section>{% endif %}
+{% if sections.form %}<section class="section section--flush-top">
   <div class="container-gs">
     <div class="row g-5">
       <div class="col-lg-7"><h2 class="visually-hidden" id="fb-title">Feedback form</h2><form class="form" action="#" method="post" enctype="multipart/form-data" data-validate data-demo="success" novalidate aria-labelledby="fb-title">
@@ -53,5 +53,5 @@
       </aside>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

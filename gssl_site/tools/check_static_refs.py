@@ -27,7 +27,7 @@ from django.conf import settings  # noqa: E402
 from django.test import Client  # noqa: E402
 from django.urls import reverse  # noqa: E402
 
-from apps.website.content import PROJECTS  # noqa: E402
+from apps.content.models import Project  # noqa: E402
 from apps.website.pages import PAGES  # noqa: E402
 
 # Client() talks to "testserver"; outside the test runner that must be allowed.
@@ -56,7 +56,10 @@ def main() -> int:
     pages = 0
 
     urls = [reverse(f"website:{p.name}") for p in PAGES if p.is_published]
-    urls += [reverse("website:project_detail", args=[pr.slug]) for pr in PROJECTS]
+    urls += [
+        reverse("website:project_detail", args=[slug])
+        for slug in Project.objects.values_list("slug", flat=True)
+    ]
 
     for url in urls:
         response = client.get(url)

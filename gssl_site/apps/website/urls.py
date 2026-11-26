@@ -3,12 +3,15 @@
 from django.urls import path
 
 from .pages import PAGES
-from .views import EnquireView, ProjectDetailView, StaticPageView, robots_txt, sitemap_xml
+from .views import (
+    EnquireView, HomeView, ProjectDetailView, ProjectsView, StaticPageView,
+    robots_txt, sitemap_xml,
+)
 
 app_name = "website"
 
 # Pages with a view of their own; every other row uses StaticPageView.
-VIEWS = {"enquire": EnquireView}
+VIEWS = {"enquire": EnquireView, "home": HomeView, "projects": ProjectsView}
 
 urlpatterns = [
     # Offline pages stay registered so {% url %} keeps resolving; their view
@@ -16,7 +19,7 @@ urlpatterns = [
     path(page.route, VIEWS.get(page.name, StaticPageView).as_view(page=page), name=page.name)
     for page in PAGES
 ] + [
-    # One page per project, driven by content.PROJECTS.
+    # One page per project, driven by the Project table.
     path("projects/<slug:slug>/", ProjectDetailView.as_view(), name="project_detail"),
     path("robots.txt", robots_txt, name="robots"),
     path("sitemap.xml", sitemap_xml, name="sitemap"),

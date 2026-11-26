@@ -19,7 +19,9 @@ from django.core.cache import cache
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
-from .content import PROJECTS, PROJECTS_BY_SLUG
+from apps.content.models import Project
+
+from . import parity
 from .models import Enquiry
 from .pages import LIVE, OFFLINE, PAGES, UNLISTED
 from .views import server_error
@@ -28,9 +30,15 @@ PUBLISHED = [p for p in PAGES if p.is_published]
 OFFLINE_PAGES = [p for p in PAGES if p.status == OFFLINE]
 
 
+def all_projects() -> list:
+    """The projects, from the database. Not a module constant: there is no
+    database yet when this module is imported."""
+    return list(Project.objects.select_related("programme"))
+
+
 def published_urls() -> list[str]:
     return ([reverse(f"website:{p.name}") for p in PUBLISHED]
-            + [reverse("website:project_detail", args=[pr.slug]) for pr in PROJECTS])
+            + [reverse("website:project_detail", args=[pr.slug]) for pr in all_projects()])
 
 
 class RenderedPages:
@@ -46,7 +54,7 @@ class RenderedPages:
         return self._cache[url]
 
 
-class PageRenderTests(RenderedPages, SimpleTestCase):
+class PageRenderTests(RenderedPages, TestCase):
     """Every published page renders with the shared chrome and nothing leaks."""
 
     def test_every_published_page_returns_200(self):
@@ -86,7 +94,7 @@ class PageRenderTests(RenderedPages, SimpleTestCase):
                 self.assertEqual(stray, [], f"{url} still links to .html files")
 
 
-class SampleContentTests(RenderedPages, SimpleTestCase):
+class SampleContentTests(RenderedPages, TestCase):
     """
     The design build carried a "Design preview · sample data" ribbon, "Sample
     data" badges, invented posts and events, and build notes in visible copy.
@@ -149,7 +157,7 @@ class SampleContentTests(RenderedPages, SimpleTestCase):
         self.assertIn(f"{photos} photos", gallery)
 
 
-class PublishingTests(RenderedPages, SimpleTestCase):
+class PublishingTests(RenderedPages, TestCase):
     def test_offline_pages_answer_404(self):
         self.assertTrue(OFFLINE_PAGES)
         for page in OFFLINE_PAGES:
@@ -189,7 +197,7 @@ class PublishingTests(RenderedPages, SimpleTestCase):
             loc = f"<loc>{settings.SITE_URL}{reverse(f'website:{page.name}')}</loc>"
             with self.subTest(page=page.name):
                 self.assertEqual(loc in body, page.status == LIVE)
-        for project in PROJECTS:
+        for project in all_projects():
             self.assertIn(reverse("website:project_detail", args=[project.slug]), body)
 
     def test_robots_txt_points_at_the_sitemap(self):
@@ -198,7 +206,7 @@ class PublishingTests(RenderedPages, SimpleTestCase):
         self.assertIn(f"Sitemap: {settings.SITE_URL}/sitemap.xml", body)
 
 
-class MetadataTests(RenderedPages, SimpleTestCase):
+class MetadataTests(RenderedPages, TestCase):
     def test_each_page_has_a_unique_title_and_description(self):
         titles, descriptions = {}, {}
         for url in published_urls():
@@ -227,7 +235,7 @@ class MetadataTests(RenderedPages, SimpleTestCase):
         self.assertNotIn("gssl.thingbd.com", body)
 
 
-class NavigationTests(RenderedPages, SimpleTestCase):
+class NavigationTests(RenderedPages, TestCase):
     def test_nav_marks_the_current_section(self):
         for name in ("projects", "events", "about", "programme_rooftop_solar", "gallery"):
             with self.subTest(page=name):
@@ -251,7 +259,7 @@ class NavigationTests(RenderedPages, SimpleTestCase):
                 self.assertNotIn(f'href="{reverse("website:feedback")}"', body)
 
 
-class ScriptOrderTests(RenderedPages, SimpleTestCase):
+class ScriptOrderTests(RenderedPages, TestCase):
     """
     website.js calls GS.boot(), which runs every module registered up to that
     point. A component script loaded after it registers too late and never
@@ -278,7 +286,7 @@ class ScriptOrderTests(RenderedPages, SimpleTestCase):
             self.assertIn(attr, body, f"hero video is missing {attr}")
 
 
-class SecurityTests(RenderedPages, SimpleTestCase):
+class SecurityTests(RenderedPages, TestCase):
     def test_pages_are_csp_safe(self):
         """No inline script, no on*= handlers, no style attributes: the
         Content-Security-Policy forbids all three."""
@@ -305,7 +313,7 @@ class SecurityTests(RenderedPages, SimpleTestCase):
         self.assertIn("Content-Security-Policy", response)
 
 
-class ErrorPageTests(SimpleTestCase):
+class ErrorPageTests(TestCase):
     def test_unknown_url_renders_the_404_page(self):
         response = self.client.get("/no-such-page/")
         self.assertEqual(response.status_code, 404)
@@ -318,7 +326,7 @@ class ErrorPageTests(SimpleTestCase):
         self.assertIn("<html", response.content.decode())
 
 
-class SiteChromeTests(RenderedPages, SimpleTestCase):
+class SiteChromeTests(RenderedPages, TestCase):
     """
     Markup that lives between partials in the design build, so the partial
     extractor never saw it. All of this went missing in the first conversion.
@@ -367,7 +375,7 @@ class TemplateFileTests(SimpleTestCase):
                 self.assertEqual(depth, 0)
 
 
-class ProjectPageTests(RenderedPages, SimpleTestCase):
+class ProjectPageTests(RenderedPages, TestCase):
     """
     Every project has its own page. The design build shipped one detail page
     holding Phase 1's content, and all seven cards pointed at it; then the
@@ -384,7 +392,7 @@ class ProjectPageTests(RenderedPages, SimpleTestCase):
         return body[i:body.index(end, i)]
 
     def test_each_page_is_headed_with_its_own_project(self):
-        for project in PROJECTS:
+        for project in all_projects():
             with self.subTest(project=project.slug):
                 body = self.page(project.slug)
                 self.assertIn(f"<h1>{project.title}</h1>", body.replace("&#x27;", "'"))
@@ -393,7 +401,7 @@ class ProjectPageTests(RenderedPages, SimpleTestCase):
                 self.assertIn(project.stage, details)
 
     def test_only_registered_projects_claim_gold_standard(self):
-        for project in PROJECTS:
+        for project in all_projects():
             with self.subTest(project=project.slug):
                 main = self.section(self.page(project.slug), "<main", "Other project activities")
                 claims = ("registry.goldstandard.org" in main
@@ -416,7 +424,7 @@ class ProjectPageTests(RenderedPages, SimpleTestCase):
                 self.assertNotIn("Green ICS — Phase 1</h1>", main)
 
     def test_related_projects_never_include_the_page_itself(self):
-        for project in PROJECTS:
+        for project in all_projects():
             with self.subTest(project=project.slug):
                 related = self.section(self.page(project.slug), "Other project activities", "</section>")
                 own = reverse("website:project_detail", args=[project.slug])
@@ -427,7 +435,7 @@ class ProjectPageTests(RenderedPages, SimpleTestCase):
         self.assertEqual(self.client.get("/projects/not-a-project/").status_code, 404)
 
     def test_every_project_row_is_complete(self):
-        for project in PROJECTS:
+        for project in all_projects():
             with self.subTest(project=project.slug):
                 self.assertTrue(project.description)
                 self.assertTrue(project.is_registered or project.card_badge)
@@ -586,6 +594,80 @@ class ProductionSettingsTests(SimpleTestCase):
         self.assertNotEqual(result.returncode, 0)
 
 
-class ContentDataTests(SimpleTestCase):
+class ContentDataTests(TestCase):
     def test_project_slugs_are_unique(self):
-        self.assertEqual(len(PROJECTS_BY_SLUG), len(PROJECTS))
+        slugs = [p.slug for p in all_projects()]
+        self.assertEqual(len(set(slugs)), len(slugs))
+
+    def test_every_project_belongs_to_a_programme_whose_page_exists(self):
+        for project in all_projects():
+            with self.subTest(project=project.slug):
+                self.assertTrue(project.programme, "a project with no programme")
+                reverse(project.programme_url_name)
+
+
+class GoldenHtmlTests(TestCase):
+    """
+    The site renders exactly what it rendered before the CMS existed.
+
+    This is the contract that lets content move into the database one phase at
+    a time: every page is compared with the HTML recorded in
+    ``apps/website/golden/``, byte for byte, with only the CSRF token masked.
+
+    A failure here means the migration lost or altered something. Fix the
+    migration — do not rewrite the golden file. The golden files change only
+    when Green Spark asks for a content change, by running
+
+        python manage.py snapshot_pages
+
+    and the diff that produces is what the pull request reviews.
+    """
+
+    def test_there_is_a_golden_file_for_every_published_page(self):
+        missing = [name for name, _ in parity.targets() if not parity.golden_path(name).exists()]
+        self.assertEqual(
+            missing, [],
+            "no baseline for these pages; run: python manage.py snapshot_pages",
+        )
+
+    def test_no_golden_file_is_left_behind_by_a_removed_page(self):
+        expected = {parity.golden_path(name) for name, _ in parity.targets()}
+        stale = sorted(p.name for p in set(parity.GOLDEN_DIR.glob("*.html")) - expected)
+        self.assertEqual(stale, [], "stale baseline(s); run: python manage.py snapshot_pages")
+
+    def test_every_page_renders_exactly_as_it_did(self):
+        for name, url in parity.targets():
+            with self.subTest(page=name):
+                path = parity.golden_path(name)
+                if not path.exists():
+                    continue  # reported by the test above
+                expected = path.read_text(encoding="utf-8")
+                actual = parity.render(self.client, url)
+                if actual == expected:
+                    continue
+                self.fail(f"{url} no longer renders as recorded.\n{_first_difference(expected, actual)}")
+
+
+def _first_difference(expected: str, actual: str) -> str:
+    """Where two renders part company, in terms a reviewer can act on."""
+    old = expected.splitlines()
+    new = actual.splitlines()
+    for number, (before, after) in enumerate(zip(old, new), start=1):
+        if before != after:
+            column = next(
+                (i for i, (a, b) in enumerate(zip(before, after)) if a != b),
+                min(len(before), len(after)),
+            )
+            window = slice(max(0, column - 60), column + 60)
+            return (
+                f"  first change at line {number}, column {column + 1}\n"
+                f"  was:  …{before[window]}…\n"
+                f"  now:  …{after[window]}…"
+            )
+    if len(old) != len(new):
+        longer, which = (new, "now") if len(new) > len(old) else (old, "was")
+        return (
+            f"  the two differ in length: was {len(old)} lines, now {len(new)}\n"
+            f"  first extra line ({which}): {longer[min(len(old), len(new))][:160]}"
+        )
+    return "  the two differ in trailing whitespace only"

@@ -5,7 +5,7 @@
 {% block body_class %}has-dark-hero{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/smoke-to-air-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/smoke-to-air-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/smoke-to-air-1280.webp' %} 1280w, {% static 'img/illustrations/smoke-to-air-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/smoke-to-air-1280.jpg' %}" srcset="{% static 'img/illustrations/smoke-to-air-1280.jpg' %} 1280w, {% static 'img/illustrations/smoke-to-air-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li aria-current="page">Events</li></ol></nav>
@@ -15,8 +15,8 @@
     
     <div class="page-hero__actions">{% comment %} HIDDEN: feedback page. <a class="btn btn--primary " href="{% url 'website:feedback' %}"><span class="btn__label">Give feedback</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a> {% endcomment %}<a class="btn btn--outline-light " href="{% url 'website:enquire' %}"><span class="btn__label">Ask about an event</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
   </div>
-</section>
-<section class="section">
+</section>{% endif %}
+{% if sections.event_list %}<section class="section">
   <div class="container-gs">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-5">
       <div class="filters" data-filter-group="event-grid" role="group" aria-label="Filter events"><button class="filter-chip" type="button" data-filter="all" aria-pressed="true">All events</button><button class="filter-chip" type="button" data-filter="upcoming" aria-pressed="false">Upcoming</button><button class="filter-chip" type="button" data-filter="feedback" aria-pressed="false">Open for feedback</button><button class="filter-chip" type="button" data-filter="closed" aria-pressed="false">Past</button></div>
@@ -32,13 +32,13 @@
     <div class="empty-state mt-4" data-filter-empty hidden><span class="empty-state__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.32 5.4C8.98 5.15 14.65 5.25 20.47 5.59M20.55 5.43C20.62 10.43 20.59 15.43 20.52 20.49M20.39 20.43C14.72 20.22 9.06 20.3 3.34 20.44M3.58 20.53C3.81 15.53 3.72 10.53 3.5 5.54M3.39 10.08C9.05 9.81 14.72 9.91 20.72 9.98M7.99 2.65C7.74 4.11 7.84 5.58 7.89 7.42M16.06 2.99C16.18 4.45 16.13 5.92 15.97 7.62M8.42 14l.1 .15M12 14l.1 .15M15.42 14l.1 .15M8.54 17.2l.1 .15"/><path class="icon__echo" d="M3.38 5.79C9.05 5.78 14.71 5.79 20.49 5.88M20.2 5.39C20.28 10.39 20.24 15.39 20.12 20.61M20.82 19.99C15.15 19.83 9.48 19.89 3.24 20.08M3.86 20.49C3.87 15.49 3.86 10.49 3.87 5.44M6.61 10.42C11.17 10.34 15.74 10.37 21.06 10.52"/></svg></span><h3 class="h4">No events here right now</h3><p>New consultations are announced here and in the notice bar at the top of every page.</p><a class="btn btn--outline " href="{% url 'website:enquire' %}"><span class="btn__label">Enquire</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
     {% comment %} HIDDEN: pagination, until there is more than one page. <nav class="pagination" aria-label="Events pages"><span class="pagination__step is-disabled"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.65 11.98C14.82 12.05 9.98 12.02 4.93 12.05M10.94 6.24C9.11 8.25 7.14 10.11 4.93 11.96M5 11.94C7.04 13.73 8.93 15.68 10.83 17.77"/></svg> Previous</span><a href="{% url 'website:events' %}" aria-current="page">1</a><a href="{% url 'website:events' %}">2</a><a href="{% url 'website:events' %}">3</a><a class="pagination__step" href="{% url 'website:events' %}">Next <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></nav> {% endcomment %}
   </div>
-</section>
-<section class="section section--flush-top">
+</section>{% endif %}
+{% if sections.stay_informed %}<section class="section section--flush-top">
   <div class="container-gs">
     <div class="small-cta" data-reveal>
       <div class="ratio-box ratio-16x9"><picture><source type="image/webp" srcset="{% static 'img/photos/ics-phase-2-480.webp' %} 480w, {% static 'img/photos/ics-phase-2-960.webp' %} 960w, {% static 'img/photos/ics-phase-2-1600.webp' %} 1600w" sizes="(min-width: 992px) 40vw, 100vw"><img src="{% static 'img/photos/ics-phase-2-960.jpg' %}" srcset="{% static 'img/photos/ics-phase-2-480.jpg' %} 480w, {% static 'img/photos/ics-phase-2-960.jpg' %} 960w, {% static 'img/photos/ics-phase-2-1600.jpg' %} 1600w" sizes="(min-width: 992px) 40vw, 100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div>
       <div class="small-cta__body"><p class="eyebrow">Stay informed</p><h2 class="h3">Want to hear about consultations in your area?</h2><p class="text-muted-gs">Tell us your district and how to reach you. We share notice of every consultation and feedback round.</p><a class="btn btn--secondary " href="{% url 'website:enquire' %}"><span class="btn__label">Enquire</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

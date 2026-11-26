@@ -6,7 +6,7 @@
 {% block body_end %}{% if project.stove_detail %}{% include "partials/lightbox.html" %}{% endif %}{% endblock %}
 
 {% block content %}
-<section class="page-hero grain" data-programme="{{ project.programme }}">
+{% if sections.page_hero %}<section class="page-hero grain" data-programme="{{ project.programme.key }}">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/photos/'|add:project.photo|add:'-480.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/photos/'|add:project.photo|add:'-480.jpg' %}"><source type="image/webp" srcset="{% static 'img/photos/'|add:project.photo|add:'-960.webp' %}"><img src="{% static 'img/photos/'|add:project.photo|add:'-960.jpg' %}" width="960" height="720" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:projects' %}">Projects</a></li><li aria-current="page">{{ project.title }}</li></ol></nav>
@@ -16,8 +16,8 @@
     <div class="page-hero__meta">{% if project.is_registered %}<span class="badge badge--registered">Gold Standard registered</span>{% else %}<span class="badge {{ project.badge_class }}">{{ project.card_badge }}</span>{% endif %}</div>
     <div class="page-hero__actions"><a class="btn btn--primary " href="{% url 'website:enquire' %}"><span class="btn__label">Enquire about this project</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a>{% if project.gs_id %}<a class="btn btn--registry on-dark" href="https://registry.goldstandard.org/projects?q={{ project.gs_id }}&amp;page=1&amp;countries=BD" target="_blank" rel="noopener"><span class="btn__label">View on Gold Standard registry</span><svg class="icon icon-nudge-up" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.88 3.96C15.88 4.04 17.88 4.01 20.02 3.97M20.07 3.91C20.17 5.91 20.13 7.91 20 10.09M20.1 3.81C17.11 6.68 14.2 9.64 11.2 12.76M18.06 13.98C18.09 15.98 18.08 17.98 18.02 20.08M18.03 20.03C13.36 20.2 8.69 20.13 3.88 20.06M4 19.94C4.14 15.28 4.08 10.61 4.06 5.93M3.91 5.93C5.91 5.81 7.91 5.86 10.16 6.04"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a>{% endif %}</div>
   </div>
-</section>
-<section class="section">
+</section>{% endif %}
+{% if sections.about %}<section class="section">
   <div class="container-gs">
     <div class="row g-5">
       <div class="col-lg-7 stack-lg">
@@ -58,27 +58,27 @@
       </aside>
     </div>
   </div>
-</section>
-{% if project.stove_detail %}<section class="section anim-section" aria-labelledby="steps-title">
+</section>{% endif %}
+{% if project.stove_detail %}{% if sections.steps %}<section class="section anim-section" aria-labelledby="steps-title">
   <div class="container-gs">
     <div class="section-heading" data-reveal><p class="eyebrow">In three steps</p><h2 id="steps-title">How the Green ICS works</h2></div>
     <ul class="anim-cards"><li class="anim-card" data-reveal><div class="anim-card__media"><video class="anim-card__video" data-loop-video muted loop playsinline preload="none" poster="{% static 'video/day/cooking-1.jpg' %}" aria-hidden="true"><source src="{% static 'video/day/cooking-1.mp4' %}" type="video/mp4"></video></div><h3 class="anim-card__title">Spark</h3><p class="anim-card__text">An efficient stove, designed with the families who cook with it every day.</p></li><li class="anim-card reveal-d1" data-reveal><div class="anim-card__media"><video class="anim-card__video" data-loop-video muted loop playsinline preload="none" poster="{% static 'video/day/cooking-2.jpg' %}" aria-hidden="true"><source src="{% static 'video/day/cooking-2.mp4' %}" type="video/mp4"></video></div><h3 class="anim-card__title">Clean cooking</h3><p class="anim-card__text">Where community and clean energy meet: less smoke and less firewood.</p></li><li class="anim-card reveal-d2" data-reveal><div class="anim-card__media"><video class="anim-card__video" data-loop-video muted loop playsinline preload="none" poster="{% static 'video/day/cooking-3.jpg' %}" aria-hidden="true"><source src="{% static 'video/day/cooking-3.mp4' %}" type="video/mp4"></video></div><h3 class="anim-card__title">Impact</h3><p class="anim-card__text">Benefits for health, time and budgets, monitored for carbon credits.</p></li></ul>
   </div>
-</section>
-<section class="section section--surface">
+</section>{% endif %}
+{% if sections.gallery %}<section class="section section--surface">
   <div class="container-gs">
     <div class="section-heading" data-reveal><p class="eyebrow">Gallery</p><h2>From the field</h2><p class="lead">Household visits and installations from the Improved Cookstove Programme.</p></div>
     <div class="gallery-grid"><!-- loop:start project-gallery -->
 <a class="gallery-grid__item" href="{% static 'img/photos/gallery-1-1600.jpg' %}" data-lightbox="project" data-caption="A GSSL field officer records a household visit beside two traditional mud stoves."><picture><source type="image/webp" srcset="{% static 'img/photos/gallery-1-600.webp' %} 600w, {% static 'img/photos/gallery-1-1600.webp' %} 1600w" sizes="(min-width: 992px) 33vw, 50vw"><img src="{% static 'img/photos/gallery-1-600.jpg' %}" srcset="{% static 'img/photos/gallery-1-600.jpg' %} 600w, {% static 'img/photos/gallery-1-1600.jpg' %} 1600w" sizes="(min-width: 992px) 33vw, 50vw" width="600" height="634" alt="A GSSL field officer records a household visit beside two traditional mud stoves." loading="lazy" decoding="async"></picture><span class="gallery-grid__zoom" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.01 4.8C12.1 9.47 12.07 14.13 11.93 19.12M4.87 11.95C9.54 12.16 14.2 12.08 19.17 11.99"/></svg></span></a><a class="gallery-grid__item" href="{% static 'img/photos/gallery-6-1600.jpg' %}" data-lightbox="project" data-caption="A field officer recording a household visit."><picture><source type="image/webp" srcset="{% static 'img/photos/gallery-6-600.webp' %} 600w, {% static 'img/photos/gallery-6-1200.webp' %} 1200w, {% static 'img/photos/gallery-6-1600.webp' %} 1600w" sizes="(min-width: 992px) 33vw, 50vw"><img src="{% static 'img/photos/gallery-6-600.jpg' %}" srcset="{% static 'img/photos/gallery-6-600.jpg' %} 600w, {% static 'img/photos/gallery-6-1200.jpg' %} 1200w, {% static 'img/photos/gallery-6-1600.jpg' %} 1600w" sizes="(min-width: 992px) 33vw, 50vw" width="600" height="646" alt="A field officer recording a household visit." loading="lazy" decoding="async"></picture><span class="gallery-grid__zoom" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.01 4.8C12.1 9.47 12.07 14.13 11.93 19.12M4.87 11.95C9.54 12.16 14.2 12.08 19.17 11.99"/></svg></span></a><a class="gallery-grid__item" href="{% static 'img/photos/gallery-5-1600.jpg' %}" data-lightbox="project" data-caption="A GSSL field officer talks with a household about the programme."><picture><source type="image/webp" srcset="{% static 'img/photos/gallery-5-600.webp' %} 600w, {% static 'img/photos/gallery-5-1600.webp' %} 1600w" sizes="(min-width: 992px) 33vw, 50vw"><img src="{% static 'img/photos/gallery-5-600.jpg' %}" srcset="{% static 'img/photos/gallery-5-600.jpg' %} 600w, {% static 'img/photos/gallery-5-1600.jpg' %} 1600w" sizes="(min-width: 992px) 33vw, 50vw" width="600" height="347" alt="A GSSL field officer talks with a household about the programme." loading="lazy" decoding="async"></picture><span class="gallery-grid__zoom" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.01 4.8C12.1 9.47 12.07 14.13 11.93 19.12M4.87 11.95C9.54 12.16 14.2 12.08 19.17 11.99"/></svg></span></a>
 <!-- loop:end project-gallery --></div>
   </div>
-</section>{% endif %}
-<section class="section">
+</section>{% endif %}{% endif %}
+{% if sections.related %}<section class="section">
   <div class="container-gs">
     <div class="section-heading section-heading--split" data-reveal><div class="stack"><p class="eyebrow">Related</p><h2>Other project activities</h2></div><div class="section-heading__aside"><a class="btn btn--outline " href="{% url 'website:projects' %}"><span class="btn__label">All projects</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
     <div class="row g-5"><!-- loop:start related-projects -->
 {% for card in related %}{% include "partials/project_card.html" with delay=forloop.counter0 %}
 {% endfor %}<!-- loop:end related-projects --></div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

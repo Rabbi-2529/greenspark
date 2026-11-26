@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "gssl",
-      "runtimeExecutable": "../.venv/Scripts/python.exe",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": ["manage.py", "runserver", "8000"],
       "cwd": "gssl_site",
       "port": 8000

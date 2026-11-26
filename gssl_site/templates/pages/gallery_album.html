@@ -5,7 +5,7 @@
 {% block body_end %}{% include "partials/lightbox.html" %}{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero--light">
+{% if sections.page_hero %}<section class="page-hero page-hero--light">
   
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:gallery' %}">Gallery</a></li><li aria-current="page">Green ICS in the field</li></ol></nav>
@@ -15,8 +15,8 @@
     <div class="page-hero__meta"><span class="badge badge--type">9 photos</span></div>
     
   </div>
-</section>
-<section class="section section--flush-top">
+</section>{% endif %}
+{% if sections.photos %}<section class="section section--flush-top">
   <div class="container-gs">
     <div class="gallery-grid">
 <!-- loop:start gallery-images -->
@@ -33,5 +33,5 @@
     </div>
     <div class="cluster mt-5"><a class="btn btn--outline " href="{% url 'website:gallery' %}"><span class="btn__label">Back to gallery</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.65 11.98C14.82 12.05 9.98 12.02 4.93 12.05M10.94 6.24C9.11 8.25 7.14 10.11 4.93 11.96M5 11.94C7.04 13.73 8.93 15.68 10.83 17.77"/></svg></a></div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

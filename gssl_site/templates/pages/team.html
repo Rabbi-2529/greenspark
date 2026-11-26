@@ -6,7 +6,7 @@
 {% block modals %}{% include "partials/meet_gssl_modal.html" %}{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/rural-solar-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/rural-solar-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/rural-solar-1280.webp' %} 1280w, {% static 'img/illustrations/rural-solar-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/rural-solar-1280.jpg' %}" srcset="{% static 'img/illustrations/rural-solar-1280.jpg' %} 1280w, {% static 'img/illustrations/rural-solar-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:about' %}">About Us</a></li><li aria-current="page">Our team</li></ol></nav>
@@ -14,8 +14,8 @@
     <h1>The people behind Green Spark</h1>
     <p class="lead">A team in Australia and Bangladesh, working with communities, local government and partners on clean energy and carbon projects.</p>
   </div>
-</section>
-<section class="section" aria-labelledby="leaders-title">
+</section>{% endif %}
+{% if sections.leaders %}<section class="section" aria-labelledby="leaders-title">
   <div class="container-gs">
     <div class="section-heading section-heading--split" data-reveal><div><p class="eyebrow">Leadership</p><h2 id="leaders-title">Leading our work</h2></div><div class="section-heading__aside"><p class="lead">Two companies, one team: Green Spark Solutions Australia Pty Ltd and Green Spark Solutions Ltd in Bangladesh.</p></div></div>
     <div class="row g-4">
@@ -24,8 +24,8 @@
 <!-- loop:end team-leaders -->
     </div>
   </div>
-</section>
-<section class="section section--surface" aria-labelledby="teams-title">
+</section>{% endif %}
+{% if sections.teams %}<section class="section section--surface" aria-labelledby="teams-title">
   <div class="container-gs">
     <div class="row g-5">
       <div class="col-lg-4"><div class="stack" data-reveal><p class="eyebrow">Our teams</p><h2 id="teams-title">How we are organised</h2><p class="lead">Five teams share one way of working: built with communities and measured with care.</p></div></div>
@@ -40,13 +40,13 @@
       </div>
     </div>
   </div>
-</section>
-<section class="section" aria-labelledby="join-title">
+</section>{% endif %}
+{% if sections.join %}<section class="section" aria-labelledby="join-title">
   <div class="container-gs">
     <div class="section-heading section-heading--split mb-0" data-reveal>
       <div><p class="eyebrow">Careers</p><h2 id="join-title">Join the team</h2></div>
       <div class="section-heading__aside"><p class="lead">We work with people who care about communities and the environment, in Australia and in Bangladesh.</p><a class="btn btn--primary" href="{% url 'website:about' %}#careers"><span class="btn__label">Careers at GSSL</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

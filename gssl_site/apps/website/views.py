@@ -4,7 +4,7 @@ Views for the website.
 Every static page is the same shape: render a template, tell the chrome which
 nav item is current. One generic view covers all of them, driven by
 pages.PAGES. The contact page adds a POST handler; projects are slug-driven
-from content.PROJECTS. robots.txt and sitemap.xml are built from the same
+from the Project table. robots.txt and sitemap.xml are built from the same
 two tables, so a page taken offline drops out of both automatically.
 """
 
@@ -20,7 +20,9 @@ from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET
 from django.views.generic import TemplateView
 
-from .content import PROJECTS, PROJECTS_BY_SLUG, related_projects
+from apps.content.models import Page as PageRecord
+from apps.content.models import ApproachItem, Counter, District, Project
+
 from .forms import EnquiryForm
 from .mail import notify_enquiry
 from .models import ENQUIRY_SUBJECTS, ENQUIRY_TYPES
@@ -28,14 +30,24 @@ from .pages import PAGES, Page
 
 
 class StaticPageView(TemplateView):
-    """Render one row of pages.PAGES."""
+    """
+    Render one row of pages.PAGES.
+
+    The route, the template and the nav key come from the code map; whether the
+    page is published, what it is called and which of its bands are shown come
+    from the database, so Green Spark can change them without a deploy. With no
+    row yet — a fresh install, before the seed migration — the code map's own
+    values stand in, so the site renders either way.
+    """
 
     # Set per URL by as_view(page=…); must exist on the class for Django to
     # accept it as a keyword there.
     page: Page | None = None
 
     def dispatch(self, request, *args, **kwargs):
-        if not self.page.is_published:
+        self.record = PageRecord.by_name(self.page.name)
+        published = self.record.is_published if self.record else self.page.is_published
+        if not published:
             raise Http404("This page is not published.")
         return super().dispatch(request, *args, **kwargs)
 
@@ -44,9 +56,47 @@ class StaticPageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        listed = self.record.in_sitemap if self.record else self.page.in_sitemap
         context["nav_active"] = self.page.nav
         context["page_name"] = self.page.name
-        context["noindex"] = not self.page.in_sitemap
+        context["noindex"] = not listed
+        context["page"] = self.record
+        context["sections"] = (
+            self.record.visibility() if self.record else PageRecord.visibility_for(self.page.name)
+        )
+        return context
+
+
+class HomeView(StaticPageView):
+    """The home page. Its approach cards come from the database."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["approach_highlights"] = ApproachItem.objects.filter(
+            kind=ApproachItem.HIGHLIGHT
+        )
+        context["approach_attributes"] = ApproachItem.objects.filter(
+            kind=ApproachItem.ATTRIBUTE
+        )
+        context["counters"] = Counter.objects.filter(published=True)
+        context["districts"] = District.objects.all()
+        return context
+
+
+class ProjectsView(StaticPageView):
+    """
+    The Projects page.
+
+    The grid has its own order, arranged by hand when the page was built and
+    kept on the Project row as ``grid_order``, so it is not the order used
+    anywhere else.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["projects"] = (
+            Project.objects.select_related("programme").order_by("grid_order", "pk")
+        )
         return context
 
 
@@ -129,19 +179,26 @@ class EnquireView(StaticPageView):
 # --- Projects ---------------------------------------------------------------
 
 class ProjectDetailView(TemplateView):
-    """One page per project, from content.PROJECTS."""
+    """One page per project, from the database."""
 
     template_name = "pages/project_detail.html"
 
     def get_context_data(self, **kwargs):
-        project = PROJECTS_BY_SLUG.get(kwargs.get("slug"))
+        project = (
+            Project.objects.select_related("programme")
+            .filter(slug=kwargs.get("slug"))
+            .first()
+        )
         if project is None:
             raise Http404("No such project")
         context = super().get_context_data(**kwargs)
         context["project"] = project
-        context["related"] = related_projects(project)
+        context["related"] = project.related()
         context["nav_active"] = "projects"
         context["page_name"] = "project_detail"
+        # Every project page shares one template, so they share one set of
+        # section switches.
+        context["sections"] = PageRecord.visibility_for("project_detail")
         return context
 
 
@@ -163,8 +220,18 @@ def robots_txt(request):
 @require_GET
 @cache_control(max_age=60 * 60, public=True)
 def sitemap_xml(request):
-    urls = [reverse(f"website:{page.name}") for page in PAGES if page.in_sitemap]
-    urls += [reverse("website:project_detail", args=[p.slug]) for p in PROJECTS]
+    # A page taken offline or unlisted in the console drops out of the sitemap
+    # on the next request, with no deploy.
+    records = {record.name: record for record in PageRecord.objects.all()}
+    urls = [
+        reverse(f"website:{page.name}")
+        for page in PAGES
+        if (records[page.name].in_sitemap if page.name in records else page.in_sitemap)
+    ]
+    urls += [
+        reverse("website:project_detail", args=[slug])
+        for slug in Project.objects.values_list("slug", flat=True)
+    ]
     body = render_to_string("sitemap.xml", {"urls": urls, "site_url": settings.SITE_URL})
     return HttpResponse(body, content_type="application/xml; charset=utf-8")
 

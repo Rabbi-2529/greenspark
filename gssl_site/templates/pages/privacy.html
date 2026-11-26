@@ -5,15 +5,15 @@
 {% block modals %}{% include "partials/meet_gssl_modal.html" %}{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero--light">
+{% if sections.page_hero %}<section class="page-hero page-hero--light">
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li aria-current="page">Privacy policy</li></ol></nav>
     <p class="eyebrow">Legal</p>
     <h1>Privacy policy</h1>
     <p class="lead">Last updated <time datetime="2026-11-25">25 November 2026</time></p>
   </div>
-</section>
-<section class="section section--flush-top">
+</section>{% endif %}
+{% if sections.policy %}<section class="section section--flush-top">
   <div class="container-gs">
     <div class="policy">
       <nav class="policy__toc" aria-label="On this page"><a href="#about">About this policy</a><a href="#collect">Information we collect</a><a href="#how">How we collect it</a><a href="#use">How we use it</a><a href="#share">Who we share it with</a><a href="#overseas">Overseas disclosure</a><a href="#cookies">Cookies and browser storage</a><a href="#security">Storage and security</a><a href="#retention">How long we keep it</a><a href="#access">Access and correction</a><a href="#complaints">Privacy complaints</a><a href="#changes">Changes to this policy</a><a href="#contact">Contact us</a></nav>
@@ -67,5 +67,5 @@
       </div>
     </div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}

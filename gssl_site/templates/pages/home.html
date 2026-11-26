@@ -13,7 +13,7 @@
 {% block modals %}{% include "partials/meet_gssl_modal.html" %}{% endblock %}
 
 {% block content %}
-<section class="gs-vhero grain" data-vhero aria-labelledby="hero-title">
+{% if sections.hero %}<section class="gs-vhero grain" data-vhero aria-labelledby="hero-title">
   <h1 class="visually-hidden">Green Spark Solutions Australia: carbon projects and clean energy for communities in Bangladesh, Nepal and Cambodia</h1>
   <div class="gs-vhero__media" aria-hidden="true">
     <picture>
@@ -46,8 +46,8 @@
     </div>
   </div>
   <p class="hero__scroll" aria-hidden="true">Scroll</p>
-</section>
-<section class="section intro" aria-labelledby="intro-title">
+</section>{% endif %}
+{% if sections.intro %}<section class="section intro" aria-labelledby="intro-title">
   <div class="container-gs">
     <div class="intro__head">
       <div class="stack">
@@ -74,8 +74,8 @@
     </div>
     <div class="mt-4"><p class="asof"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.32 5.4C8.98 5.15 14.65 5.25 20.47 5.59M20.55 5.43C20.62 10.43 20.59 15.43 20.52 20.49M20.39 20.43C14.72 20.22 9.06 20.3 3.34 20.44M3.58 20.53C3.81 15.53 3.72 10.53 3.5 5.54M3.39 10.08C9.05 9.81 14.72 9.91 20.72 9.98M7.99 2.65C7.74 4.11 7.84 5.58 7.89 7.42M16.06 2.99C16.18 4.45 16.13 5.92 15.97 7.62M8.42 14l.1 .15M12 14l.1 .15M15.42 14l.1 .15M8.54 17.2l.1 .15"/><path class="icon__echo" d="M3.38 5.79C9.05 5.78 14.71 5.79 20.49 5.88M20.2 5.39C20.28 10.39 20.24 15.39 20.12 20.61M20.82 19.99C15.15 19.83 9.48 19.89 3.24 20.08M3.86 20.49C3.87 15.49 3.86 10.49 3.87 5.44M6.61 10.42C11.17 10.34 15.74 10.37 21.06 10.52"/></svg><span>Figures as of <time datetime="2026-09-30">30 September 2026</time></span></p></div>
   </div>
-</section>
-<section class="xcards theme-dark" data-xcards aria-label="Why Green Spark">
+</section>{% endif %}
+{% if sections.why_green_spark %}<section class="xcards theme-dark" data-xcards aria-label="Why Green Spark">
   <div class="xcards__scene">
     <div class="xcards__sticky">
       <div class="xcards__bg grain" aria-hidden="true"><div class="xcards__img is-active"><picture><source type="image/webp" srcset="{% static 'img/photos/clean-cooking-480.webp' %} 480w, {% static 'img/photos/clean-cooking-960.webp' %} 960w, {% static 'img/photos/clean-cooking-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/clean-cooking-960.jpg' %}" srcset="{% static 'img/photos/clean-cooking-480.jpg' %} 480w, {% static 'img/photos/clean-cooking-960.jpg' %} 960w, {% static 'img/photos/clean-cooking-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="xcards__img"><picture><source type="image/webp" srcset="{% static 'img/photos/ics-phase-1-480.webp' %} 480w, {% static 'img/photos/ics-phase-1-960.webp' %} 960w, {% static 'img/photos/ics-phase-1-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/ics-phase-1-960.jpg' %}" srcset="{% static 'img/photos/ics-phase-1-480.jpg' %} 480w, {% static 'img/photos/ics-phase-1-960.jpg' %} 960w, {% static 'img/photos/ics-phase-1-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="xcards__img"><picture><source type="image/webp" srcset="{% static 'img/photos/monitoring-480.webp' %} 480w, {% static 'img/photos/monitoring-960.webp' %} 960w, {% static 'img/photos/monitoring-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/monitoring-960.jpg' %}" srcset="{% static 'img/photos/monitoring-480.jpg' %} 480w, {% static 'img/photos/monitoring-960.jpg' %} 960w, {% static 'img/photos/monitoring-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div></div>
@@ -83,26 +83,18 @@
         <p class="eyebrow mb-4">Why Green Spark</p>
         <div class="xcards__list">
 <!-- loop:start approach-highlights -->
-<div class="xcard is-active">
-          <button class="xcard__btn" type="button" aria-expanded="true" aria-controls="xc-0"><h3 class="xcard__title">Rooftop solar MRV, aggregated into one programme</h3><span class="xcard__num">01</span></button>
-          <div class="xcard__body" id="xc-0"><div><p>Generation from many rooftops is measured, reported and verified as a single carbon programme, so more owners can take part.</p><a class="link-arrow " href="{% url 'website:programme_rooftop_solar' %}">Rooftop Solar MRV<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
-        </div><div class="xcard">
-          <button class="xcard__btn" type="button" aria-expanded="false" aria-controls="xc-1"><h3 class="xcard__title">About Green Spark</h3><span class="xcard__num">02</span></button>
-          <div class="xcard__body" id="xc-1"><div><p>Carbon project developers working with communities in Bangladesh, Nepal and Cambodia, with projects registered to recognised standards.</p><a class="link-arrow " href="{% url 'website:projects' %}">View projects<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
-        </div><div class="xcard">
-          <button class="xcard__btn" type="button" aria-expanded="false" aria-controls="xc-2"><h3 class="xcard__title">Our approach</h3><span class="xcard__num">03</span></button>
-          <div class="xcard__body" id="xc-2"><div><p>We plan each programme with households, local government and NGOs, then monitor it so partners and buyers can rely on the record.</p><a class="link-arrow " href="{% url 'website:about' %}#approach">Our approach<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
-        </div>
+{% for item in approach_highlights %}<div class="xcard{% if forloop.first %} is-active{% endif %}">
+          <button class="xcard__btn" type="button" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="xc-{{ forloop.counter0 }}"><h3 class="xcard__title">{{ item.title }}</h3><span class="xcard__num">{{ forloop.counter|stringformat:"02d" }}</span></button>
+          <div class="xcard__body" id="xc-{{ forloop.counter0 }}"><div><p>{{ item.body }}</p>{% if item.link_label %}<a class="link-arrow " href="{% url item.route %}{{ item.link_fragment }}">{{ item.link_label }}<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a>{% endif %}</div></div>
+        </div>{% endfor %}
 <!-- loop:end approach-highlights -->
         </div>
       </div>
       <p class="xcards__progress" aria-hidden="true">01 / 03</p>
     </div>
   </div>
-</section>
-{% comment %}  HIDDEN: district map / "Rooted in Manikganj" section.
-     Kept in the template so it can be switched back on by removing this comment wrapper.
-<section class="section section--surface" aria-labelledby="where-title">
+</section>{% endif %}
+{% if sections.where %}<section class="section section--surface" aria-labelledby="where-title">
   <div class="container-gs">
     <div class="row g-5 align-items-start">
       <div class="col-lg-5">
@@ -147,9 +139,8 @@
 </details></div>
     </div>
   </div>
-</section>
-{% endcomment %}
-<section class="section" aria-labelledby="approach-title">
+</section>{% endif %}
+{% if sections.approach %}<section class="section" aria-labelledby="approach-title">
   <div class="container-gs">
     <div data-glow class="split">
       <div class="split__media" data-glow-trigger data-reveal="clip"><div class="ratio-box ratio-3x4"><picture><source type="image/webp" srcset="{% static 'img/photos/kitchen-portrait-480.webp' %} 480w, {% static 'img/photos/kitchen-portrait-960.webp' %} 960w" sizes="(min-width: 992px) 40vw, 100vw"><img src="{% static 'img/photos/kitchen-portrait-960.jpg' %}" srcset="{% static 'img/photos/kitchen-portrait-480.jpg' %} 480w, {% static 'img/photos/kitchen-portrait-960.jpg' %} 960w" sizes="(min-width: 992px) 40vw, 100vw" width="960" height="1280" alt="A woman beside her kitchen stove in rural Bangladesh" loading="lazy" decoding="async"></picture></div></div>
@@ -158,17 +149,15 @@
           <p class="lead">Green Spark Solutions Australia takes a holistic approach to its projects.</p></div>
         <div class="attr-list">
 <!-- loop:start approach-attributes -->
-<article class="attr-card attr-card--plain" data-reveal><h3 class="attr-card__title glow-text">Community engagement</h3><p class="attr-card__text glow-body">We work closely with local communities to understand their needs and preferences, so that our solutions are culturally appropriate and sustainable.</p></article>
-<article class="attr-card attr-card--plain reveal-d1" data-reveal><h3 class="attr-card__title glow-text">Partnerships</h3><p class="attr-card__text glow-body">We collaborate with government agencies, NGOs and private-sector organisations, drawing on their expertise and resources to maximise our impact.</p></article>
-<article class="attr-card attr-card--plain reveal-d2" data-reveal><h3 class="attr-card__title glow-text">Research and development</h3><p class="attr-card__text glow-body">We invest in research and development to keep improving our products and to explore new technologies for emerging challenges.</p></article>
-<!-- loop:end approach-attributes -->
+{% for item in approach_attributes %}<article class="attr-card attr-card--plain{% if not forloop.first %} reveal-d{{ forloop.counter0 }}{% endif %}" data-reveal><h3 class="attr-card__title glow-text">{{ item.title }}</h3><p class="attr-card__text glow-body">{{ item.body }}</p></article>
+{% endfor %}<!-- loop:end approach-attributes -->
         </div>
         <div data-reveal><a class="link-arrow " href="{% url 'website:about' %}#approach">More about our approach<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
       </div>
     </div>
   </div>
-</section>
-<section class="fcarousel" data-fcarousel aria-roledescription="carousel" aria-labelledby="fc-title">
+</section>{% endif %}
+{% if sections.project_carousel %}<section class="fcarousel" data-fcarousel aria-roledescription="carousel" aria-labelledby="fc-title">
   <div class="fcarousel__bgs grain" aria-hidden="true"><div class="fcarousel__bg is-active"><picture><source type="image/webp" srcset="{% static 'img/photos/ics-phase-1-480.webp' %} 480w, {% static 'img/photos/ics-phase-1-960.webp' %} 960w, {% static 'img/photos/ics-phase-1-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/ics-phase-1-960.jpg' %}" srcset="{% static 'img/photos/ics-phase-1-480.jpg' %} 480w, {% static 'img/photos/ics-phase-1-960.jpg' %} 960w, {% static 'img/photos/ics-phase-1-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="fcarousel__bg"><picture><source type="image/webp" srcset="{% static 'img/photos/ics-phase-2-480.webp' %} 480w, {% static 'img/photos/ics-phase-2-960.webp' %} 960w, {% static 'img/photos/ics-phase-2-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/ics-phase-2-960.jpg' %}" srcset="{% static 'img/photos/ics-phase-2-480.jpg' %} 480w, {% static 'img/photos/ics-phase-2-960.jpg' %} 960w, {% static 'img/photos/ics-phase-2-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="fcarousel__bg"><picture data-photo="rooftop-solar"><source type="image/webp" srcset="{% static 'img/photos/rooftop-solar-480.webp' %} 480w, {% static 'img/photos/rooftop-solar-960.webp' %} 960w, {% static 'img/photos/rooftop-solar-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/rooftop-solar-960.jpg' %}" srcset="{% static 'img/photos/rooftop-solar-480.jpg' %} 480w, {% static 'img/photos/rooftop-solar-960.jpg' %} 960w, {% static 'img/photos/rooftop-solar-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="fcarousel__bg"><picture><source type="image/webp" srcset="{% static 'img/photos/ics-phase-3-480.webp' %} 480w, {% static 'img/photos/ics-phase-3-960.webp' %} 960w, {% static 'img/photos/ics-phase-3-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/ics-phase-3-960.jpg' %}" srcset="{% static 'img/photos/ics-phase-3-480.jpg' %} 480w, {% static 'img/photos/ics-phase-3-960.jpg' %} 960w, {% static 'img/photos/ics-phase-3-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div><div class="fcarousel__bg"><picture><source type="image/webp" srcset="{% static 'img/photos/monitoring-480.webp' %} 480w, {% static 'img/photos/monitoring-960.webp' %} 960w, {% static 'img/photos/monitoring-1600.webp' %} 1600w" sizes="100vw"><img src="{% static 'img/photos/monitoring-960.jpg' %}" srcset="{% static 'img/photos/monitoring-480.jpg' %} 480w, {% static 'img/photos/monitoring-960.jpg' %} 960w, {% static 'img/photos/monitoring-1600.jpg' %} 1600w" sizes="100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div></div>
   <div class="fcarousel__inner container-gs theme-dark">
     <div class="section-heading section-heading--split" data-reveal><div class="stack"><p class="eyebrow">Projects</p><h2 id="fc-title">Project activities on the ground</h2></div><div class="section-heading__aside"><p class="lead">Each project shows its programme, where it runs and the stage it has reached.</p><a class="btn btn--secondary " href="{% url 'website:projects' %}"><span class="btn__label">All projects</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
@@ -203,9 +192,9 @@
     </div></div>
     <div class="fcarousel__nav"><button class="hero__btn" type="button" data-fc-prev aria-label="Previous project"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.65 11.98C14.82 12.05 9.98 12.02 4.93 12.05M10.94 6.24C9.11 8.25 7.14 10.11 4.93 11.96M5 11.94C7.04 13.73 8.93 15.68 10.83 17.77"/></svg></button><button class="hero__btn" type="button" data-fc-next aria-label="Next project"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></button><span class="fcarousel__status" aria-live="polite">01 / 05</span></div>
   </div>
-</section>
+</section>{% endif %}
 
-<section class="floaters" data-floaters aria-labelledby="pipeline-title">
+{% if sections.pipeline %}<section class="floaters" data-floaters aria-labelledby="pipeline-title">
   <div class="floaters__scene">
     <div class="floaters__sticky">
       <div class="floaters__layer" data-float-speed="0.12"><a class="floater floater--a" href="{% url 'website:programme_safe_drinking_water' %}" aria-label="Safe Drinking Water"><picture data-photo="safe-water"><source type="image/webp" srcset="{% static 'img/photos/safe-water-480.webp' %} 480w, {% static 'img/photos/safe-water-960.webp' %} 960w, {% static 'img/photos/safe-water-1600.webp' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw"><img src="{% static 'img/photos/safe-water-960.jpg' %}" srcset="{% static 'img/photos/safe-water-480.jpg' %} 480w, {% static 'img/photos/safe-water-960.jpg' %} 960w, {% static 'img/photos/safe-water-1600.jpg' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></a><a class="floater floater--c" href="{% url 'website:programme_solar_irrigation' %}" aria-label="Solar Irrigation"><picture data-photo="solar-irrigation"><source type="image/webp" srcset="{% static 'img/photos/solar-irrigation-480.webp' %} 480w, {% static 'img/photos/solar-irrigation-960.webp' %} 960w, {% static 'img/photos/solar-irrigation-1600.webp' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw"><img src="{% static 'img/photos/solar-irrigation-960.jpg' %}" srcset="{% static 'img/photos/solar-irrigation-480.jpg' %} 480w, {% static 'img/photos/solar-irrigation-960.jpg' %} 960w, {% static 'img/photos/solar-irrigation-1600.jpg' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></a><a class="floater floater--e" href="{% url 'website:programme_low_emission_rice' %}" aria-label="Low-Emission Rice"><picture data-photo="low-emission-rice"><source type="image/webp" srcset="{% static 'img/photos/low-emission-rice-480.webp' %} 480w, {% static 'img/photos/low-emission-rice-960.webp' %} 960w, {% static 'img/photos/low-emission-rice-1600.webp' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw"><img src="{% static 'img/photos/low-emission-rice-960.jpg' %}" srcset="{% static 'img/photos/low-emission-rice-480.jpg' %} 480w, {% static 'img/photos/low-emission-rice-960.jpg' %} 960w, {% static 'img/photos/low-emission-rice-1600.jpg' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></a></div>
@@ -218,10 +207,8 @@
       <div class="floaters__layer floaters__layer--front" data-float-speed="0.24"><a class="floater floater--b" href="{% url 'website:programme_rooftop_solar' %}" aria-label="Rooftop Solar MRV"><picture data-photo="rooftop-solar"><source type="image/webp" srcset="{% static 'img/photos/rooftop-solar-480.webp' %} 480w, {% static 'img/photos/rooftop-solar-960.webp' %} 960w, {% static 'img/photos/rooftop-solar-1600.webp' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw"><img src="{% static 'img/photos/rooftop-solar-960.jpg' %}" srcset="{% static 'img/photos/rooftop-solar-480.jpg' %} 480w, {% static 'img/photos/rooftop-solar-960.jpg' %} 960w, {% static 'img/photos/rooftop-solar-1600.jpg' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></a><a class="floater floater--d" href="{% url 'website:programme_rural_productive_use_solar' %}" aria-label="Rural Productive-Use Solar"><picture data-photo="rural-solar"><source type="image/webp" srcset="{% static 'img/photos/rural-solar-480.webp' %} 480w, {% static 'img/photos/rural-solar-960.webp' %} 960w, {% static 'img/photos/rural-solar-1600.webp' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw"><img src="{% static 'img/photos/rural-solar-960.jpg' %}" srcset="{% static 'img/photos/rural-solar-480.jpg' %} 480w, {% static 'img/photos/rural-solar-960.jpg' %} 960w, {% static 'img/photos/rural-solar-1600.jpg' %} 1600w" sizes="(min-width: 992px) 24vw, 62vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></a><div class="floater floater--f"><picture><source type="image/webp" srcset="{% static 'img/photos/stove-manufacturing-480.webp' %} 480w, {% static 'img/photos/stove-manufacturing-960.webp' %} 960w" sizes="(min-width: 992px) 20vw, 62vw"><img src="{% static 'img/photos/stove-manufacturing-960.jpg' %}" srcset="{% static 'img/photos/stove-manufacturing-480.jpg' %} 480w, {% static 'img/photos/stove-manufacturing-960.jpg' %} 960w" sizes="(min-width: 992px) 20vw, 62vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></div></div>
     </div>
   </div>
-</section>
-{% comment %}  HIDDEN: News & insights section. Removed at GSSL's request; all three posts are design-build samples.
-     Kept in the template so it can be switched back on by removing this comment wrapper.
-<section class="section" aria-labelledby="news-home-title">
+</section>{% endif %}
+{% if sections.news %}<section class="section" aria-labelledby="news-home-title">
   <div class="container-gs">
     <div class="section-heading section-heading--split" data-reveal>
       <div><p class="eyebrow">News &amp; insights</p><h2 id="news-home-title">From the field and the carbon market</h2></div>
@@ -234,11 +221,8 @@
     </div>
     <p class="mt-4"></p>
   </div>
-</section>
-{% endcomment %}
-{% comment %}  HIDDEN: events / "Have your say" section.
-     Kept in the template so it can be switched back on by removing this comment wrapper.
-<section class="section" aria-labelledby="events-title">
+</section>{% endif %}
+{% if sections.events %}<section class="section" aria-labelledby="events-title">
   <div class="container-gs">
     <div class="section-heading section-heading--split" data-reveal><div class="stack"><p class="eyebrow">Events and consultations</p><h2 id="events-title">Have your say</h2></div><div class="section-heading__aside"><p class="lead">Consultations, feedback rounds and briefings for communities, local government and partners.</p><a class="btn btn--outline " href="{% url 'website:events' %}"><span class="btn__label">All events</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div></div>
     <div class="scroller scroller--grid-lg">
@@ -255,6 +239,5 @@
 <!-- loop:end events -->
     </div>
   </div>
-</section>
-{% endcomment %}
+</section>{% endif %}
 {% endblock %}

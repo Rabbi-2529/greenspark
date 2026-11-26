@@ -5,7 +5,7 @@
 {% block body_class %}has-dark-hero{% endblock %}
 
 {% block content %}
-<section class="page-hero grain">
+{% if sections.page_hero %}<section class="page-hero grain">
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/leaves-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/leaves-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/leaves-1280.webp' %} 1280w, {% static 'img/illustrations/leaves-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/leaves-1280.jpg' %}" srcset="{% static 'img/illustrations/leaves-1280.jpg' %} 1280w, {% static 'img/illustrations/leaves-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li aria-current="page">News &amp; Insights</li></ol></nav>
@@ -13,8 +13,8 @@
     <h1>News, insights and field stories</h1>
     <p class="lead">Programme updates, notes from the field and plain-language insights on carbon projects, clean energy and safe water.</p>
   </div>
-</section>
-<section class="section" aria-labelledby="featured-title">
+</section>{% endif %}
+{% if sections.featured %}<section class="section" aria-labelledby="featured-title">
   <div class="container-gs">
     <article data-glow class="post-feature" data-reveal>
       <a class="post-feature__media" href="{% url 'website:news_article' %}" tabindex="-1" aria-hidden="true"><picture><source type="image/webp" srcset="{% static 'img/photos/clean-cooking-480.webp' %} 480w, {% static 'img/photos/clean-cooking-960.webp' %} 960w, {% static 'img/photos/clean-cooking-1600.webp' %} 1600w" sizes="(min-width: 992px) 55vw, 100vw"><img src="{% static 'img/photos/clean-cooking-960.jpg' %}" srcset="{% static 'img/photos/clean-cooking-480.jpg' %} 480w, {% static 'img/photos/clean-cooking-960.jpg' %} 960w, {% static 'img/photos/clean-cooking-1600.jpg' %} 1600w" sizes="(min-width: 992px) 55vw, 100vw" width="960" height="720" alt="" loading="lazy" decoding="async"></picture></a>
@@ -27,8 +27,8 @@
       </div>
     </article>
   </div>
-</section>
-<section class="section pt-0" aria-labelledby="all-posts-title">
+</section>{% endif %}
+{% if sections.all_posts %}<section class="section pt-0" aria-labelledby="all-posts-title">
   <div class="container-gs">
     <h2 class="visually-hidden" id="all-posts-title">All posts</h2>
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-5">
@@ -43,5 +43,5 @@
     <div class="empty-state" data-filter-empty hidden><p class="h4">No posts in this category yet</p><p class="text-muted-gs">Try another category.</p></div>
     <div class="cluster mt-5"><span class="small text-muted-gs">GSSL publishes posts from the admin (News &amp; Insights › Post).</span></div>
   </div>
-</section>
+</section>{% endif %}
 {% endblock %}
