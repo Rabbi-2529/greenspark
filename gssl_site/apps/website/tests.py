@@ -345,7 +345,9 @@ class SiteChromeTests(RenderedPages, TestCase):
                 body = self.body(url)
                 self.assertIn('<div class="site-chrome" data-site-chrome>', body)
                 self.assertIn('<div class="site-chrome__spacer" aria-hidden="true"></div>', body)
-                self.assertLess(body.index("data-site-chrome"), body.index('class="site-topbar'))
+                # The top bar is optional (SiteSettings.show_topbar), so what
+                # matters is that the chrome wraps the header, bar or no bar.
+                self.assertLess(body.index("data-site-chrome"), body.index("<header"))
                 self.assertLess(body.index("<header"), body.index("site-chrome__spacer"))
 
     def test_lightbox_only_where_there_is_a_photo_grid(self):

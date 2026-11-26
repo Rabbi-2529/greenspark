@@ -129,7 +129,7 @@ class HidingASectionTests(TestCase):
 
     def test_the_chrome_stays(self):
         after = self.hide("approach")
-        self.assertIn("site-topbar", after)
+        self.assertIn("site-header", after)
         self.assertIn("</footer>", after)
 
     def test_hiding_removes_only_that_block(self):
@@ -407,28 +407,40 @@ class DistrictTests(TestCase):
 class TopBarSwitchTests(TestCase):
     """
     The thin strip above the menu is site-wide chrome, not a page band, so it
-    is a setting rather than a Section. Off means off everywhere.
+    is a setting rather than a Section. Green Spark asked for it off, which
+    migration 0013 records; the field itself still defaults to on, so the
+    switch means "off" rather than "never existed" and they can put it back
+    from the console.
     """
 
     MARKER = "site-topbar__wa"
 
-    def test_it_is_on_by_default(self):
+    def test_the_field_still_defaults_to_on(self):
         self.assertTrue(SiteSettings().show_topbar)
-        self.assertContains(self.client.get(reverse("website:home")), self.MARKER)
 
-    def test_turning_it_off_removes_it_from_every_page(self):
-        row = SiteSettings.load()
-        row.show_topbar = False
-        row.save()
+    def test_it_is_off_as_shipped(self):
+        self.assertFalse(SiteSettings.load().show_topbar)
         for name in ("home", "projects", "about", "enquire"):
             with self.subTest(page=name):
                 self.assertNotContains(
                     self.client.get(reverse(f"website:{name}")), self.MARKER
                 )
 
-    def test_turning_it_off_leaves_the_rest_of_the_page_alone(self):
-        before = self.client.get(reverse("website:home")).content.decode()
+    def test_turning_it_back_on_restores_it_everywhere(self):
         row = SiteSettings.load()
+        row.show_topbar = True
+        row.save()
+        for name in ("home", "projects", "about", "enquire"):
+            with self.subTest(page=name):
+                self.assertContains(
+                    self.client.get(reverse(f"website:{name}")), self.MARKER
+                )
+
+    def test_the_switch_changes_nothing_but_the_bar(self):
+        row = SiteSettings.load()
+        row.show_topbar = True
+        row.save()
+        before = self.client.get(reverse("website:home")).content.decode()
         row.show_topbar = False
         row.save()
         after = self.client.get(reverse("website:home")).content.decode()
