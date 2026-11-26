@@ -250,6 +250,100 @@ Put the apex and `www` records back to what step 0 recorded. The App Platform
 app never stopped, so it starts serving again as soon as DNS propagates —
 seconds, with Cloudflare's proxy on. Nothing on the droplet needs touching.
 
+## 11b. Cutover without Cloudflare access — the registrar route
+
+Use this instead of section 11 when nobody can get into the Cloudflare
+account but the domain is in your own Namecheap account. You move the whole
+zone to Namecheap rather than changing one record, which means **you become
+responsible for every record that zone was serving** — most importantly the
+Google Workspace mail. `DNS-INVENTORY.md` has what could be read from
+outside; read its warning about what it cannot see.
+
+### First, capture the rollback
+
+Once the nameservers change, Cloudflare is out of the path and pointing the
+domain back needs the App Platform app's own hostname — a
+`something.ondigitalocean.app` name that is nowhere in DNS, because
+Cloudflare was hiding it. Get it from the DigitalOcean control panel (Apps →
+the app → its default domain) **before** you touch anything, and write it
+down. Without it there is no way back.
+
+Also skip section 10, or delete `/etc/nginx/conf.d/cloudflare-realip.conf`
+if you already made it. With Cloudflare gone, nginx is the only proxy and
+the app's own last-X-Forwarded-For reasoning is correct again.
+
+### The records to create
+
+    MX   @    1   ASPMX.L.GOOGLE.com
+    MX   @    5   ALT1.ASPMX.L.GOOGLE.com
+    MX   @    5   ALT2.ASPMX.L.GOOGLE.com
+    MX   @   10   ALT3.ASPMX.L.GOOGLE.com
+    MX   @   10   ALT4.ASPMX.L.GOOGLE.com
+
+    TXT  @   v=spf1 a mx ip4:134.119.179.229 ~all
+    TXT  @   google-gws-recovery-domain-verification=45764387
+    TXT  @   google-site-verification=OphkZjAD67cRtw4L051s-R4mWDiv7TgWe4NUgf4S6ZM
+
+    A    @       170.64.218.194
+    A    www     170.64.218.194
+    A    admin   170.64.218.194
+    A    ics     170.64.218.194
+
+Leave `mail`, `webmail`, `smtp`, `pop`, `ftp` and `cpanel` out. They are
+proxied HTTP-only records that cannot be working as mail endpoints today,
+and nobody here knows what they should point at. If someone reports a broken
+webmail link afterwards, the usual Google Workspace answer is
+`CNAME mail -> ghs.googlehosted.com`.
+
+### The order, which matters
+
+1. Namecheap → Domain List → Manage → **Nameservers** → switch from Custom
+   DNS to **Namecheap BasicDNS**.
+2. Go straight to **Advanced DNS** and add the **five MX records and three
+   TXT records first**. Mail is the thing with no grace period.
+3. Delete Namecheap's default parking records — a `CNAME www` to a parking
+   page and a URL-redirect record. They will shadow yours.
+4. Add the four A records.
+
+### Verify before the internet sees it
+
+This is what replaces the Cloudflare export you could not get. Query
+Namecheap's own nameservers directly, so you are reading the new zone while
+the world is still being served the old one:
+
+    nslookup -type=MX greensparksolutions.com dns1.registrar-servers.com
+    nslookup -type=TXT greensparksolutions.com dns1.registrar-servers.com
+    nslookup -type=A greensparksolutions.com dns1.registrar-servers.com
+    nslookup -type=A ics.greensparksolutions.com dns1.registrar-servers.com
+
+(Use whichever two nameservers Namecheap shows you; `dns1`/`dns2`.
+`registrar-servers.com` is the usual pair.) Do not go further until all five
+MX records and all three TXT records come back exactly as above.
+
+### Then wait, and get a real certificate
+
+A nameserver change sits behind the registry's TTL, so expect up to **48
+hours** of split resolution: some resolvers still ask Cloudflare, others ask
+Namecheap. Both answers are correct during that window, which is why the App
+Platform app keeps running.
+
+Once `nslookup greensparksolutions.com 8.8.8.8` returns `170.64.218.194`,
+the self-signed certificate can go:
+
+    certbot --nginx -d greensparksolutions.com -d www.greensparksolutions.com
+
+certbot rewrites the certificate paths in the site file itself. The existing
+`admin.` and `ics.` certificates keep working and renew more easily than
+before, since the HTTP challenge now reaches this server directly.
+
+### What you give up
+
+Cloudflare's CDN, its WAF and DDoS absorption, and the hiding of the origin
+address: `170.64.218.194` becomes public in DNS. For a brochure site with a
+contact form that is a fair trade, but it is a decision, not a detail — and
+the droplet is now the single point of failure for the apex, `admin.` and
+`ics.` together.
+
 ## 12. Once it is confirmed good
 
 Raise HSTS, and turn on subdomain coverage only when you are sure `admin.`
