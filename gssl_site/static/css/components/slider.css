@@ -128,10 +128,16 @@
   background: linear-gradient(180deg, rgba(6, 19, 15, .55) 0%, rgba(6, 19, 15, 0) 26%, rgba(6, 19, 15, .05) 50%, rgba(6, 19, 15, .78) 100%),
               linear-gradient(90deg, rgba(6, 19, 15, .55) 0%, rgba(6, 19, 15, 0) 60%); }
 .gs-vhero.grain::after { z-index: 3; }
-.gs-vhero__inner { position: relative; z-index: 4; min-height: inherit; display: grid; grid-template-rows: 1fr auto auto auto; padding-top: 11rem; padding-bottom: 2.25rem; }
-/* With the top bar switched off the fixed chrome is ~3rem shorter, so the
-   hero copy would otherwise sit that much lower than it was drawn. 8rem is
-   the value the narrow breakpoint already uses, where the bar never shows. */
+.gs-vhero__inner { position: relative; z-index: 4; min-height: inherit; display: grid; grid-template-rows: 1fr auto auto auto; padding-top: 11rem; padding-bottom: 14rem; }
+/* Row 1 is a 1fr spacer and copy/line/bottom are auto, so the whole block is
+   anchored to the bottom: padding-TOP only matters when the content would
+   overflow, which is why reducing it did not move the copy. padding-bottom
+   above is the lever that lifts it. This keeps the top clear of the chrome,
+   which is 3rem shorter without the bar. */
+/* 14rem of bottom padding lifts the copy out of the lower third, but on a
+   short laptop screen that much padding plus the copy would overflow the
+   viewport and make the hero taller than the screen. */
+@media (max-height: 800px) { .gs-vhero__inner { padding-bottom: 6rem; } }
 .topbar-off .gs-vhero__inner { padding-top: 8rem; }
 .gs-vhero__copy { grid-row: 2; max-width: 62rem; }
 .gs-vhero__copy .hero__welcome { display: inline-flex; }
