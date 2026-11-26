@@ -402,3 +402,82 @@ class DistrictTests(TestCase):
     def test_manikganj_is_the_base(self):
         base = District.objects.filter(is_base=True)
         self.assertEqual([d.name for d in base], ["Manikganj"])
+
+
+class TopBarSwitchTests(TestCase):
+    """
+    The thin strip above the menu is site-wide chrome, not a page band, so it
+    is a setting rather than a Section. Off means off everywhere.
+    """
+
+    MARKER = "site-topbar__wa"
+
+    def test_it_is_on_by_default(self):
+        self.assertTrue(SiteSettings().show_topbar)
+        self.assertContains(self.client.get(reverse("website:home")), self.MARKER)
+
+    def test_turning_it_off_removes_it_from_every_page(self):
+        row = SiteSettings.load()
+        row.show_topbar = False
+        row.save()
+        for name in ("home", "projects", "about", "enquire"):
+            with self.subTest(page=name):
+                self.assertNotContains(
+                    self.client.get(reverse(f"website:{name}")), self.MARKER
+                )
+
+    def test_turning_it_off_leaves_the_rest_of_the_page_alone(self):
+        before = self.client.get(reverse("website:home")).content.decode()
+        row = SiteSettings.load()
+        row.show_topbar = False
+        row.save()
+        after = self.client.get(reverse("website:home")).content.decode()
+
+        # Only the top bar goes: what is left is what was left, in order.
+        # The empty template line leaves blank lines behind where the bar
+        # was, so runs of them are collapsed on both sides -- whitespace
+        # between block elements is not something a reader can see.
+        import re
+
+        start = before.index('<div class="site-topbar">')
+        end = before.index('<header', start)
+        expected = before[:start] + before[end:]
+        def squash(text):
+            return re.sub(r"\n{2,}", "\n", text)
+
+        self.assertEqual(squash(expected), squash(after))
+
+
+class NavProjectTests(TestCase):
+    """
+    The Projects menu lists every project by name, and Home leads the menu.
+    Both appear on every page, so they come from the context processor rather
+    than a view.
+    """
+
+    def test_home_is_the_first_item_in_the_menu(self):
+        body = self.client.get(reverse("website:about")).content.decode()
+        nav = body[body.index('<ul class="site-nav__list">'):]
+        self.assertLess(nav.index(">Home</a>"), nav.index("What We Do"))
+
+    def test_every_project_is_named_in_the_menu(self):
+        from .models import Project
+
+        body = self.client.get(reverse("website:enquire")).content.decode()
+        titles = list(Project.objects.values_list("title", flat=True))
+        self.assertTrue(titles, "no projects to check")
+        for title in titles:
+            with self.subTest(project=title):
+                self.assertIn(f"<strong>{title}</strong>", body)
+
+    def test_a_new_project_appears_without_touching_a_template(self):
+        from .models import Programme, Project
+
+        Project.objects.create(
+            slug="a-new-one", title="A New One", summary="Added in the console.",
+            location="Somewhere", stage="Scoping", photo="safe-water",
+            programme=Programme.objects.first(),
+        )
+        body = self.client.get(reverse("website:home")).content.decode()
+        self.assertIn("<strong>A New One</strong>", body)
+        self.assertIn('href="/projects/a-new-one/"', body)

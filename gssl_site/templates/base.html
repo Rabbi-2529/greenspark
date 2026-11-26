@@ -69,7 +69,7 @@
   height on pages without a dark hero. Both are required on every page.
 {% endcomment %}
 <div class="site-chrome" data-site-chrome>
-{% include "partials/site_topbar.html" %}
+{% if site_settings.show_topbar %}{% include "partials/site_topbar.html" %}{% endif %}
 {% include "partials/site_header.html" %}
 </div>
 <div class="site-chrome__spacer" aria-hidden="true"></div>

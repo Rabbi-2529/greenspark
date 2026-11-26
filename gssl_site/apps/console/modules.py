@@ -313,7 +313,7 @@ registry.register(Module(
     singleton=True,
     can_create=False,
     can_delete=False,
-    fields=("site_name", "legal_name", "abn", "default_og_image"),
+    fields=("site_name", "legal_name", "abn", "default_og_image", "show_topbar"),
     columns=(Column("site_name", "Site name", link=True),),
     view_rank=roles.EDITOR,
     edit_rank=roles.PUBLISHER,

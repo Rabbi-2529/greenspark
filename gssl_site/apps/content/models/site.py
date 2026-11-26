@@ -25,6 +25,12 @@ class SiteSettings(Singleton):
         default="img/illustrations/dawn-paddy-1280.jpg",
         help_text="Used when a page has no share image of its own.",
     )
+    show_topbar = models.BooleanField(
+        "show the top bar", default=True,
+        help_text="The thin dark strip above the menu, with WhatsApp, the email "
+                  "address, opening hours and the language switch. Turn it off to "
+                  "start the page at the logo instead.",
+    )
 
     class Meta:
         verbose_name = "site settings"
