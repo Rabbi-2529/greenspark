@@ -3,35 +3,58 @@
 For the `green-ics` droplet (Ubuntu 24.04, `170.64.218.194`), over PuTTY as
 `root`. Every block below is meant to be pasted as-is.
 
-## What this does, and how to undo it
+## Where the live site actually is — read this first
 
-`greensparksolutions.com` is currently served by a Node app on `localhost:3000`
-through nginx. This replaces that with the Django site. **The Node app is left
-running on port 3000 and untouched**, so the cutover is one nginx symlink and
-the rollback is the same symlink back — about ten seconds, no rebuild.
+**The live `greensparksolutions.com` is not on this droplet.** Checked on
+26 November 2026:
 
-Two things break the moment the apex switches, and neither is fixable by this
-deploy:
+| | |
+|---|---|
+| DNS | the apex, `www.` and `ics.` all resolve to Cloudflare (`104.21.91.12`, `172.67.207.75`) |
+| Response headers | `Server: cloudflare`, `x-powered-by: Next.js`, `x-do-app-origin: f4aeebd9-…` |
+| The droplet, asked for the apex directly | `502 Bad Gateway` — nothing is listening on port 3000 |
+
+So the Next.js site runs on **DigitalOcean App Platform**, with **Cloudflare**
+in front of it. The droplet's nginx block for the apex is dead configuration:
+it proxies to a port nothing listens on, and no apex traffic reaches it anyway.
+That is also why `/etc/letsencrypt/live/` has certificates for `admin.` and
+`ics.` but none for the apex — this server has never served it.
+
+Three consequences:
+
+- **Nothing you do on this droplet changes the live site** until the apex DNS
+  is repointed in Cloudflare. The cutover is a DNS change, not an nginx
+  symlink.
+- **That makes the cutover unusually safe.** You can bring the Django site up
+  on the droplet and test it thoroughly against the real hostname before any
+  visitor is affected (step 9).
+- **The rollback is the App Platform app**, which stays running and untouched
+  throughout. Reverting is a DNS change back.
+
+### What still breaks at cutover
 
 - **The Gold Standard consultation notices.** The live site serves public
   consultation records under `greensparksolutions.com/events/…`. This site has
-  no such pages, so those URLs will 404. They are public compliance records,
-  so decide before you switch: keep the Node app on a subdomain and repoint
-  the links, or have the notices rebuilt here at the same paths.
-- **Any other URL the old site had.** Step 0 captures the list, so you know
-  what you are breaking rather than finding out from a 404 log.
+  no such pages, so those URLs will 404. They are public compliance records —
+  decide before switching: keep the App Platform app on a subdomain and
+  repoint the links, or have the notices rebuilt here at the same paths.
+- **Any other URL the old site had.** Capture the list first:
 
-## 0. Pre-flight — read the answers before continuing
+      curl -s https://greensparksolutions.com/sitemap.xml | grep -o "<loc>[^<]*" | head -60
 
-    df -h /                                   # was 88.8% full; needs ~300MB free
-    ss -ltn | grep -E ':8000|:3000'           # 8000 must be free, 3000 is the old site
-    ls /etc/letsencrypt/live/                 # the exact certificate directory name
-    grep -rl greensparksolutions.com /etc/nginx/sites-enabled/
-    curl -s localhost:3000/sitemap.xml | grep -o "<loc>[^<]*" | head -40
+## 0. Pre-flight
+
+    df -h /                         # was 88.8% full; needs ~300MB free
+    ss -ltn | grep ':8000'          # must be empty
+    ls /etc/letsencrypt/live/       # no apex certificate yet; step 8 fixes that
 
 If disk is tight:
 
     apt clean && journalctl --vacuum-time=7d && df -h /
+
+In the Cloudflare dashboard, note the current apex and `www` DNS records
+before you change anything, and check **SSL/TLS → Overview** for the
+encryption mode. `Full` or `Full (strict)` is what `ics.` already relies on.
 
 ## 1. Packages
 
@@ -84,14 +107,10 @@ Set these. The first three are refused outright if missing or wrong:
     DJANGO_HSTS_INCLUDE_SUBDOMAINS=0
     DJANGO_HSTS_PRELOAD=0
 
-Those last three are deliberately timid for a first deploy: HSTS cannot be
+The HSTS values are deliberately timid for a first deploy: HSTS cannot be
 withdrawn early, so a browser told "HTTPS only for a year" means it. Start at
-300 seconds and raise it in step 11 once the site is confirmed good. `admin.`
-and `ics.` both serve HTTPS today, so includeSubDomains can go to 1 later —
-but not on day one.
-
-Leave `DJANGO_EMAIL_HOST` empty for now. Enquiries are still saved and listed
-in the console; they are simply not emailed until it is filled in.
+300 seconds and raise it in step 12. Leave `DJANGO_EMAIL_HOST` empty for now —
+enquiries are still saved and listed in the console, just not emailed.
 
 The file holds the secret key:
 
@@ -102,9 +121,9 @@ The file holds the secret key:
     sudo -u gssl /srv/gssl/app/gssl_site/deploy/release.sh
 
 It installs requirements, runs `check --deploy` refusing on any warning,
-migrates — which seeds the site map, six programmes, seven projects and the
-home page content — and writes the static files. It stops at the first
-failure, so a broken release never reaches the reload.
+migrates — seeding the site map, six programmes, seven projects and the home
+page content — and writes the static files. It stops at the first failure, so
+a broken release never reaches the reload.
 
 ## 7. The first console account
 
@@ -117,64 +136,113 @@ A superuser ranks as an administrator in the console. Accounts made later
 start read-only until given a group, so adding staff never hands out write
 access by accident.
 
-## 8. Start it — still not serving the public
+## 8. Start it, and get a certificate
 
     cp /srv/gssl/app/gssl_site/deploy/gssl.service /etc/systemd/system/
     systemctl daemon-reload
     systemctl enable --now gssl
     systemctl status gssl --no-pager
 
-Check it directly, before nginx points at it:
+    cp /srv/gssl/app/gssl_site/deploy/nginx.conf /etc/nginx/sites-available/gssl
+    ln -s /etc/nginx/sites-available/gssl /etc/nginx/sites-enabled/gssl
+
+The shipped nginx file expects `/etc/letsencrypt/live/greensparksolutions.com/`,
+which does not exist yet, so `nginx -t` will fail until you have a
+certificate. Two ways to get one, since certbot's usual HTTP challenge cannot
+work while Cloudflare still sends the apex to App Platform:
+
+**Option A — Cloudflare Origin Certificate (no DNS change, works today).**
+In Cloudflare: **SSL/TLS → Origin Server → Create Certificate**, covering
+`greensparksolutions.com` and `*.greensparksolutions.com`. Save the two PEMs
+on the droplet and point the config at them:
+
+    mkdir -p /etc/ssl/cloudflare && nano /etc/ssl/cloudflare/gssl.pem      # certificate
+    nano /etc/ssl/cloudflare/gssl.key                                      # private key
+    chmod 600 /etc/ssl/cloudflare/gssl.key
+    nano /etc/nginx/sites-available/gssl     # ssl_certificate / ssl_certificate_key
+
+Valid for 15 years, trusted by Cloudflare only — fine, because only Cloudflare
+ever connects to the origin. Requires Cloudflare's mode to be Full or
+Full (strict).
+
+**Option B — Let's Encrypt via DNS-01.** Needs a Cloudflare API token:
+
+    apt install -y python3-certbot-dns-cloudflare
+    printf 'dns_cloudflare_api_token = YOUR_TOKEN\n' > /root/.cf.ini && chmod 600 /root/.cf.ini
+    certbot certonly --dns-cloudflare --dns-cloudflare-credentials /root/.cf.ini \
+      -d greensparksolutions.com -d www.greensparksolutions.com
+
+Then:
+
+    nginx -t && systemctl reload nginx
+
+## 9. Test against the real hostname, before any visitor sees it
+
+This is the step the setup makes possible. The apex still points at App
+Platform, so the droplet can be exercised in full with nothing at risk.
+
+From the server:
 
     curl -sI -H 'Host: greensparksolutions.com' http://127.0.0.1:8000/ | head -3
 
-A 301 to https is correct here — that is `SECURE_SSL_REDIRECT` doing its job.
+A 301 to https is correct — that is `SECURE_SSL_REDIRECT` working.
 
-## 9. The cutover
+    curl -skI -H 'Host: greensparksolutions.com' https://170.64.218.194/ | head -6
+    curl -sk  -H 'Host: greensparksolutions.com' https://170.64.218.194/sitemap.xml | head -5
 
-Install the shipped nginx site. It is already written for this domain, so the
-only thing to check is the certificate path against what step 0 showed:
+From your own machine, add a hosts entry and browse the site properly — home
+page, a project page, the enquiry form, and the console at `/office/`. On
+Windows, as administrator, add to `C:\Windows\System32\drivers\etc\hosts`:
 
-    cp /srv/gssl/app/gssl_site/deploy/nginx.conf /etc/nginx/sites-available/gssl
-    grep ssl_certificate /etc/nginx/sites-available/gssl
+    170.64.218.194  greensparksolutions.com
 
-If `/etc/letsencrypt/live/` holds a different directory name (certbot
-sometimes appends `-0001`), fix it now:
+Remove that line when you are done testing, or your machine will keep using
+the droplet after the cutover regardless of DNS.
 
-    nano /etc/nginx/sites-available/gssl
+## 10. Real visitor addresses — do this before going live
 
-Now swap. Replace `OLDSITE` with the filename step 0 printed:
+The enquiry form throttles per visitor, and it reads the **last** entry of
+`X-Forwarded-For`, which is correct when one trusted nginx sits in front. With
+Cloudflare added, nginx appends Cloudflare's edge address, so that last entry
+becomes the edge — and every visitor through one Cloudflare node shares a
+single throttle bucket. Five genuine enquiries would then lock out everyone
+routed through it.
 
-    rm /etc/nginx/sites-enabled/OLDSITE
-    ln -s /etc/nginx/sites-available/gssl /etc/nginx/sites-enabled/gssl
+Fix it in nginx, so `REMOTE_ADDR` is the real client and the app's logic stays
+right:
+
+    { curl -s https://www.cloudflare.com/ips-v4; curl -s https://www.cloudflare.com/ips-v6; } \
+      | sed 's/^/set_real_ip_from /; s/$/;/' > /etc/nginx/conf.d/cloudflare-realip.conf
+    printf 'real_ip_header CF-Connecting-IP;\nreal_ip_recursive on;\n' >> /etc/nginx/conf.d/cloudflare-realip.conf
     nginx -t && systemctl reload nginx
 
-Both files claim `server_name greensparksolutions.com`, so the old one must be
-unlinked, not merely left beside it — otherwise nginx keeps the first and
-quietly ignores yours.
+Those ranges change occasionally; re-run it once or twice a year.
 
-### Rollback
+## 11. The cutover — in Cloudflare, not on the droplet
 
-If anything is wrong, this puts the old site straight back. The Node app never
-stopped, so there is nothing to restart:
+In the Cloudflare dashboard, **DNS → Records**: change the apex `A` record
+(and `www`) to `170.64.218.194`. Keep the orange cloud on, so Cloudflare keeps
+terminating TLS and the origin certificate from step 8 is what it talks to.
+Leave the App Platform app running.
 
-    rm /etc/nginx/sites-enabled/gssl
-    ln -s /etc/nginx/sites-available/OLDSITE /etc/nginx/sites-enabled/OLDSITE
-    nginx -t && systemctl reload nginx
-
-## 10. Verify
+Then watch it:
 
     curl -sI https://greensparksolutions.com/ | head -6
     curl -sI https://www.greensparksolutions.com/ | head -3     # 301 to the bare domain
-    curl -s  https://greensparksolutions.com/sitemap.xml | head -5
-    curl -sI https://greensparksolutions.com/static/css/tokens.css | head -3
     curl -sI https://admin.greensparksolutions.com/ | head -3   # untouched
     curl -sI https://ics.greensparksolutions.com/ | head -3     # untouched
+    journalctl -u gssl -f
 
-Then in a browser: the home page, a project page, the enquiry form, and the
-console at `https://greensparksolutions.com/office/`.
+`x-powered-by: Next.js` disappearing from the apex response is how you know
+the switch has taken effect.
 
-## 11. Once it is confirmed good
+### Rollback
+
+Put the apex and `www` records back to what step 0 recorded. The App Platform
+app never stopped, so it starts serving again as soon as DNS propagates —
+seconds, with Cloudflare's proxy on. Nothing on the droplet needs touching.
+
+## 12. Once it is confirmed good
 
 Raise HSTS, and turn on subdomain coverage only when you are sure `admin.`
 and `ics.` will always be HTTPS:
@@ -186,6 +254,10 @@ Fill in the mail settings so enquiries are emailed as well as stored:
 
     nano /etc/gssl/gssl.env     # DJANGO_EMAIL_HOST and friends
     systemctl restart gssl
+
+Then decide what happens to the App Platform app. While it runs it is your
+rollback; once you are sure, retiring it saves its monthly cost — but move the
+consultation notices first if they have not been rebuilt here.
 
 ## Updating, from then on
 
