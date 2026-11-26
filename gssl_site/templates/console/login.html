@@ -1,0 +1,30 @@
+{% extends "console/auth_base.html" %}
+
+{% block title %}Sign in{% endblock %}
+{% block heading %}Website console{% endblock %}
+
+{% block content %}
+  {% if timed_out %}
+    <p class="cns-note cns-note--warn">You were signed out because the session sat idle. Please sign in again.</p>
+  {% endif %}
+
+  {% if locked_out %}
+    <p class="cns-note cns-note--danger">
+      Too many sign-in attempts. Wait a few minutes and try again, or ask an
+      administrator to reset the password.
+    </p>
+  {% elif form.errors %}
+    <p class="cns-note cns-note--danger">
+      {% for error in form.non_field_errors %}{{ error }}{% empty %}Please check the details below.{% endfor %}
+    </p>
+  {% endif %}
+
+  <form class="cns-form" method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      {% include "console/partials/_field.html" with field=field %}
+    {% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="cns-btn cns-btn--primary cns-btn--wide" type="submit">Sign in</button>
+  </form>
+{% endblock %}

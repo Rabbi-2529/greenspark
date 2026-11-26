@@ -1,0 +1,128 @@
+{% extends "console/base.html" %}
+
+{% block title %}{{ module.label_plural }}{% endblock %}
+
+{% block content %}
+  <header class="cns-head">
+    <div>
+      <p class="cns-eyebrow">{{ module.group }}</p>
+      <h1 class="cns-h1">{{ module.label_plural }}</h1>
+      {% if module.blurb %}<p class="cns-lede">{{ module.blurb }}</p>{% endif %}
+    </div>
+    {% if may_create %}
+      <a class="cns-btn cns-btn--primary" href="{{ module.create_url }}">
+        <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-plus"></use></svg>
+        New {{ module.label|lower }}
+      </a>
+    {% endif %}
+  </header>
+
+  {% if module.search_fields or module.filters %}
+    <form class="cns-toolbar" method="get" action="">
+      {% if module.search_fields %}
+        <div class="cns-search">
+          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-search"></use></svg>
+          <label class="cns-sr" for="cns-q">Search {{ module.label_plural|lower }}</label>
+          <input class="cns-input" id="cns-q" type="search" name="q" value="{{ search }}"
+                 placeholder="Search {{ module.label_plural|lower }}">
+        </div>
+      {% endif %}
+
+      {% for control in filter_controls %}
+        <div class="cns-filter">
+          <label class="cns-sr" for="cns-f-{{ control.filter.name }}">{{ control.filter.heading }}</label>
+          <select class="cns-select" id="cns-f-{{ control.filter.name }}" name="{{ control.filter.name }}" data-autosubmit>
+            <option value="">{{ control.filter.heading }}: any</option>
+            {% for value, label in control.options %}
+              <option value="{{ value }}"{% if control.value == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endfor %}
+
+      {% if sort %}
+        <input type="hidden" name="sort" value="{{ sort }}">
+        <input type="hidden" name="dir" value="{{ direction }}">
+      {% endif %}
+
+      <button class="cns-btn" type="submit">Apply</button>
+      {% if is_filtered %}<a class="cns-btn cns-btn--quiet" href="{{ module.url }}">Clear</a>{% endif %}
+    </form>
+  {% endif %}
+
+  {% if rows %}
+    <div class="cns-tablewrap">
+      <table class="cns-table" data-module="{{ module.slug }}" data-source="{{ data_url }}">
+        <thead>
+          <tr>
+            {% if may_reorder %}<th class="cns-th cns-th--drag"><span class="cns-sr">Order</span></th>{% endif %}
+            {% for heading in headings %}
+              <th class="cns-th{% if heading.column.align %} is-{{ heading.column.align }}{% endif %}"
+                  {% if heading.state == 'asc' %}aria-sort="ascending"{% elif heading.state == 'desc' %}aria-sort="descending"{% endif %}>
+                {% if heading.url %}
+                  <a class="cns-sortlink" href="{{ heading.url }}">
+                    {{ heading.column.heading }}
+                    <svg class="cns-icon cns-icon--sm" aria-hidden="true"><use href="#cns-i-{% if heading.state == 'asc' %}up{% elif heading.state == 'desc' %}down{% else %}sort{% endif %}"></use></svg>
+                  </a>
+                {% else %}
+                  {{ heading.column.heading }}
+                {% endif %}
+              </th>
+            {% endfor %}
+            <th class="cns-th cns-th--actions"><span class="cns-sr">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody{% if may_reorder %} data-sortable data-reorder-url="{% url 'console:reorder' module.slug %}"{% endif %}>
+          {% for row in rows %}
+            <tr data-pk="{{ row.object.pk }}">
+              {% if may_reorder %}
+                <td class="cns-td cns-td--drag">
+                  <span class="cns-drag" aria-hidden="true"><svg class="cns-icon"><use href="#cns-i-drag"></use></svg></span>
+                </td>
+              {% endif %}
+              {% for pair in row.cells %}
+                <td class="cns-td{% if pair.column.align %} is-{{ pair.column.align }}{% endif %}{% if pair.column.truncate %} is-wrap{% endif %}">
+                  {% if pair.column.link %}
+                    <a class="cns-rowlink" href="{{ row.url }}">{% include "console/partials/_cell.html" with cell=pair.cell %}</a>
+                  {% else %}
+                    {% include "console/partials/_cell.html" with cell=pair.cell %}
+                  {% endif %}
+                </td>
+              {% endfor %}
+              <td class="cns-td cns-td--actions">
+                <a class="cns-btn cns-btn--sm" href="{{ row.url }}">{% if may_edit %}Edit{% else %}Open{% endif %}</a>
+                {% if may_publish %}
+                  <form class="cns-inlineform" method="post" action="{{ row.publish_url }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="back" value="{{ request.get_full_path }}">
+                    <button class="cns-btn cns-btn--sm cns-btn--quiet" type="submit">{{ row.publish_label }}</button>
+                  </form>
+                {% endif %}
+                {% if may_delete %}
+                  <a class="cns-btn cns-btn--sm cns-btn--danger" href="{{ row.delete_url }}">
+                    <svg class="cns-icon cns-icon--sm" aria-hidden="true"><use href="#cns-i-trash"></use></svg>
+                    <span class="cns-sr">Delete {{ row.object }}</span>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% include "console/partials/_pagination.html" %}
+  {% else %}
+    <div class="cns-empty">
+      {% if is_filtered %}
+        <p>Nothing matches that search.</p>
+        <p><a class="cns-link" href="{{ module.url }}">Clear the search</a></p>
+      {% else %}
+        <p>There are no {{ module.label_plural|lower }} yet.</p>
+        {% if may_create %}
+          <p><a class="cns-btn cns-btn--primary" href="{{ module.create_url }}">Add the first one</a></p>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

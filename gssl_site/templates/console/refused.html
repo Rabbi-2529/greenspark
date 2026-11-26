@@ -1,0 +1,22 @@
+{% extends "console/base.html" %}
+
+{% block title %}Not your section{% endblock %}
+
+{% block content %}
+  <header class="cns-head">
+    <div>
+      <p class="cns-eyebrow">Console</p>
+      <h1 class="cns-h1">That section is not open to your account</h1>
+    </div>
+  </header>
+
+  <div class="cns-note cns-note--warn">
+    <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-warn"></use></svg>
+    <div>
+      <p>Your account is <strong>{{ console_role|lower }}</strong>. This page needs <strong>{{ needed|lower }}</strong>.</p>
+      <p>Ask an administrator if you need it.</p>
+    </div>
+  </div>
+
+  <p><a class="cns-link" href="{% url 'console:dashboard' %}">Back to the overview</a></p>
+{% endblock %}

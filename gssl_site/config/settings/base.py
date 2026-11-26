@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.content",
     "apps.website",
+    "apps.console",
 ]
 
 MIDDLEWARE = [
@@ -97,6 +98,25 @@ TEMPLATES = [
 # The admin lives at /admin/ unless DJANGO_ADMIN_URL moves it somewhere less
 # guessable, e.g. "gssl-office/". Always ends with a slash.
 ADMIN_URL = env("DJANGO_ADMIN_URL", "admin/").strip("/") + "/"
+
+# --- The console (our own admin panel) --------------------------------------
+# apps.console is the panel Green Spark staff use to edit the site. It replaces
+# django.contrib.admin, which stays mounted until the panel reaches parity.
+# Always ends with a slash.
+
+CONSOLE_URL = env("DJANGO_CONSOLE_URL", "office/").strip("/") + "/"
+
+# Signed out after this long without a request. Content editing happens on
+# shared office machines, so the window is deliberately short.
+CONSOLE_IDLE_SECONDS = env_int("DJANGO_CONSOLE_IDLE_SECONDS", 2 * 60 * 60)
+
+# Failed sign-ins per address+visitor before the form stops answering, and for
+# how long. The same cache-counter approach as the enquiry form.
+CONSOLE_LOGIN_MAX_ATTEMPTS = env_int("DJANGO_CONSOLE_LOGIN_MAX_ATTEMPTS", 8)
+CONSOLE_LOGIN_LOCKOUT_SECONDS = env_int("DJANGO_CONSOLE_LOGIN_LOCKOUT_SECONDS", 15 * 60)
+
+# Rows per page in every console list.
+CONSOLE_PER_PAGE = env_int("DJANGO_CONSOLE_PER_PAGE", 25)
 
 # --- Database ---------------------------------------------------------------
 # Page content is static. The database holds the admin login, sessions and the
@@ -209,6 +229,13 @@ CONTENT_SECURITY_POLICY = "; ".join([
 # The Django admin uses a few inline style attributes.
 CONTENT_SECURITY_POLICY_ADMIN = CONTENT_SECURITY_POLICY.replace(
     "style-src 'self'", "style-src 'self' 'unsafe-inline'"
+)
+# The console holds itself to the site's own policy: its CSS and JS are files,
+# never inline. The one addition is blob: images, so an upload can be previewed
+# before it is saved. Tests enforce that no console template carries an inline
+# style attribute, an inline <script> or an on*= handler.
+CONTENT_SECURITY_POLICY_CONSOLE = CONTENT_SECURITY_POLICY.replace(
+    "img-src 'self' data:", "img-src 'self' data: blob:"
 )
 CONTENT_SECURITY_POLICY_REPORT_ONLY = False
 

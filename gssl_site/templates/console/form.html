@@ -1,0 +1,71 @@
+{% extends "console/base.html" %}
+
+{% block title %}{% if is_create %}New {{ module.label|lower }}{% else %}{{ object }}{% endif %}{% endblock %}
+
+{% block content %}
+  <header class="cns-head">
+    <div>
+      <p class="cns-eyebrow">{{ module.label_plural }}</p>
+      <h1 class="cns-h1">{% if is_create %}New {{ module.label|lower }}{% else %}{{ object }}{% endif %}</h1>
+    </div>
+  </header>
+
+  {% if form.non_field_errors or form.errors %}
+    <p class="cns-note cns-note--danger">
+      {% for error in form.non_field_errors %}{{ error }}{% empty %}Nothing was saved. Please check the fields marked below.{% endfor %}
+    </p>
+  {% endif %}
+
+  <form class="cns-form cns-form--wide" method="post" action="" enctype="multipart/form-data" data-guard novalidate>
+    {% csrf_token %}
+
+    {% for heading, fields in groups %}
+      <fieldset class="cns-fieldset">
+        {% if heading %}<legend class="cns-legend">{{ heading }}</legend>{% endif %}
+        <div class="cns-grid">
+          {% for field in fields %}
+            {% include "console/partials/_field.html" with field=field %}
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% endfor %}
+
+    {% for block in inline_blocks %}
+      <fieldset class="cns-fieldset">
+        <legend class="cns-legend">{{ block.inline.heading }}</legend>
+        {{ block.formset.management_form }}
+        {% if block.formset.non_form_errors %}
+          <ul class="cns-errors">
+            {% for error in block.formset.non_form_errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+        <div class="cns-inlines" data-inline="{{ block.inline.prefix }}">
+          {% for subform in block.formset %}
+            <div class="cns-inline">
+              {% for hidden in subform.hidden_fields %}{{ hidden }}{% endfor %}
+              <div class="cns-grid cns-grid--tight">
+                {% for field in subform.visible_fields %}
+                  {% include "console/partials/_field.html" with field=field %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% endfor %}
+
+    <div class="cns-actions">
+      <button class="cns-btn cns-btn--primary" type="submit">
+        {% if is_create %}Create{% else %}Save changes{% endif %}
+      </button>
+      <a class="cns-btn cns-btn--quiet" href="{{ cancel_url }}">Cancel</a>
+
+      {% if not is_create and module.slug == 'staff' %}
+        <a class="cns-btn cns-btn--quiet" href="{% url 'console:staff_password' object.pk %}">Set a password</a>
+      {% endif %}
+      {% if not is_create and may_delete %}
+        <a class="cns-btn cns-btn--danger cns-actions__end" href="{% url 'console:delete' module.slug object.pk %}">Delete</a>
+      {% endif %}
+    </div>
+  </form>
+{% endblock %}

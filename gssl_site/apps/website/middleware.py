@@ -9,22 +9,27 @@ class SecurityHeadersMiddleware:
     Django renders. Static files are answered by WhiteNoise before this runs.
 
     The admin gets a policy that also allows inline style attributes, which a
-    few admin widgets use. In development the policy is report-only, so
-    Django's own debug pages (inline CSS and JS) still render while violations
-    show in the browser console.
+    few admin widgets use. The console gets the site's own policy plus blob:
+    images, so an upload can be previewed before it is saved. In development
+    the policy is report-only, so Django's own debug pages (inline CSS and JS)
+    still render while violations show in the browser console.
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
         self.admin_prefix = "/" + settings.ADMIN_URL
+        self.console_prefix = "/" + settings.CONSOLE_URL
+
+    def policy_for(self, path: str) -> str:
+        if path.startswith(self.console_prefix):
+            return settings.CONTENT_SECURITY_POLICY_CONSOLE
+        if path.startswith(self.admin_prefix):
+            return settings.CONTENT_SECURITY_POLICY_ADMIN
+        return settings.CONTENT_SECURITY_POLICY
 
     def __call__(self, request):
         response = self.get_response(request)
-        policy = (
-            settings.CONTENT_SECURITY_POLICY_ADMIN
-            if request.path.startswith(self.admin_prefix)
-            else settings.CONTENT_SECURITY_POLICY
-        )
+        policy = self.policy_for(request.path)
         header = (
             "Content-Security-Policy-Report-Only"
             if settings.CONTENT_SECURITY_POLICY_REPORT_ONLY

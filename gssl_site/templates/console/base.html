@@ -1,0 +1,86 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}Console{% endblock %} · {{ site_name }}</title>
+  <link rel="icon" href="{% static 'img/favicon/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'console/css/console.css' %}">
+</head>
+<body class="cns">
+{% include "console/partials/icons.html" %}
+<a class="cns-skip" href="#cns-main">Skip to the content</a>
+
+<header class="cns-top">
+  <a class="cns-brand" href="{% url 'console:dashboard' %}">
+    <span class="cns-brand__mark" aria-hidden="true"></span>
+    <span class="cns-brand__text">
+      <strong>Green Spark</strong>
+      <span>Website console</span>
+    </span>
+  </a>
+
+  <div class="cns-top__right">
+    <a class="cns-top__link" href="{{ site_url }}/" rel="noopener" target="_blank">
+      <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-external"></use></svg>
+      View the site
+    </a>
+    <span class="cns-who">
+      <span class="cns-who__name">{{ user.get_username }}</span>
+      <span class="cns-who__role">{{ console_role }}</span>
+    </span>
+    <a class="cns-top__link" href="{% url 'console:password_change' %}">Password</a>
+    <form class="cns-top__form" method="post" action="{% url 'console:logout' %}">
+      {% csrf_token %}
+      <button class="cns-btn cns-btn--quiet" type="submit">Sign out</button>
+    </form>
+  </div>
+</header>
+
+<div class="cns-shell">
+  <nav class="cns-side" aria-label="Console sections">
+    <a class="cns-nav__item{% if not module %} is-current{% endif %}" href="{% url 'console:dashboard' %}">
+      <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-dashboard"></use></svg>
+      Overview
+    </a>
+    {% for group in console_nav %}
+      <p class="cns-nav__group">{{ group.name }}</p>
+      {% for item in group.modules %}
+        <a class="cns-nav__item{% if module and module.slug == item.slug %} is-current{% endif %}"
+           href="{{ item.url }}"{% if module and module.slug == item.slug %} aria-current="page"{% endif %}>
+          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-{{ item.icon }}"></use></svg>
+          {{ item.label_plural }}
+        </a>
+      {% endfor %}
+    {% endfor %}
+  </nav>
+
+  <main class="cns-main" id="cns-main">
+    {% if breadcrumbs %}
+      <nav class="cns-crumbs" aria-label="Breadcrumb">
+        <a href="{% url 'console:dashboard' %}">Console</a>
+        {% for label, url in breadcrumbs %}
+          <span class="cns-crumbs__sep" aria-hidden="true">/</span>
+          {% if url %}<a href="{{ url }}">{{ label }}</a>{% else %}<span aria-current="page">{{ label }}</span>{% endif %}
+        {% endfor %}
+      </nav>
+    {% endif %}
+
+    {% if messages %}
+      <ul class="cns-flash" role="status">
+        {% for message in messages %}
+          <li class="cns-flash__item cns-flash__item--{{ message.tags|default:'info' }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{% static 'console/js/console.js' %}" defer></script>
+</body>
+</html>

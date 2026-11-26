@@ -1,0 +1,67 @@
+{% extends "console/base.html" %}
+
+{% block title %}Overview{% endblock %}
+
+{% block content %}
+  <header class="cns-head">
+    <div>
+      <p class="cns-eyebrow">Console</p>
+      <h1 class="cns-h1">Overview</h1>
+      <p class="cns-lede">
+        Signed in as <strong>{{ user.get_username }}</strong> — {{ console_role|lower }}.
+      </p>
+    </div>
+  </header>
+
+  {% if waiting %}
+    <section class="cns-section" aria-labelledby="cns-waiting">
+      <h2 class="cns-h2" id="cns-waiting">Waiting for you</h2>
+      <div class="cns-stats">
+        {% for item in waiting %}
+          <a class="cns-stat cns-stat--{{ item.tone }}" href="{{ item.url }}">
+            <span class="cns-stat__value">{{ item.count }}</span>
+            <span class="cns-stat__label">{{ item.label }}</span>
+            {% if not item.count %}<span class="cns-stat__note">{{ item.empty }}</span>{% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="cns-section" aria-labelledby="cns-sections">
+    <h2 class="cns-h2" id="cns-sections">What you can edit</h2>
+    <div class="cns-tiles">
+      {% for tile in tiles %}
+        <a class="cns-tile" href="{{ tile.module.url }}">
+          <svg class="cns-icon cns-icon--lg" aria-hidden="true"><use href="#cns-i-{{ tile.module.icon }}"></use></svg>
+          <span class="cns-tile__title">{{ tile.module.label_plural }}</span>
+          <span class="cns-tile__count">{{ tile.count }} {% if tile.count == 1 %}row{% else %}rows{% endif %}</span>
+          {% if tile.module.blurb %}<span class="cns-tile__blurb">{{ tile.module.blurb }}</span>{% endif %}
+        </a>
+      {% empty %}
+        <p class="cns-empty">
+          Your account has no sections yet. An administrator needs to give it a role.
+        </p>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if recent %}
+    <section class="cns-section" aria-labelledby="cns-recent">
+      <h2 class="cns-h2" id="cns-recent">Recent changes</h2>
+      <ul class="cns-feed">
+        {% for entry in recent %}
+          <li class="cns-feed__item">
+            <span class="cns-feed__when">{{ entry.at|date:"j M Y, H:i" }}</span>
+            <span class="cns-feed__what">
+              <strong>{{ entry.actor_label|default:"someone" }}</strong>
+              {{ entry.get_action_display }}
+              {% if entry.object_label %}<em>{{ entry.object_label }}</em>{% endif %}
+              {% if entry.module %}<span class="cns-muted">in {{ entry.module }}</span>{% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+{% endblock %}

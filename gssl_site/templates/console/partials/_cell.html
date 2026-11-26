@@ -1,0 +1,16 @@
+{% if cell.kind == 'bool' %}
+  <span class="cns-bool{% if cell.truthy %} is-yes{% endif %}">
+    <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-{% if cell.truthy %}check{% else %}dash{% endif %}"></use></svg>
+    <span class="cns-sr">{{ cell.text }}</span>
+  </span>
+{% elif cell.kind == 'badge' %}
+  <span class="cns-badge">{{ cell.text }}</span>
+{% elif cell.kind == 'email' %}
+  {% if cell.value %}<a class="cns-link" href="mailto:{{ cell.text }}">{{ cell.text }}</a>{% else %}<span class="cns-muted">—</span>{% endif %}
+{% elif cell.kind == 'muted' %}
+  <span class="cns-muted">{{ cell.text }}</span>
+{% elif cell.kind == 'number' %}
+  <span class="cns-num">{{ cell.text }}</span>
+{% else %}
+  {{ cell.text }}
+{% endif %}

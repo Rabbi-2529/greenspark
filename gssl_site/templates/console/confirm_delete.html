@@ -1,0 +1,33 @@
+{% extends "console/base.html" %}
+
+{% block title %}Delete {{ object }}{% endblock %}
+
+{% block content %}
+  <header class="cns-head">
+    <div>
+      <p class="cns-eyebrow">{{ module.label_plural }}</p>
+      <h1 class="cns-h1">Delete this {{ module.label|lower }}?</h1>
+    </div>
+  </header>
+
+  <div class="cns-note cns-note--danger">
+    <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-warn"></use></svg>
+    <div>
+      <p><strong>{{ object }}</strong> will be removed. This cannot be undone.</p>
+      {% if related %}
+        <p>These go with it:</p>
+        <ul class="cns-list">
+          {% for line in related %}<li>{{ line }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <form class="cns-form" method="post" action="">
+    {% csrf_token %}
+    <div class="cns-actions">
+      <button class="cns-btn cns-btn--danger" type="submit">Yes, delete it</button>
+      <a class="cns-btn cns-btn--quiet" href="{{ cancel_url }}">Keep it</a>
+    </div>
+  </form>
+{% endblock %}

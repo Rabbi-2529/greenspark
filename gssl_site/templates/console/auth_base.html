@@ -1,0 +1,26 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Sign in{% endblock %} · {{ site_name }}</title>
+  <link rel="icon" href="{% static 'img/favicon/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'console/css/console.css' %}">
+</head>
+<body class="cns cns--auth">
+{% include "console/partials/icons.html" %}
+<main class="cns-auth" id="cns-main">
+  <div class="cns-auth__card">
+    <div class="cns-auth__head">
+      <span class="cns-brand__mark" aria-hidden="true"></span>
+      <p class="cns-auth__eyebrow">Green Spark Solutions Australia</p>
+      <h1 class="cns-auth__title">{% block heading %}Website console{% endblock %}</h1>
+    </div>
+    {% block content %}{% endblock %}
+  </div>
+  <p class="cns-auth__foot"><a class="cns-link" href="{{ site_url }}/">Back to the website</a></p>
+</main>
+</body>
+</html>

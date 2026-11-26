@@ -1,0 +1,21 @@
+<div class="cns-field{% if field.errors %} has-error{% endif %}{% if field.widget_type == 'checkbox' %} cns-field--check{% endif %}">
+  {% if field.widget_type == 'checkbox' %}
+    <label class="cns-checkrow" for="{{ field.id_for_label }}">
+      {{ field }}
+      <span>{{ field.label }}</span>
+    </label>
+  {% else %}
+    <label class="cns-label" for="{{ field.id_for_label }}">
+      {{ field.label }}{% if field.field.required %} <abbr class="cns-req" title="required">*</abbr>{% endif %}
+    </label>
+    {{ field }}
+  {% endif %}
+
+  {% if field.help_text %}<div class="cns-help">{{ field.help_text|safe }}</div>{% endif %}
+
+  {% if field.errors %}
+    <ul class="cns-errors">
+      {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+</div>

@@ -1,0 +1,58 @@
+{% extends "console/base.html" %}
+
+{% block title %}{{ object }}{% endblock %}
+
+{% block content %}
+  <header class="cns-head">
+    <div>
+      <p class="cns-eyebrow">{{ module.label_plural }}</p>
+      <h1 class="cns-h1">{{ object }}</h1>
+      {% if module.readonly %}
+        <p class="cns-lede">This is a record of what came in. It is read here, not rewritten.</p>
+      {% endif %}
+    </div>
+    <div class="cns-head__actions">
+      {% if may_publish %}
+        <form class="cns-inlineform" method="post" action="{% url 'console:publish' module.slug object.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="back" value="{{ request.get_full_path }}">
+          <button class="cns-btn cns-btn--primary" type="submit">{{ publish_label }}</button>
+        </form>
+      {% endif %}
+      {% if may_edit %}
+        <a class="cns-btn" href="{% url 'console:edit' module.slug object.pk %}">Edit</a>
+      {% endif %}
+      {% if may_delete %}
+        <a class="cns-btn cns-btn--danger" href="{% url 'console:delete' module.slug object.pk %}">Delete</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <dl class="cns-facts">
+    {% for item in fields %}
+      <div class="cns-facts__row">
+        <dt class="cns-facts__key">{{ item.label|capfirst }}</dt>
+        <dd class="cns-facts__value">{% include "console/partials/_cell.html" with cell=item.cell %}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+
+  {% if history %}
+    <section class="cns-section" aria-labelledby="cns-hist">
+      <h2 class="cns-h2" id="cns-hist">What happened to this</h2>
+      <ul class="cns-feed">
+        {% for entry in history %}
+          <li class="cns-feed__item">
+            <span class="cns-feed__when">{{ entry.at|date:"j M Y, H:i" }}</span>
+            <span class="cns-feed__what">
+              <strong>{{ entry.actor_label|default:"someone" }}</strong> {{ entry.get_action_display }}
+              {% if entry.note %}<span class="cns-muted">— {{ entry.note }}</span>{% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  <p><a class="cns-link" href="{{ module.url }}">Back to {{ module.label_plural|lower }}</a></p>
+{% endblock %}
