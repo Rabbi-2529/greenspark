@@ -55,8 +55,17 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_HSTS_INCLUDE_SUBDOMAINS", True
 # "preload" lets anyone submit the domain to the browsers' built-in HSTS list,
 # which takes months to undo. Opt in deliberately once HTTPS is settled.
 SECURE_HSTS_PRELOAD = env_bool("DJANGO_HSTS_PRELOAD", False)
+
+# check --deploy warns about both HSTS choices above, and release.sh refuses to
+# deploy on any warning. Both are deliberate per-server decisions made through
+# the environment, so the warning is silenced once the decision is recorded --
+# otherwise following .env.example's own advice (turn includeSubDomains off
+# when a subdomain still serves plain HTTP) would block the release.
+SILENCED_SYSTEM_CHECKS = []
 if not SECURE_HSTS_PRELOAD:
-    SILENCED_SYSTEM_CHECKS = ["security.W021"]
+    SILENCED_SYSTEM_CHECKS.append("security.W021")
+if not SECURE_HSTS_INCLUDE_SUBDOMAINS:
+    SILENCED_SYSTEM_CHECKS.append("security.W005")
 
 CONTENT_SECURITY_POLICY_REPORT_ONLY = False
 

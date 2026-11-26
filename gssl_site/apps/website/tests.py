@@ -16,6 +16,7 @@ from unittest import mock
 from django.conf import settings
 from django.core import mail
 from django.core.cache import cache
+from django.core.management.utils import get_random_secret_key
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
@@ -592,6 +593,36 @@ class ProductionSettingsTests(SimpleTestCase):
     def test_refuses_a_plain_http_site_url(self):
         result = self.run_prod(**{**self.GOOD, "DJANGO_SITE_URL": "http://example.test"})
         self.assertNotEqual(result.returncode, 0)
+
+    def run_deploy_check(self, **env):
+        """What release.sh runs before it will let a deploy through."""
+        base = {k: v for k, v in os.environ.items() if not k.startswith("DJANGO_")}
+        base.update({"DJANGO_SETTINGS_MODULE": "config.settings.prod", **env})
+        return subprocess.run(
+            [sys.executable, "manage.py", "check", "--deploy", "--fail-level", "WARNING"],
+            cwd=settings.BASE_DIR, env=base, capture_output=True, text=True,
+        )
+
+    def test_the_hsts_choices_never_block_a_release(self):
+        """
+        release.sh stops on any warning, so a setting an operator is told to
+        change must not raise one. .env.example says to turn includeSubDomains
+        off when a subdomain still serves plain HTTP, and preload is off by
+        default -- neither may stop a deploy. Both were silenced only after
+        this test caught the release refusing to run.
+        """
+        # GOOD's placeholder key is 50 identical characters, which the deploy
+        # check rightly rejects; this test is about the HSTS warnings alone.
+        env = {**self.GOOD, "DJANGO_SECRET_KEY": get_random_secret_key()}
+        for subdomains in ("0", "1"):
+            with self.subTest(include_subdomains=subdomains):
+                result = self.run_deploy_check(
+                    **env,
+                    DJANGO_HSTS_SECONDS="300",
+                    DJANGO_HSTS_INCLUDE_SUBDOMAINS=subdomains,
+                    DJANGO_HSTS_PRELOAD="0",
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 class ContentDataTests(TestCase):
