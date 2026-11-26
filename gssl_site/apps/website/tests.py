@@ -165,10 +165,16 @@ class PublishingTests(RenderedPages, TestCase):
             with self.subTest(page=page.name):
                 self.assertEqual(self.client.get(reverse(f"website:{page.name}")).status_code, 404)
 
-    def test_sample_only_pages_are_offline(self):
+    def test_sample_only_pages_are_never_live(self):
+        """
+        These still carry the design build's invented content. OFFLINE or
+        UNLISTED are both acceptable -- unlisted keeps a page reachable for
+        review while no menu links to it and nothing indexes it -- but LIVE
+        would put invented posts and consultation notices on the site as fact.
+        """
         for name in ("news", "news_article", "event_detail", "event_feedback_round", "feedback"):
             with self.subTest(page=name):
-                self.assertEqual(next(p for p in PAGES if p.name == name).status, OFFLINE)
+                self.assertNotEqual(next(p for p in PAGES if p.name == name).status, LIVE)
 
     def test_no_published_page_links_to_a_missing_page(self):
         """Every in-site link on every published page answers 200."""

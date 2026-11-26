@@ -129,6 +129,10 @@
               linear-gradient(90deg, rgba(6, 19, 15, .55) 0%, rgba(6, 19, 15, 0) 60%); }
 .gs-vhero.grain::after { z-index: 3; }
 .gs-vhero__inner { position: relative; z-index: 4; min-height: inherit; display: grid; grid-template-rows: 1fr auto auto auto; padding-top: 11rem; padding-bottom: 2.25rem; }
+/* With the top bar switched off the fixed chrome is ~3rem shorter, so the
+   hero copy would otherwise sit that much lower than it was drawn. 8rem is
+   the value the narrow breakpoint already uses, where the bar never shows. */
+.topbar-off .gs-vhero__inner { padding-top: 8rem; }
 .gs-vhero__copy { grid-row: 2; max-width: 62rem; }
 .gs-vhero__copy .hero__welcome { display: inline-flex; }
 .gs-vhero__title { margin: 0; font-size: var(--gs-fs-display); line-height: 1.02; letter-spacing: -.04em; font-weight: var(--gs-fw-light); color: #fff; text-wrap: balance; }

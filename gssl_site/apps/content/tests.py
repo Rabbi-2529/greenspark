@@ -457,7 +457,11 @@ class TopBarSwitchTests(TestCase):
         def squash(text):
             return re.sub(r"\n{2,}", "\n", text)
 
-        self.assertEqual(squash(expected), squash(after))
+        # Hiding the bar also puts "topbar-off" on <body>, which the hero's CSS
+        # uses to close the gap the bar left. That one class and the bar itself
+        # are the whole difference.
+        self.assertIn("topbar-off", after)
+        self.assertEqual(squash(expected), squash(after.replace(" topbar-off", "", 1)))
 
 
 class NavProjectTests(TestCase):

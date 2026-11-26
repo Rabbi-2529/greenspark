@@ -79,14 +79,17 @@ PAGES: tuple[Page, ...] = (
     Page("news_article", "news-insights/how-mrv-works-for-rooftop-solar/",
          "news_article.html", nav="news", status=OFFLINE),
 
-    # Events. The listing carries the three real consultation notices; the two
-    # detail templates hold invented sample events (a 2027 Manikganj LSC and a
-    # feedback round to January 2027) and stay offline.
+    # Events. The listing carries the three real consultation notices. The two
+    # detail templates still hold the design build's invented events (a 2027
+    # Manikganj LSC and a feedback round to January 2027), so they are
+    # UNLISTED, not LIVE: the design is reachable for review and nothing
+    # indexes a consultation notice that never happened. Make them LIVE from
+    # the console once the wording is Green Spark's own.
     Page("events", "events/", "events.html", nav="events"),
     Page("event_detail", "events/lsc-manikganj-2027/", "event_detail.html",
-         nav="events", status=OFFLINE),
+         nav="events", status=UNLISTED),
     Page("event_feedback_round", "events/feedback-round-ics-2026/",
-         "event_feedback_round.html", nav="events", status=OFFLINE),
+         "event_feedback_round.html", nav="events", status=UNLISTED),
     # Feedback — GSSL asked for no feedback page. Its form was never wired to
     # a server; wire it (see EnquireView) before bringing it back.
     Page("feedback", "feedback/", "feedback.html", nav="events", status=OFFLINE),

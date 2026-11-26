@@ -59,7 +59,7 @@
   <script src="{% static 'js/website.js' %}" defer></script>
   {% block jsonld %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}" data-now="{% now 'Y-m-d' %}">
+<body class="{% block body_class %}{% endblock %}{% if not site_settings.show_topbar %} topbar-off{% endif %}" data-now="{% now 'Y-m-d' %}">
 {% include "partials/svg_sprite.html" %}
 {% include "partials/preloader.html" %}
 <a class="skip-link" href="#main">Skip to content</a>
