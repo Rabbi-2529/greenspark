@@ -16,6 +16,40 @@ is the Django project. Pushes go to the `rabbi` remote, not `origin`: the
 stored credential is `Rabbi-2529`, which has no write access to the original
 `Deep-RB/Green-Spark-Solutions-LTD-Main-site`.
 
+## Setting up on a new machine
+
+Python 3.12 or newer. Nothing else is needed: development settings have
+working defaults, there is no .env to create, and `migrate` builds the
+database complete with every page, programme, project and the home page
+content, because the seed data lives in the migrations.
+
+    git clone https://github.com/Rabbi-2529/greenspark.git
+    cd greenspark
+    git checkout claude/loving-hopper-gc5fhq
+    cd gssl_site
+    python -m venv .venv
+
+Then, on Windows:
+
+    .venv\Scripts\pip install -r requirements.txt
+    .venv\Scripts\python manage.py migrate
+    .venv\Scripts\python manage.py runserver
+
+or on macOS and Linux:
+
+    .venv/bin/pip install -r requirements.txt
+    .venv/bin/python manage.py migrate
+    .venv/bin/python manage.py runserver
+
+`manage.py` defaults to `config.settings.dev`, so no environment variable
+is needed. The site is then on http://localhost:8000 and the console on
+http://localhost:8000/office/ — `manage.py createsuperuser` gives you an
+account, which ranks as an administrator there.
+
+Install the requirements file rather than `pip install Django`: Django is
+pinned to `>=5.2,<6.0` and a bare install picks up 6.x, which this is not
+tested against.
+
 ## The server
 
 One DigitalOcean droplet, `170.64.218.194`, hostname `green-ics`, Ubuntu
