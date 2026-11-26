@@ -146,6 +146,14 @@ access by accident.
     cp /srv/gssl/app/gssl_site/deploy/nginx.conf /etc/nginx/sites-available/gssl
     ln -s /etc/nginx/sites-available/gssl /etc/nginx/sites-enabled/gssl
 
+Unlink the dead apex site, or it and this one both claim
+`server_name greensparksolutions.com` and nginx keeps whichever it loads
+first. On this droplet it is `website` -- confirm before removing, and
+leave `admin` (port 3001) and `ics` alone:
+
+    grep -l 'localhost:3000' /etc/nginx/sites-enabled/*
+    rm /etc/nginx/sites-enabled/website
+
 The shipped nginx file expects `/etc/letsencrypt/live/greensparksolutions.com/`,
 which does not exist yet, so `nginx -t` will fail until you have a
 certificate. Two ways to get one, since certbot's usual HTTP challenge cannot
