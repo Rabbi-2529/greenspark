@@ -6,7 +6,8 @@ from django.views.generic import RedirectView
 from .pages import PAGES
 from .views import (
     AboutView, EnquireView, HomeView, ImprovedCookstoveView,
-    ProjectDetailView, ProjectsView, StaticPageView, robots_txt, sitemap_xml,
+    ProjectDetailView, ProjectsView, StaticPageView, WhyGsslView, robots_txt,
+    sitemap_xml,
 )
 
 app_name = "website"
@@ -18,6 +19,7 @@ VIEWS = {
     "home": HomeView,
     "programme_improved_cookstove": ImprovedCookstoveView,
     "projects": ProjectsView,
+    "why_gssl": WhyGsslView,
 }
 
 urlpatterns = [

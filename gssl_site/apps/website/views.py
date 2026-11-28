@@ -24,6 +24,7 @@ from apps.content.models import Page as PageRecord
 from apps.content.models import (
     AboutPage, AboutStat, ApproachItem, Audience, CareerArea, CarouselSlide,
     Counter, District, HomePage, JobOpening, Project, VisionAttribute,
+    WhyGsslPage, WhyItem,
 )
 
 from .forms import EnquiryForm
@@ -125,6 +126,18 @@ class AboutView(StaticPageView):
         context["career_areas"] = CareerArea.objects.all()
         # Most of the time this is empty, and the band is written for that.
         context["openings"] = JobOpening.objects.filter(published=True)
+        return context
+
+
+class WhyGsslView(StaticPageView):
+    """Why GSSL. Unlisted, but its words are still Green Spark's to change."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["why"] = WhyGsslPage.objects.filter(pk=1).first() or WhyGsslPage()
+        context["why_reasons"] = WhyItem.objects.filter(kind=WhyItem.REASON)
+        context["why_expectations"] = WhyItem.objects.filter(kind=WhyItem.EXPECTATION)
+        context["why_steps"] = WhyItem.objects.filter(kind=WhyItem.STEP)
         return context
 
 

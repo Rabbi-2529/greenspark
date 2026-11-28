@@ -22,7 +22,7 @@ from apps.content.models import (
     ContactDetails, Counter, District, HomePage, JobOpening, NoticeBar, Page,
     Programme, ProgrammeAttribute, ProgrammeStep, Project, ProjectAttribute,
     ProjectImage, ProjectParagraph, Section, SiteSettings, SlideBadge,
-    SlideFact, SocialLinks, VisionAttribute
+    SlideFact, SocialLinks, VisionAttribute, WhyGsslPage, WhyItem
 )
 from apps.website.models import ENQUIRY_SUBJECTS, ENQUIRY_TYPES, Enquiry
 
@@ -452,6 +452,58 @@ registry.register(Module(
         Filter("employment_type", "Type", choices=tuple(JobOpening.TYPE_CHOICES)),
     ),
     ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+# --- Why GSSL ---------------------------------------------------------------
+
+registry.register(Module(
+    slug="why-page",
+    model=WhyGsslPage,
+    label="Why GSSL page",
+    label_plural="Why GSSL page",
+    group="Content",
+    icon="page",
+    blurb="The headings on Why GSSL. The page is unlisted — reachable by link, "
+          "kept out of search — which is set on its row under Pages.",
+    singleton=True,
+    can_create=False,
+    can_delete=False,
+    fieldsets=(
+        ("The hero", ("hero_tag", "hero_title", "hero_lead", "enquire_label",
+                      "whatsapp_label")),
+        ("What sets us apart", ("reasons_tag", "reasons_title")),
+        ("Working with us", ("expectations_tag", "expectations_title")),
+        ("How we work", ("steps_tag", "steps_title")),
+    ),
+    columns=(Column("hero_title", "Heading", link=True),),
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="why-points",
+    model=WhyItem,
+    label="Why GSSL point",
+    label_plural="Why GSSL points",
+    group="Content",
+    icon="layers",
+    blurb="The reasons, the expectations and the numbered steps on Why GSSL.",
+    fields=("kind", "icon", "title", "body", "sort_order"),
+    columns=(
+        Column("title", "Point", link=True),
+        Column("kind", "Band", kind="badge"),
+        Column("icon", "Icon", kind="muted"),
+        Column("body", "Wording", kind="muted", sortable=False, truncate=60),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "body"),
+    filters=(Filter("kind", "Band", choices=tuple(WhyItem.KIND_CHOICES)),),
+    ordering=("kind", "sort_order"),
     order_field="sort_order",
     view_rank=roles.EDITOR,
     edit_rank=roles.EDITOR,
