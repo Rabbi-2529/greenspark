@@ -358,8 +358,24 @@ class Registry:
     def slugs(self) -> list[str]:
         return list(self._modules)
 
-    def nav(self, user) -> list[dict]:
-        """The sidebar: groups in GROUP_ORDER, holding what this user may see."""
+    # The icon on each collapsible group in the sidebar. A group with no entry
+    # here falls back to the first of its modules, so adding a group never
+    # leaves a hole in the menu.
+    GROUP_ICONS = {
+        "Content": "page",
+        "Projects": "layers",
+        "Messages": "inbox",
+        "Settings": "settings",
+        "People": "people",
+    }
+
+    def nav(self, user, current=None) -> list[dict]:
+        """
+        The sidebar: groups in GROUP_ORDER, holding what this user may see.
+
+        Each group carries its icon and whether it holds the page being looked
+        at, so the template can open that one and leave the rest closed.
+        """
         visible = [m for m in self._modules.values() if m.may_view(user)]
         groups: dict[str, list[Module]] = {}
         for module in visible:
@@ -367,7 +383,16 @@ class Registry:
 
         ordered = [name for name in self.GROUP_ORDER if name in groups]
         ordered += [name for name in groups if name not in self.GROUP_ORDER]
-        return [{"name": name, "modules": groups[name]} for name in ordered]
+        return [
+            {
+                "name": name,
+                "modules": groups[name],
+                "icon": self.GROUP_ICONS.get(name) or groups[name][0].icon,
+                "has_current": any(m.slug == getattr(current, "slug", None)
+                                   for m in groups[name]),
+            }
+            for name in ordered
+        ]
 
 
 registry = Registry()

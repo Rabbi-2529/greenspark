@@ -46,15 +46,32 @@
       <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-dashboard"></use></svg>
       Overview
     </a>
+    <p class="cns-nav__eyebrow">Main menu</p>
+    {% comment %}
+      details/summary rather than a button and a script: the panel runs under
+      the site's CSP, which forbids inline handlers, and this way the menus
+      open and close with no JavaScript at all. The group holding the page
+      you are on starts open.
+    {% endcomment %}
     {% for group in console_nav %}
-      <p class="cns-nav__group">{{ group.name }}</p>
-      {% for item in group.modules %}
-        <a class="cns-nav__item{% if module and module.slug == item.slug %} is-current{% endif %}"
-           href="{{ item.url }}"{% if module and module.slug == item.slug %} aria-current="page"{% endif %}>
-          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-{{ item.icon }}"></use></svg>
-          {{ item.label_plural }}
-        </a>
-      {% endfor %}
+      {% with open=group.has_current %}
+      <details class="cns-nav__group"{% if open %} open{% endif %}>
+        <summary class="cns-nav__parent">
+          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-{{ group.icon }}"></use></svg>
+          <span class="cns-nav__parent-label">{{ group.name }}</span>
+          <svg class="cns-icon cns-nav__chev" aria-hidden="true"><use href="#cns-i-down"></use></svg>
+        </summary>
+        <div class="cns-nav__sub">
+          {% for item in group.modules %}
+            <a class="cns-nav__item{% if module and module.slug == item.slug %} is-current{% endif %}"
+               href="{{ item.url }}"{% if module and module.slug == item.slug %} aria-current="page"{% endif %}>
+              <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-{{ item.icon }}"></use></svg>
+              {{ item.label_plural }}
+            </a>
+          {% endfor %}
+        </div>
+      </details>
+      {% endwith %}
     {% endfor %}
   </nav>
 

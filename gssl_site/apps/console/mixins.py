@@ -87,7 +87,9 @@ class ConsoleAccessMixin:
         by hand call this instead of reaching for super().
         """
         context = {
-            "console_nav": registry.nav(self.request.user),
+            "console_nav": registry.nav(
+                self.request.user, getattr(self, "module", None)
+            ),
             "console_role": roles.label_of(self.request.user),
             "console_rank": roles.rank_of(self.request.user),
             "breadcrumbs": self.breadcrumbs(),
