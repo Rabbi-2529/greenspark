@@ -1,4 +1,4 @@
-# Green Spark — where this stands, 26 November 2026
+# Green Spark — where this stands, 28 November 2026
 
 A pasteable brief for picking this up: what is live, how to deploy, what is
 broken, and what to do next. `CMS-PLAN.md` is the phase plan; `AI-HANDOFF.md`
@@ -8,7 +8,7 @@ This file is the operational state on top of them.
 ## The repository
 
     github.com/Rabbi-2529/greenspark        PUBLIC -- check before committing anything
-    branch: claude/loving-hopper-gc5fhq     the Django site; HEAD 40f0fe2
+    branch: claude/loving-hopper-gc5fhq     the Django site; HEAD 07c58b6
     branch: main                            the frozen static design build only
 
 `green-spark-website/` is that frozen build and is never edited. `gssl_site/`
@@ -100,19 +100,29 @@ added one.
 
 Run all four from `gssl_site/` with the venv's python. They are the contract:
 
-    python manage.py test                       # 200 tests
+    python manage.py test                       # 360 tests
     python manage.py snapshot_pages --check     # 26 pages, byte for byte
     python tools/check_static_refs.py           # 263 static references
     python manage.py makemigrations --check --dry-run
 
 **The golden-HTML harness is the thing that makes this safe.** It records every
 published page to `apps/website/golden/` and compares later renders byte for
-byte. It has caught three silent regressions that would have changed the live
+byte. It has caught four silent regressions that would have changed the live
 site: a grid card with a shorter summary than its project, a card pointing at
-a 1600px photo that does not exist, and `data-programme` rendering a label
-where the CSS expected a key. Re-record it (`snapshot_pages`, no `--check`)
-**only** when you have deliberately changed the markup, and say in the commit
-what the diff was and how you confirmed nothing else moved.
+a 1600px photo that does not exist, `data-programme` rendering a label where
+the CSS expected a key, and a privacy-policy date whose field default was the
+string `"2026-11-25"` rather than a `date`, which rendered
+`<time datetime=""></time>` on a page nobody would have reread. Re-record it
+(`snapshot_pages`, no `--check`) **only** when you have deliberately changed
+the markup, and say in the commit what the diff was and how you confirmed
+nothing else moved.
+
+Also confirm the migrations replay from nothing, because the seed data lives in
+them and a migration that only works against the current database is a broken
+install waiting to happen:
+
+    DJANGO_DB_PATH=/tmp/replay.sqlite3 python manage.py migrate
+    DJANGO_DB_PATH=/tmp/replay.sqlite3 python manage.py snapshot_pages --check
 
 ## Broken right now, in priority order
 
@@ -158,10 +168,11 @@ against the plan.
 |---|---|
 | 0 Foundations | done |
 | 1 The console shell | built, except the vendored widgets (Select2, DataTables, FullCalendar, SortableJS, a rich-text editor still need downloading into `static/console/vendor/`) |
-| 2 Site map, hideable sections, settings | mostly built. `SiteSettings` / `ContactDetails` / `SocialLinks` / `NoticeBar` exist but only `show_topbar` is wired into a template; the rest of the chrome still reads literals |
+| 2 Site map, hideable sections, settings | mostly built. `SiteSettings` / `ContactDetails` / `SocialLinks` / `NoticeBar` exist but only `show_topbar` is wired into a template; the rest of the chrome still reads literals. **`Page.title` and `Page.meta_description` are editable in the console and no template reads them** — see below |
 | 3 Programmes and Projects | built |
-| 4 Home page and impact data | **done** |
-| 5–10 | not started — **Phase 5 is where to pick up** |
+| 4 Home page and impact data | done |
+| 5 About, Why GSSL, Team, FAQ, Careers, Privacy | **done** |
+| 6–10 | not started — **Phase 6 (Events and Gallery) is where to pick up** |
 
 ### Phase 4, precisely where it stops
 
@@ -186,14 +197,74 @@ scroll labels, the hidden `<h1>`, and the video. One `video_name` drives all
 six files and the two preload hints in `<head>`. The hero band is visible, so
 the golden harness proves it directly.
 
+The home page project carousel is `CarouselSlide`, with its badges and its three
+facts as inline rows. It is not the Projects grid filtered: five of the seven
+projects, in a chosen order, with shorter copy, facts picked per card, and one
+card pointing at a programme. The slide number, the active flag and the Gold
+Standard registry link are all derived, and a card saved before its target is
+chosen renders without a link rather than taking the home page down with a
+`NoReverseMatch`.
+
 Not built:
 
 - The Bangladesh map SVG hard-codes its ten active districts as
   `class="bd-map__district is-active"`. The list is dynamic now; the map is
   not, so a district added in the console will not light up on it.
-- The home page project carousel, carried over from Phase 3. It is a different
-  component from the Projects grid: `fcard` markup, five of the seven projects,
-  slide indices in `aria-label="1 of 5"`.
+
+### Phase 5, precisely where it stops
+
+Built: the About, Why GSSL, Team, FAQ, Careers and Privacy pages all read from
+the database, sixteen new models, sixteen console modules, and the cookstove
+programme page's FAQ band as well. All 26 pages are still byte-identical and
+nothing was re-recorded.
+
+Two pieces of shared machinery came first, because they did not exist:
+
+- **`apps/content/icons.py`** — the site's 35 icons as named pairs of SVG paths
+  (a stroke and its "echo"), keyed by the design build's own names. A content
+  row stores the name; the template asks it for `icon_path` / `icon_echo`. An
+  unknown name draws nothing rather than an empty `<svg>`. A test walks every
+  template and fails if it finds an icon the library cannot draw, so adding a
+  new icon to a template means adding it here too.
+- **`apps/content/richtext.py`** — the ten tags an editor may type, checked when
+  the record is saved. This is the question Phase 4 deferred, answered as
+  narrowly as the privacy policy and the FAQ answers allowed. Internal links
+  are stored as `href="route:enquire"` and resolved through `reverse()` at
+  render time, so routes stay in code and a link to a page that has moved
+  degrades to its own words rather than raising `NoReverseMatch`. It also
+  unblocks the home page's intro `<mark>`, which Phase 4 left open — not done,
+  because the home page is Phase 4's.
+
+Read `CMS-PLAN.md` §6 Phase 5 before changing any of it. The short version of
+what is **derived and must stay derived**: the FAQ accordion's `faq-0`…`faq-19`
+ids run across all five topics, not within each one, and the aria wiring breaks
+silently for screen-reader users if they stop agreeing; the FAQ topic nav and
+the privacy policy's table of contents are rendered from the same rows as the
+headings; Why GSSL's six cards stagger per row of three (`{% cycle %}`, not
+`forloop.counter0`) while the single-column bands count up the list;
+`process--4` is the step count driving a CSS grid; a team leader's initials come
+from the name.
+
+Not built:
+
+- **A page's browser title and search description do nothing.** `Page.title`,
+  `Page.meta_description` and `Page.og_image` are seeded and editable under
+  Pages in the console, and no site template reads them — all 25 pages pass
+  literals to `partials/page_meta.html`. This is the most misleading thing in
+  the console today and it is Phase 2's remaining work; it touches all 25
+  templates at once, which is why it was not done mid-phase.
+- **The cookstove page's `benefits` loop**, which Phase 5's scope listed. It
+  sits beside `programme-attributes` and `process-steps`, both still literal
+  because no programme template reads the Phase 3 models yet. That page wants
+  one pass, not a sliver.
+- **Photographs are still template literals.** A photo-name field would be one
+  typo away from a 500 under hashed static files, which is a latent risk
+  `HomePage.video_name` already carries. Photographs need the plan's
+  `MediaImage` model.
+- **An editor who may see a list but not edit it gets a 403 on clicking a row**
+  rather than a read-only view — true since Phase 1 for the impact figures and
+  the settings records, and now for the privacy policy too. Two tests document
+  it; Phase 9 owns the fix.
 
 ## Conventions worth knowing before you touch anything
 
@@ -205,7 +276,25 @@ Not built:
   returns `True`. Wiping the table shows too much, which is recoverable;
   showing nothing is not. There is a test documenting the trade-off.
 - **Strict CSP.** No inline styles, no inline scripts, no `on*=` handlers, no
-  third-party loads — in the console as well as the site. Tests enforce it.
+  third-party loads — in the console as well as the site. Tests enforce it. A
+  content field is not a way round it: the rich-text whitelist refuses `style=`
+  and every `on*` attribute, and there are tests that a policy section and an
+  FAQ answer cannot put either on a page.
+- **Anything derivable from row order is derived in the template, never
+  stored** — card numbers, "first one open" flags, reveal delays, "3 of 5"
+  labels, accordion ids, step counts, a contents list. Reordering in the
+  console cannot then put two things out of step. Phases 4 and 5 both lean on
+  this; `CMS-PLAN.md` lists each case.
+- **A view reads a singleton with `Model.objects.filter(pk=1).first() or
+  Model()`**, never `load()`, so rendering a page cannot write a row. The
+  field defaults carry the wording the template had, which is why most page
+  singletons are not seeded at all.
+- **Seed data lives in migrations, never in fixtures.** Phase 5's seed
+  migrations were written by generators that read the templates and refuse to
+  write a file unless reassembling the content gives back the markup byte for
+  byte. That is how the curly apostrophe in “the community’s needs” and the
+  `&amp;` inside a Gold Standard registry URL survived intact. Worth copying
+  for any phase with more than a paragraph or two to move.
 - **Invented content is never LIVE.** The news pages, the two event detail
   pages and the feedback page still carry the design build's sample content.
   `event_detail` and `event_feedback_round` are UNLISTED: reachable for review,

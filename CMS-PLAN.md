@@ -368,15 +368,191 @@ Still open:
   the map's highlighting is not, so a district added in the console appears
   in the list but does not light up on the map.
 
-### Phase 5 — About, Why GSSL, Team, FAQ, Careers, Privacy
+### Phase 5 — About, Why GSSL, Team, FAQ, Careers, Privacy — **built**
 
-- Models: `AboutPage`, `VisionAttribute`, `Audience`, `WhyItem`, `Benefit`,
-  `FaqGroup`, `FaqItem`, `TeamLeader`, `TeamGroup`, `TeamMember`, `CareerArea`,
-  `JobOpening`, `PrivacyPage`.
-- 13 loops across `about.html`, `why_gssl.html`, `team.html`, `faq.html`,
-  `programme_improved_cookstove.html`, `privacy.html`.
-- Careers keeps its empty state: the panel can have zero published openings and
-  the page still reads correctly.
+All six pages read from the database, and all 26 pages are still byte-identical
+to the golden HTML. Nothing was re-recorded at any point in this phase.
+
+**Two pieces of shared machinery had to come first**, because Phases 3 and 4
+never needed them:
+
+- **An icon library** (`apps/content/icons.py`). Four of this phase's loops
+  carry an inline SVG icon; the loops Phase 4 wired had none. Every icon on the
+  site is one drawing twice — a stroke path and a second, slightly offset
+  "echo" path the CSS fades behind it — so an icon is a *pair* of paths. All 35
+  used across the site are keyed by the design build's own names (`users`,
+  `handshake`, `flask`, …), matched one for one against
+  `green-spark-website/assets/img/icons`; the echo paths are not in those files
+  and were read off the templates. A content row stores the name and the
+  template asks it for `icon_path` / `icon_echo`. An empty or unknown name
+  yields empty strings and the icon wrapper drops out, rather than an empty
+  `<svg>`. One test walks every template and fails if it finds an icon the
+  library cannot draw.
+
+  Not an upload and not a markup field: an icon is part of the design, not part
+  of the words, and the same handful recurs across the site — the people icon
+  five times, the spanner three — so paths on each row would mean many copies
+  of one drawing and a correction that only landed on one of them.
+
+- **A limited-HTML field** (`apps/content/richtext.py`), which answers the
+  question Phase 4 deferred. Phase 4 left the home page's intro paragraph in
+  the template because it contains a `<mark>`, and called "how much HTML may an
+  editor type" a Phase 9 question. Phase 5 could not: a privacy policy is prose
+  with emphasis and lists, and six of the twenty FAQ answers contain a link.
+
+  Answered narrowly. A whitelist of ten tags (`a br em li mark ol p span strong
+  ul`), checked when the record is saved, so the console names the tag or
+  attribute it refused. `span` may carry only `class="visually-hidden"`.
+  Rendering re-emits rather than passing through, so content written straight
+  into the database still cannot carry a script, a style or an event handler.
+  And internal links are route names — `href="route:enquire"` resolves through
+  `reverse()` at render time — because routes stay in code here, so an answer
+  cannot be left pointing at a page that has moved; a link to a route that has
+  gone renders as its own words rather than raising `NoReverseMatch`.
+
+  This also unblocks the home page's intro band, which Phase 4 left open. It
+  was not done here, because the home page is Phase 4's and this phase had six
+  of its own.
+
+**Models built**: `AboutPage`, `AboutStat`, `VisionAttribute`, `Audience`,
+`CareerArea`, `JobOpening`, `WhyGsslPage`, `WhyItem`, `TeamPage`, `TeamLeader`,
+`TeamGroup`, `FaqPage`, `FaqGroup`, `FaqItem`, `PrivacyPage`, `PolicySection`.
+`ApproachItem` gained an `icon` and a third kind. Sixteen console modules, taking the console to 32.
+
+**What is derived rather than stored.** This is the part worth reading before
+changing any of it:
+
+- **The FAQ accordion ids.** Each item carries an `aria-expanded`, an
+  `aria-controls`, an `id` and an `aria-labelledby` that must agree, and on the
+  FAQ page they run `faq-0` to `faq-19` **across all five topics**, not from
+  zero within each one. `number_questions` works the number out from the row's
+  position when the page renders, so reordering a topic, reordering a question
+  or moving a question between topics renumbers everything after it and the
+  aria wiring follows. Stored, that would be an editor's problem and a silent
+  one: a mismatched `aria-controls` breaks the accordion only for someone using
+  a screen reader. A Django template cannot count across nested loops, so
+  `FaqGroup.with_questions()` does it in two queries. Which panel starts open
+  is derived the same way — exactly one per page, the first.
+- **Both pages' in-page contents lists.** The FAQ topic nav and the privacy
+  policy's thirteen-entry table of contents are rendered from the same rows as
+  the headings below them, so renaming a section renames its own link. The way
+  a policy page actually goes wrong is a heading edited and the link to it left
+  behind.
+- **Why GSSL's six reason cards stagger per row of three**, not up the whole
+  list: the grid is `attr-grid--3`, so the markup is `""`, `d1`, `d2`, `""`,
+  `d1`, `d2`. That is a `{% cycle %}`, not `forloop.counter0`, and a test pins
+  all six classes. The single-column `attr-list` bands (vision points, areas of
+  work, what each partner can expect) do count up the list, which is why they
+  use `forloop.counter0` — the two look the same at three rows and diverge at
+  four.
+- **`process--4`** is not decoration: `flow.css` maps it to `--steps: 4`, the
+  number of columns the steps are laid out in. It follows the number of steps
+  now. Outside 3–6 the class is undefined and the grid falls back to
+  `var(--steps, 6)` — a layout wobble, not a broken page.
+- **A team leader's initials.** The circle held `PR` as a literal; it holds the
+  initials worked out from `Pankaj Rajbangshi`, so correcting a spelling
+  corrects the circle. There is an override field, empty as shipped, for the
+  names the rule gets wrong: an honorific first, a mononym, a name that reads
+  better with three letters.
+- **A role's "Manikganj, Bangladesh · Full time" line**, composed from two
+  optional fields and absent when both are empty. The privacy policy's date is
+  one field rendered twice, as `datetime="2026-11-25"` and "25 November 2026".
+
+**Deviations from this plan, and why:**
+
+- **No `TeamMember`.** The plan asked for `TeamGroup` + `TeamMember`. There is
+  nowhere on the page for a member to go: the teams band is five headed
+  paragraphs about how the work is divided, and the design build's markup has
+  no list of people under a team anywhere in it. A model for rows nothing
+  renders is a worse thing to hand Green Spark than no model. If named staff
+  under each team are wanted later, that is a markup decision first.
+- **No shared `Audience` scope across two pages.** The plan put About's partner
+  grid and Why GSSL's "what each partner can expect" on one model with a
+  `scope` field. They share no markup — About's cards carry an icon and a
+  different card entirely — so a scope field would have produced one console
+  list in which half the rows could not be used on either page. Why GSSL's
+  three are a third kind of `WhyItem`; About's six are `Audience`.
+- **About's "Our approach" is a third kind of `ApproachItem`**, which *is* what
+  the plan asked for and was right: they are the home page's cards said again,
+  and the only difference is the icon.
+- **The privacy policy is sections, not one body.** The plan asked for one
+  rich-text body plus retention fields. Thirteen rows is what makes the
+  contents list derivable (above). There is no retention field either: "how
+  long we keep it" is one of the thirteen, written as prose, and splitting that
+  sentence into a number and a unit would not survive its first reading by a
+  lawyer.
+- **`AboutStat` is not `Counter`.** The three figures beside "Who we are" — 2
+  offices, 3 countries, 2 registered phases — are facts about the company. A
+  `Counter` is a claim about impact that a publisher approves and that animates
+  up to a number, and it renders in the impact band. Mixing them would have put
+  "2 offices" among the impact figures.
+- **`Module.fieldsets` now works.** It had been declared and documented in the
+  registry since Phase 1 and never read: the only way to group a form's fields
+  was a form subclass carrying nothing else. `AboutPage` has twenty fields
+  across six bands and five more page singletons arrived in this phase, so the
+  registry derives a module's field list from its fieldsets and hands them to
+  the generated form. That is what "one good generic editor rather than 38
+  bespoke screens" was supposed to mean.
+
+**Careers keeps its empty state, and that is what ships.** `JobOpening` is
+seeded empty, so the band shows its "no open roles right now" paragraph and the
+two buttons exactly as before — which is the case the golden harness proves.
+The design build never drew a role (its `job-openings` loop is empty in the
+frozen build too), so the markup for one is new and uses only classes the site
+already has; tests cover the populated case, including a role with no location,
+no closing date and no way to apply yet, each rendering without an empty
+element rather than with one.
+
+**The cookstove page's FAQ came too.** Its six questions are `FaqItem` rows
+against the programme — the plan's nullable `programme` FK — found by the route
+the programme points at, so the other five programme pages pick theirs up the
+same way. They are not a filtered view of the FAQ page's twenty: it asks
+several of the same things in shorter words and one thing the FAQ page does not
+ask at all. A question may belong to a topic, to a programme or to both; one
+with neither is listed in the console as "Not shown anywhere yet" rather than
+hidden. The accordion item markup is one partial, included by both pages:
+nineteen attributes of interlocking aria wiring, which in two places would
+eventually have come apart.
+
+**Still open, in priority order:**
+
+1. **The console can edit a page's browser title and search description, and
+   nothing happens.** `Page.title`, `Page.meta_description` and `Page.og_image`
+   are seeded, listed and editable under Pages — and no site template reads
+   them. All 25 pages pass literals to `partials/page_meta.html`. This is
+   Phase 2's remaining work rather than Phase 5's, and it is the most
+   misleading thing in the console today: a field that looks editable and is
+   not. Fixing it touches all 25 templates at once, which is why it was not
+   done in the middle of this phase.
+2. **The cookstove page's `benefits` loop**, which this phase's scope listed.
+   It sits beside `programme-attributes` and `process-steps`, both still
+   literal because no programme template reads the Phase 3 models yet. That
+   page wants one coherent pass, not a sliver of one.
+3. **Photographs stay in the templates.** Phase 4 made the hero's video a name
+   field; under hashed static files a name with no matching file raises rather
+   than rendering a broken image, so a photograph field would be one typo away
+   from a 500 on that page. Photographs need the `MediaImage` model from §4,
+   which is not built. The same latent risk already exists on `HomePage.
+   video_name`.
+4. **`ContactDetails` is still not wired**, so the WhatsApp number, the email
+   address and the postal addresses remain literals — in Why GSSL's hero
+   button, in an FAQ answer and in the policy's contact section as well as in
+   the chrome. Phase 2's remaining work; doing it on one page only would make
+   it worse.
+5. **An editor who may see a list but not edit it gets a 403 on clicking a
+   row**, rather than a read-only view. True since Phase 1 for the impact
+   figures and all four settings records, and now for the privacy policy too.
+   Phase 9 owns editorial safety and should fix it there. Two tests document
+   the behaviour so the fix is a visible change rather than a surprise.
+6. **Two counts are prose an editor has to keep in step**, and their help text
+   says so: "Five teams share one way of working" and "Six reasons partners
+   work with Green Spark". A number spelled out in a sentence is not derivable
+   from a row count without rewriting the sentence.
+7. **`about.html`'s "Our approach" section has `aria-labelledby="approach-title"`
+   pointing at an id that is not on the page** — its `<h2>` carries no `id`.
+   A pre-existing design-build bug, left alone because fixing it changes the
+   markup; it belongs in an accessibility pass with the golden files
+   re-recorded deliberately.
 
 ### Phase 6 — Events and Gallery
 
@@ -466,7 +642,7 @@ Still open:
 | 2 | Chrome, settings, Page model | Medium |
 | 3 | Programmes and Projects | Large |
 | 4 | Home page and impact data | Large |
-| 5 | About, Why, Team, FAQ, Careers, Privacy | Medium |
+| 5 | About, Why, Team, FAQ, Careers, Privacy | Medium — **built** |
 | 6 | Events and Gallery | Medium |
 | 7 | News & Insights | Small |
 | 8 | Enquiries and feedback | Medium |
