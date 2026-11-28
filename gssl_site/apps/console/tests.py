@@ -974,3 +974,31 @@ class PageScreenTests(TestCase):
         response = self.get("home")
         self.assertEqual(response.status_code, 302)
         self.assertIn("sign-in", response["Location"])
+
+
+class ShellLayoutTests(TestCase):
+    """
+    The shell is a two-column grid: sidebar, then the content column holding
+    the bar and the page. A third child lands in the wrong cell by grid
+    auto-placement, which puts the content underneath the sidebar -- which is
+    exactly what happened when the bar was moved out of <main>.
+    """
+
+    def setUp(self):
+        self.client.force_login(make_user("shell-admin", rank=roles.ADMINISTRATOR))
+
+    def test_the_bar_is_inside_the_content_column(self):
+        body = self.client.get(reverse("console:dashboard")).content.decode()
+        shell = body[body.index('<div class="cns-shell">'):body.index("</body>")]
+        main = shell.index('<main class="cns-main"')
+        bar = shell.index('<header class="cns-top"')
+        end = shell.index("</main>")
+        self.assertLess(main, bar, "the bar must be inside <main>")
+        self.assertLess(bar, end, "the bar must be inside <main>")
+
+    def test_the_grid_has_exactly_two_columns_of_content(self):
+        body = self.client.get(reverse("console:dashboard")).content.decode()
+        shell = body[body.index('<div class="cns-shell">'):body.index("</body>")]
+        nav = shell.count('<nav class="cns-side"')
+        main = shell.count('<main class="cns-main"')
+        self.assertEqual((nav, main), (1, 1))
