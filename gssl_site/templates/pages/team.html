@@ -10,33 +10,29 @@
   <div class="page-hero__media" aria-hidden="true"><picture><source media="(max-width: 767.98px)" type="image/webp" srcset="{% static 'img/illustrations/rural-solar-m.webp' %}"><source media="(max-width: 767.98px)" srcset="{% static 'img/illustrations/rural-solar-m.jpg' %}"><source type="image/webp" srcset="{% static 'img/illustrations/rural-solar-1280.webp' %} 1280w, {% static 'img/illustrations/rural-solar-1920.webp' %} 1920w" sizes="100vw"><img src="{% static 'img/illustrations/rural-solar-1280.jpg' %}" srcset="{% static 'img/illustrations/rural-solar-1280.jpg' %} 1280w, {% static 'img/illustrations/rural-solar-1920.jpg' %} 1920w" sizes="100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async"></picture></div>
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li><a href="{% url 'website:about' %}">About Us</a></li><li aria-current="page">Our team</li></ol></nav>
-    <p class="eyebrow">About Us</p>
-    <h1>The people behind Green Spark</h1>
-    <p class="lead">A team in Australia and Bangladesh, working with communities, local government and partners on clean energy and carbon projects.</p>
+    <p class="eyebrow">{{ team.hero_tag }}</p>
+    <h1>{{ team.hero_title }}</h1>
+    <p class="lead">{{ team.hero_lead }}</p>
   </div>
 </section>{% endif %}
 {% if sections.leaders %}<section class="section" aria-labelledby="leaders-title">
   <div class="container-gs">
-    <div class="section-heading section-heading--split" data-reveal><div><p class="eyebrow">Leadership</p><h2 id="leaders-title">Leading our work</h2></div><div class="section-heading__aside"><p class="lead">Two companies, one team: Green Spark Solutions Australia Pty Ltd and Green Spark Solutions Ltd in Bangladesh.</p></div></div>
+    <div class="section-heading section-heading--split" data-reveal><div><p class="eyebrow">{{ team.leaders_tag }}</p><h2 id="leaders-title">{{ team.leaders_title }}</h2></div><div class="section-heading__aside"><p class="lead">{{ team.leaders_lead }}</p></div></div>
     <div class="row g-4">
 <!-- loop:start team-leaders -->
-<div class="col-lg-6" data-reveal><article class="team-card team-card--lead"><span class="team-card__avatar" aria-hidden="true">PR</span><h3 class="team-card__name">Pankaj Rajbangshi</h3><p class="team-card__role">Director and CEO</p><p class="team-card__org">Green Spark Solutions Australia Pty Ltd · Rockdale, NSW</p><p class="team-card__bio">Leads strategy, partnerships and carbon project development from our head office in Australia.</p></article></div>
-<!-- loop:end team-leaders -->
+{% for leader in team_leaders %}<div class="col-lg-6" data-reveal><article class="team-card team-card--lead"><span class="team-card__avatar" aria-hidden="true">{{ leader.monogram }}</span><h3 class="team-card__name">{{ leader.name }}</h3><p class="team-card__role">{{ leader.role }}</p>{% if leader.organisation %}<p class="team-card__org">{{ leader.organisation }}</p>{% endif %}{% if leader.bio %}<p class="team-card__bio">{{ leader.bio }}</p>{% endif %}</article></div>
+{% endfor %}<!-- loop:end team-leaders -->
     </div>
   </div>
 </section>{% endif %}
 {% if sections.teams %}<section class="section section--surface" aria-labelledby="teams-title">
   <div class="container-gs">
     <div class="row g-5">
-      <div class="col-lg-4"><div class="stack" data-reveal><p class="eyebrow">Our teams</p><h2 id="teams-title">How we are organised</h2><p class="lead">Five teams share one way of working: built with communities and measured with care.</p></div></div>
+      <div class="col-lg-4"><div class="stack" data-reveal><p class="eyebrow">{{ team.groups_tag }}</p><h2 id="teams-title">{{ team.groups_title }}</h2><p class="lead">{{ team.groups_lead }}</p></div></div>
       <div class="col-lg-8" data-reveal>
 <!-- loop:start team-groups -->
-<div class="team-group"><h3 class="team-group__title">Field operations · Manikganj</h3><p>Field officers who install stoves, show families how to use them and return for monitoring visits.</p></div>
-<div class="team-group"><h3 class="team-group__title">Carbon and monitoring</h3><p>Project design, monitoring and reporting for programmes held to recognised carbon standards.</p></div>
-<div class="team-group"><h3 class="team-group__title">Engineering and research</h3><p>Improving the Green ICS with household feedback, and testing clean-energy and water technologies.</p></div>
-<div class="team-group"><h3 class="team-group__title">Community and stakeholder engagement</h3><p>Consultations, feedback rounds and grievance handling, in Bangla and English.</p></div>
-<div class="team-group"><h3 class="team-group__title">Partnerships · Australia</h3><p>Work with partners, buyers and investors from our head office in Rockdale, NSW.</p></div>
-<!-- loop:end team-groups -->
+{% for group in team_groups %}<div class="team-group"><h3 class="team-group__title">{{ group.title }}</h3><p>{{ group.body }}</p></div>
+{% endfor %}<!-- loop:end team-groups -->
       </div>
     </div>
   </div>
@@ -44,8 +40,8 @@
 {% if sections.join %}<section class="section" aria-labelledby="join-title">
   <div class="container-gs">
     <div class="section-heading section-heading--split mb-0" data-reveal>
-      <div><p class="eyebrow">Careers</p><h2 id="join-title">Join the team</h2></div>
-      <div class="section-heading__aside"><p class="lead">We work with people who care about communities and the environment, in Australia and in Bangladesh.</p><a class="btn btn--primary" href="{% url 'website:about' %}#careers"><span class="btn__label">Careers at GSSL</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
+      <div><p class="eyebrow">{{ team.join_tag }}</p><h2 id="join-title">{{ team.join_title }}</h2></div>
+      <div class="section-heading__aside"><p class="lead">{{ team.join_lead }}</p><a class="btn btn--primary" href="{% url 'website:about' %}#careers"><span class="btn__label">{{ team.join_label }}</span><svg class="icon icon-nudge" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.45 11.96C9.28 12.12 14.12 12.06 19.2 11.94M13.2 6.34C15.1 8.27 17.05 10.16 19.13 12.09M19.03 11.94C17.04 13.79 15.13 15.71 13.2 17.75"/></svg></a></div>
     </div>
   </div>
 </section>{% endif %}

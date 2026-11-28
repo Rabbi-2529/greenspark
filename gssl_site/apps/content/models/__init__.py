@@ -15,6 +15,7 @@ from .pages import Page, Section, SectionVisibility
 from .programmes import Programme, ProgrammeAttribute, ProgrammeStep
 from .projects import Project, ProjectAttribute, ProjectImage, ProjectParagraph
 from .site import ContactDetails, NoticeBar, SiteSettings, SocialLinks
+from .team import TeamGroup, TeamLeader, TeamPage
 from .why import WhyGsslPage, WhyItem
 
 __all__ = [
@@ -44,6 +45,9 @@ __all__ = [
     "SectionVisibility",
     "SiteSettings",
     "SocialLinks",
+    "TeamGroup",
+    "TeamLeader",
+    "TeamPage",
     "VisionAttribute",
     "WhyGsslPage",
     "WhyItem",

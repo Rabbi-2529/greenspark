@@ -23,8 +23,8 @@ from django.views.generic import TemplateView
 from apps.content.models import Page as PageRecord
 from apps.content.models import (
     AboutPage, AboutStat, ApproachItem, Audience, CareerArea, CarouselSlide,
-    Counter, District, HomePage, JobOpening, Project, VisionAttribute,
-    WhyGsslPage, WhyItem,
+    Counter, District, HomePage, JobOpening, Project, TeamGroup, TeamLeader,
+    TeamPage, VisionAttribute, WhyGsslPage, WhyItem,
 )
 
 from .forms import EnquiryForm
@@ -126,6 +126,17 @@ class AboutView(StaticPageView):
         context["career_areas"] = CareerArea.objects.all()
         # Most of the time this is empty, and the band is written for that.
         context["openings"] = JobOpening.objects.filter(published=True)
+        return context
+
+
+class TeamView(StaticPageView):
+    """Our team: the leadership band and the five teams."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["team"] = TeamPage.objects.filter(pk=1).first() or TeamPage()
+        context["team_leaders"] = TeamLeader.objects.all()
+        context["team_groups"] = TeamGroup.objects.all()
         return context
 
 

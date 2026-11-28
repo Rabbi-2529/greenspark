@@ -22,7 +22,8 @@ from apps.content.models import (
     ContactDetails, Counter, District, HomePage, JobOpening, NoticeBar, Page,
     Programme, ProgrammeAttribute, ProgrammeStep, Project, ProjectAttribute,
     ProjectImage, ProjectParagraph, Section, SiteSettings, SlideBadge,
-    SlideFact, SocialLinks, VisionAttribute, WhyGsslPage, WhyItem
+    SlideFact, SocialLinks, TeamGroup, TeamLeader, TeamPage,
+    VisionAttribute, WhyGsslPage, WhyItem
 )
 from apps.website.models import ENQUIRY_SUBJECTS, ENQUIRY_TYPES, Enquiry
 
@@ -504,6 +505,78 @@ registry.register(Module(
     search_fields=("title", "body"),
     filters=(Filter("kind", "Band", choices=tuple(WhyItem.KIND_CHOICES)),),
     ordering=("kind", "sort_order"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+# --- Our team ---------------------------------------------------------------
+
+registry.register(Module(
+    slug="team-page",
+    model=TeamPage,
+    label="Our team page",
+    label_plural="Our team page",
+    group="Content",
+    icon="page",
+    blurb="The headings on Our team, and the button that points at the Careers band.",
+    singleton=True,
+    can_create=False,
+    can_delete=False,
+    fieldsets=(
+        ("The hero", ("hero_tag", "hero_title", "hero_lead")),
+        ("Leadership", ("leaders_tag", "leaders_title", "leaders_lead")),
+        ("How we are organised", ("groups_tag", "groups_title", "groups_lead")),
+        ("Join the team", ("join_tag", "join_title", "join_lead", "join_label")),
+    ),
+    columns=(Column("hero_title", "Heading", link=True),),
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="team-leaders",
+    model=TeamLeader,
+    label="Team leader",
+    label_plural="Team leaders",
+    group="Content",
+    icon="people",
+    blurb="The people on the leadership band. The circle shows initials worked "
+          "out from the name unless you set them.",
+    fields=("name", "role", "organisation", "bio", "initials", "sort_order"),
+    columns=(
+        Column("name", "Name", link=True),
+        Column("role", "Role"),
+        Column("organisation", "Company and office", kind="muted", truncate=50),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("name", "role", "organisation", "bio"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="teams",
+    model=TeamGroup,
+    label="Team",
+    label_plural="Teams",
+    group="Content",
+    icon="layers",
+    blurb="How the work is divided, on Our team. The standfirst above them "
+          "counts them in words, so check it when you add one.",
+    fields=("title", "body", "sort_order"),
+    columns=(
+        Column("title", "Team", link=True),
+        Column("body", "What they do", kind="muted", sortable=False, truncate=70),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "body"),
+    ordering=("sort_order", "pk"),
     order_field="sort_order",
     view_rank=roles.EDITOR,
     edit_rank=roles.EDITOR,
