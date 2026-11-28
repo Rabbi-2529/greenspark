@@ -10,6 +10,7 @@ from .about import (
     AboutPage, AboutStat, Audience, CareerArea, JobOpening, VisionAttribute,
 )
 from .carousel import CarouselSlide, SlideBadge, SlideFact
+from .faq import FaqGroup, FaqItem, FaqPage
 from .home import ApproachItem, Counter, District, HomePage
 from .pages import Page, Section, SectionVisibility
 from .programmes import Programme, ProgrammeAttribute, ProgrammeStep
@@ -27,6 +28,9 @@ __all__ = [
     "ContactDetails",
     "Counter",
     "District",
+    "FaqGroup",
+    "FaqItem",
+    "FaqPage",
     "CarouselSlide",
     "HomePage",
     "JobOpening",

@@ -19,7 +19,8 @@ from .registry import Column, Filter, Inline, Module, registry
 
 from apps.content.models import (
     AboutPage, AboutStat, ApproachItem, Audience, CarouselSlide, CareerArea,
-    ContactDetails, Counter, District, HomePage, JobOpening, NoticeBar, Page,
+    ContactDetails, Counter, District, FaqGroup, FaqItem, FaqPage, HomePage,
+    JobOpening, NoticeBar, Page,
     Programme, ProgrammeAttribute, ProgrammeStep, Project, ProjectAttribute,
     ProjectImage, ProjectParagraph, Section, SiteSettings, SlideBadge,
     SlideFact, SocialLinks, TeamGroup, TeamLeader, TeamPage,
@@ -578,6 +579,100 @@ registry.register(Module(
     search_fields=("title", "body"),
     ordering=("sort_order", "pk"),
     order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+# --- Questions and answers --------------------------------------------------
+
+registry.register(Module(
+    slug="faq-page",
+    model=FaqPage,
+    label="FAQ page",
+    label_plural="FAQ page",
+    group="Content",
+    icon="page",
+    blurb="The headings on the FAQ page. The page is unlisted — reachable by "
+          "link, kept out of search — which is set on its row under Pages.",
+    singleton=True,
+    can_create=False,
+    can_delete=False,
+    fieldsets=(
+        ("The hero", ("hero_tag", "hero_title", "hero_lead")),
+        ("Still have a question?", ("closing_title", "closing_text",
+                                    "enquire_label")),
+    ),
+    columns=(Column("hero_title", "Heading", link=True),),
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="faq-topics",
+    model=FaqGroup,
+    label="FAQ topic",
+    label_plural="FAQ topics",
+    group="Content",
+    icon="layers",
+    blurb="The five headings on the FAQ page, and the questions under each one. "
+          "The topic list at the top of the page is built from these.",
+    fields=("title", "anchor", "sort_order"),
+    inlines=(
+        Inline(
+            model=FaqItem,
+            label="Question",
+            label_plural="Questions under this topic",
+            fields=("question", "answer", "sort_order"),
+            fk_name="group",
+            order_field="sort_order",
+            extra=1,
+        ),
+    ),
+    columns=(
+        Column("title", "Topic", link=True),
+        Column("anchor", "Link", kind="muted"),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "anchor"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+def faq_topic_choices():
+    return [(group.anchor, group.title) for group in FaqGroup.objects.all()]
+
+
+registry.register(Module(
+    slug="questions",
+    model=FaqItem,
+    label="Question",
+    label_plural="All questions",
+    group="Content",
+    icon="inbox",
+    blurb="Every question and answer, including the ones on a programme page. "
+          "Editing a topic shows only its own, in the order they appear.",
+    fields=("group", "programme", "question", "answer", "sort_order"),
+    columns=(
+        Column("question", "Question", link=True, truncate=60),
+        Column("where", "Shown on", kind="muted", sortable=False),
+        Column("answer_words", "Answer", kind="muted", sortable=False, truncate=60),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("question", "answer"),
+    filters=(
+        Filter("topic", "Topic", lookup="group__anchor", choices=faq_topic_choices),
+        Filter("on_programme", "Programme", lookup="programme__key",
+               choices=programme_choices),
+    ),
+    ordering=("group__sort_order", "sort_order"),
+    select_related=("group", "programme"),
+    order_field="sort_order",
+    per_page=50,
     view_rank=roles.EDITOR,
     edit_rank=roles.EDITOR,
 ))

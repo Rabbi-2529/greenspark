@@ -23,9 +23,11 @@ from django.views.generic import TemplateView
 from apps.content.models import Page as PageRecord
 from apps.content.models import (
     AboutPage, AboutStat, ApproachItem, Audience, CareerArea, CarouselSlide,
-    Counter, District, HomePage, JobOpening, Project, TeamGroup, TeamLeader,
-    TeamPage, VisionAttribute, WhyGsslPage, WhyItem,
+    Counter, District, FaqGroup, FaqItem, FaqPage, HomePage, JobOpening,
+    Project, TeamGroup, TeamLeader, TeamPage, VisionAttribute, WhyGsslPage,
+    WhyItem,
 )
+from apps.content.models.faq import number_questions
 
 from .forms import EnquiryForm
 from .mail import notify_enquiry
@@ -129,6 +131,22 @@ class AboutView(StaticPageView):
         return context
 
 
+class FaqView(StaticPageView):
+    """
+    The FAQ page.
+
+    The accordions' ids run faq-0 to faq-19 across all five topics, so the
+    numbering is worked out once over the whole page rather than per topic --
+    see FaqGroup.with_questions.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["faq"] = FaqPage.objects.filter(pk=1).first() or FaqPage()
+        context["faq_groups"] = FaqGroup.with_questions()
+        return context
+
+
 class TeamView(StaticPageView):
     """Our team: the leadership band and the five teams."""
 
@@ -153,7 +171,23 @@ class WhyGsslView(StaticPageView):
 
 
 class ImprovedCookstoveView(ImpactBandMixin, StaticPageView):
-    """The cookstove programme page, which repeats the impact band."""
+    """
+    The cookstove programme page, which repeats the impact band.
+
+    Its FAQ band is six questions of its own -- shorter answers than the FAQ
+    page gives, and one question the FAQ page does not ask at all -- so they
+    are rows against this programme rather than a filtered view of the FAQ
+    page's twenty. The programme is found by the route it points at, so the
+    other five programme pages pick theirs up the same way when their turn
+    comes.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["programme_faq"] = number_questions(
+            FaqItem.objects.filter(programme__url_name=self.page.name)
+        )
+        return context
 
 
 class ProjectsView(StaticPageView):
