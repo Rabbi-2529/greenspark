@@ -147,8 +147,12 @@ class Module:
 
     form_class: type | None = None
     create_form_class: type | None = None   # when creating needs a different form
+    # Either a flat tuple of field names, or the same names grouped into
+    # headed blocks as ((heading, (field, …)), …). A module with twenty fields
+    # on it -- a page singleton, typically -- declares the groups and gets both
+    # the form's layout and its field list from them.
     fields: tuple[str, ...] | None = None
-    fieldsets: tuple = ()     # ((heading, (field, …)), …); optional
+    fieldsets: tuple = ()
     inlines: tuple[Inline, ...] = ()
 
     readonly: bool = False    # list and read, never write (enquiries, activity)
@@ -193,6 +197,13 @@ class Module:
     @property
     def model_label(self) -> str:
         return self.model._meta.label_lower
+
+    @property
+    def form_fields(self) -> tuple[str, ...]:
+        """Every field the form edits, whether declared flat or in groups."""
+        if self.fields:
+            return tuple(self.fields)
+        return tuple(name for _, group in self.fieldsets for name in group)
 
     # --- capability, given a user ---
 

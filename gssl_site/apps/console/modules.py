@@ -18,11 +18,11 @@ from .models import AuditEntry
 from .registry import Column, Filter, Inline, Module, registry
 
 from apps.content.models import (
-    ApproachItem, CarouselSlide, ContactDetails, Counter, District,
-    HomePage, NoticeBar, Page, Programme, ProgrammeAttribute,
-    ProgrammeStep, Project, ProjectAttribute, ProjectImage,
-    ProjectParagraph, Section, SiteSettings, SlideBadge, SlideFact,
-    SocialLinks
+    AboutPage, AboutStat, ApproachItem, Audience, CarouselSlide, CareerArea,
+    ContactDetails, Counter, District, HomePage, JobOpening, NoticeBar, Page,
+    Programme, ProgrammeAttribute, ProgrammeStep, Project, ProjectAttribute,
+    ProjectImage, ProjectParagraph, Section, SiteSettings, SlideBadge,
+    SlideFact, SocialLinks, VisionAttribute
 )
 from apps.website.models import ENQUIRY_SUBJECTS, ENQUIRY_TYPES, Enquiry
 
@@ -222,9 +222,10 @@ registry.register(Module(
     label_plural="Approach points",
     group="Content",
     icon="layers",
-    blurb="The “Why Green Spark” cards and the “A holistic approach” points on the home page.",
+    blurb="The “Why Green Spark” and “A holistic approach” points on the home page, and “Our approach” on About Us.",
 
-    fields=("kind", "title", "body", "link_label", "link_route", "link_fragment", "sort_order"),
+    fields=("kind", "icon", "title", "body", "link_label", "link_route",
+            "link_fragment", "sort_order"),
     columns=(
         Column("title", "Point", link=True),
         Column("kind", "Where", kind="badge"),
@@ -296,6 +297,161 @@ registry.register(Module(
     ),
     search_fields=("name", "division"),
     ordering=("sort_order", "name"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+# --- About Us ---------------------------------------------------------------
+
+registry.register(Module(
+    slug="about-page",
+    model=AboutPage,
+    label="About Us page",
+    label_plural="About Us page",
+    group="Content",
+    icon="page",
+    blurb="Every heading and paragraph on About Us that there is only one of, "
+          "including the Careers band at the foot of it.",
+    singleton=True,
+    can_create=False,
+    can_delete=False,
+    fieldsets=(
+        ("The hero", ("hero_tag", "hero_title", "hero_lead", "meet_label")),
+        ("Who we are", ("intro_tag", "intro_text")),
+        ("Our vision", ("vision_tag", "vision_title", "vision_lead")),
+        ("Our approach", ("approach_tag", "approach_title", "approach_lead")),
+        ("Who we work with", ("partners_tag", "partners_title")),
+        ("Careers at GSSL", ("careers_tag", "careers_title", "careers_lead",
+                             "roles_title", "no_roles_text", "cv_label",
+                             "cv_email", "cv_subject", "enquire_label")),
+    ),
+    columns=(Column("hero_title", "Heading", link=True),),
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="about-figures",
+    model=AboutStat,
+    label="About Us figure",
+    label_plural="About Us figures",
+    group="Content",
+    icon="history",
+    blurb="The three figures beside “Who we are”. Not impact figures: these are "
+          "facts about the company and need no approval.",
+    fields=("value", "label", "sort_order"),
+    columns=(
+        Column("value", "Figure", link=True),
+        Column("label", "Reads on as"),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("value", "label"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="vision",
+    model=VisionAttribute,
+    label="Vision point",
+    label_plural="Vision points",
+    group="Content",
+    icon="layers",
+    blurb="The points under “Our vision” on About Us.",
+    fields=("title", "body", "sort_order"),
+    columns=(
+        Column("title", "Point", link=True),
+        Column("body", "Wording", kind="muted", sortable=False, truncate=70),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "body"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="partners",
+    model=Audience,
+    label="Partner type",
+    label_plural="Partner types",
+    group="Content",
+    icon="people",
+    blurb="Who Green Spark works with, on About Us: from households to carbon buyers.",
+    fields=("icon", "title", "body", "sort_order"),
+    columns=(
+        Column("title", "Partner", link=True),
+        Column("icon", "Icon", kind="muted"),
+        Column("body", "Wording", kind="muted", sortable=False, truncate=60),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "body"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="career-areas",
+    model=CareerArea,
+    label="Area of work",
+    label_plural="Areas of work",
+    group="Content",
+    icon="layers",
+    blurb="The kinds of work described in the Careers band on About Us.",
+    fields=("title", "body", "sort_order"),
+    columns=(
+        Column("title", "Area", link=True),
+        Column("body", "Wording", kind="muted", sortable=False, truncate=70),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "body"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
+
+registry.register(Module(
+    slug="openings",
+    model=JobOpening,
+    label="Open role",
+    label_plural="Open roles",
+    group="Content",
+    icon="inbox",
+    blurb="Roles listed on About Us. With none published the page shows its "
+          "“no open roles right now” paragraph instead, which is how it ships.",
+    fields=("title", "location", "employment_type", "summary", "closes_on",
+            "apply_email", "apply_url", "apply_label", "sort_order"),
+    publish_field="published",
+    publish_text="Put on the website",
+    unpublish_text="Take off the website",
+    publish_done="is on the website",
+    unpublish_done="is off the website",
+    columns=(
+        Column("title", "Role", link=True),
+        Column("location", "Where"),
+        Column("employment_type", "Type", kind="badge"),
+        Column("closes_on", "Closes", kind="date"),
+        Column("published", "On the site", kind="bool", align="center"),
+    ),
+    search_fields=("title", "location", "summary"),
+    filters=(
+        Filter("published", "On the site", kind="bool"),
+        Filter("employment_type", "Type", choices=tuple(JobOpening.TYPE_CHOICES)),
+    ),
+    ordering=("sort_order", "pk"),
     order_field="sort_order",
     view_rank=roles.EDITOR,
     edit_rank=roles.EDITOR,

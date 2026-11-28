@@ -6,6 +6,9 @@ project grows. Phase 2 lands the site map, the hideable sections and the four
 settings records; the rest arrive with their phases (see CMS-PLAN.md §6).
 """
 
+from .about import (
+    AboutPage, AboutStat, Audience, CareerArea, JobOpening, VisionAttribute,
+)
 from .carousel import CarouselSlide, SlideBadge, SlideFact
 from .home import ApproachItem, Counter, District, HomePage
 from .pages import Page, Section, SectionVisibility
@@ -14,12 +17,17 @@ from .projects import Project, ProjectAttribute, ProjectImage, ProjectParagraph
 from .site import ContactDetails, NoticeBar, SiteSettings, SocialLinks
 
 __all__ = [
+    "AboutPage",
+    "AboutStat",
     "ApproachItem",
+    "Audience",
+    "CareerArea",
     "ContactDetails",
     "Counter",
     "District",
     "CarouselSlide",
     "HomePage",
+    "JobOpening",
     "SlideBadge",
     "SlideFact",
     "NoticeBar",
@@ -35,4 +43,5 @@ __all__ = [
     "SectionVisibility",
     "SiteSettings",
     "SocialLinks",
+    "VisionAttribute",
 ]

@@ -29,9 +29,18 @@ ICON_SVG = re.compile(
 
 
 def icon_pairs_in_templates() -> set[tuple[str, str]]:
+    """
+    Every icon still drawn literally in a template.
+
+    A loop that reads its icon from the database draws ``{{ item.icon_path }}``
+    there instead, which is not an icon and is skipped -- what is left is what
+    a developer still has to keep in step with the library.
+    """
     found = set()
     for path in sorted(TEMPLATES.rglob("*.html")):
-        found.update(ICON_SVG.findall(path.read_text(encoding="utf-8")))
+        for pair in ICON_SVG.findall(path.read_text(encoding="utf-8")):
+            if not any("{{" in drawing for drawing in pair):
+                found.add(pair)
     return found
 
 

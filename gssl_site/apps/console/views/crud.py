@@ -310,12 +310,18 @@ class ModuleEditView(ModuleMixin, View):
             return module.create_form_class
         if module.form_class is not None:
             return module.form_class
-        if not module.fields:
+        names = module.form_fields
+        if not names:
             raise ImproperlyConfigured(
-                f"console module {module.slug!r} needs either form_class or fields; "
+                f"console module {module.slug!r} needs form_class, fields or fieldsets; "
                 "a console form never falls back to every field on the model."
             )
-        return modelform_factory(module.model, form=ConsoleModelForm, fields=module.fields)
+        form = modelform_factory(module.model, form=ConsoleModelForm, fields=names)
+        if module.fieldsets:
+            # Declared on the module rather than in a form subclass that would
+            # exist only to carry them.
+            form.fieldsets = module.fieldsets
+        return form
 
     def formsets(self, instance, data=None, files=None):
         out = []
@@ -437,7 +443,7 @@ class ModuleDeleteView(ModuleMixin, View):
         label = str(obj)
         audit.record(
             request, AuditEntry.DELETE, obj=obj, module=self.module.slug,
-            changes=audit.snapshot(obj, self.module.fields or ()),
+            changes=audit.snapshot(obj, self.module.form_fields),
         )
         obj.delete()
         messages.success(request, f"{self.module.label} “{label}” was deleted.")

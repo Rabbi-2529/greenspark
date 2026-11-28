@@ -10,26 +10,35 @@ them out of step by reordering.
 
 from django.db import models
 
+from ..icons import CHOICES as ICON_CHOICES
+from ..icons import IconMixin
 from .base import Singleton
 
 
-class ApproachItem(models.Model):
+class ApproachItem(IconMixin, models.Model):
     """
     A point about how Green Spark works.
 
-    Two shapes, one model, because they are the same thing said twice: the
-    expanding cards under “Why Green Spark”, and the plain cards under
-    “A holistic approach”.
+    Three shapes, one model, because they are the same thing said three times:
+    the expanding cards under “Why Green Spark” and the plain cards under
+    “A holistic approach” on the home page, and the cards under “Our approach”
+    on About Us — which are the only ones that carry an icon.
     """
 
     HIGHLIGHT = "highlight"
     ATTRIBUTE = "attribute"
+    ABOUT = "about"
     KIND_CHOICES = [
-        (HIGHLIGHT, "Why Green Spark — expanding card"),
-        (ATTRIBUTE, "A holistic approach — plain card"),
+        (HIGHLIGHT, "Home — “Why Green Spark” expanding card"),
+        (ATTRIBUTE, "Home — “A holistic approach” plain card"),
+        (ABOUT, "About Us — “Our approach” card with an icon"),
     ]
 
     kind = models.CharField(max_length=20, choices=KIND_CHOICES, db_index=True)
+    icon = models.CharField(
+        max_length=40, blank=True, choices=ICON_CHOICES,
+        help_text="Shown only on the About Us cards. The home page's cards have no icon.",
+    )
     title = models.CharField(max_length=160)
     body = models.TextField()
     link_label = models.CharField(

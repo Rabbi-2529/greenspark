@@ -5,14 +5,15 @@ from django.views.generic import RedirectView
 
 from .pages import PAGES
 from .views import (
-    EnquireView, HomeView, ImprovedCookstoveView, ProjectDetailView,
-    ProjectsView, StaticPageView, robots_txt, sitemap_xml,
+    AboutView, EnquireView, HomeView, ImprovedCookstoveView,
+    ProjectDetailView, ProjectsView, StaticPageView, robots_txt, sitemap_xml,
 )
 
 app_name = "website"
 
 # Pages with a view of their own; every other row uses StaticPageView.
 VIEWS = {
+    "about": AboutView,
     "enquire": EnquireView,
     "home": HomeView,
     "programme_improved_cookstove": ImprovedCookstoveView,

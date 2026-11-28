@@ -22,7 +22,8 @@ from django.views.generic import TemplateView
 
 from apps.content.models import Page as PageRecord
 from apps.content.models import (
-    ApproachItem, CarouselSlide, Counter, District, HomePage, Project,
+    AboutPage, AboutStat, ApproachItem, Audience, CareerArea, CarouselSlide,
+    Counter, District, HomePage, JobOpening, Project, VisionAttribute,
 )
 
 from .forms import EnquiryForm
@@ -104,6 +105,26 @@ class HomeView(ImpactBandMixin, StaticPageView):
         context["approach_attributes"] = ApproachItem.objects.filter(
             kind=ApproachItem.ATTRIBUTE
         )
+        return context
+
+
+class AboutView(StaticPageView):
+    """About Us, including the Careers band at the foot of it."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # filter().first() rather than load(): rendering a page must not write
+        # a row, and an unsaved instance carries the same defaults.
+        context["about"] = AboutPage.objects.filter(pk=1).first() or AboutPage()
+        context["about_stats"] = AboutStat.objects.all()
+        context["vision_attributes"] = VisionAttribute.objects.all()
+        context["approach_attributes"] = ApproachItem.objects.filter(
+            kind=ApproachItem.ABOUT
+        )
+        context["audiences"] = Audience.objects.all()
+        context["career_areas"] = CareerArea.objects.all()
+        # Most of the time this is empty, and the band is written for that.
+        context["openings"] = JobOpening.objects.filter(published=True)
         return context
 
 

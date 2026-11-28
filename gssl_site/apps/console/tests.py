@@ -763,7 +763,7 @@ class RegistryTests(TestCase):
                 continue
             with self.subTest(module=module.slug):
                 self.assertTrue(
-                    module.form_class or module.fields,
+                    module.form_class or module.form_fields,
                     f"{module.slug} would expose every model field",
                 )
 
