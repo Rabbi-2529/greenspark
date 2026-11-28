@@ -17,6 +17,8 @@ they are marked as such in the console.
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from ..richtext import validate as validate_inline
+
 from .programmes import Programme
 
 # The first chip on a card decides the badge's colour.
@@ -34,11 +36,12 @@ KNOWN_TAGS = set(BADGE_CLASSES) | {"cookstove", "rooftop", "water", "irrigation"
 class Project(models.Model):
     slug = models.SlugField(max_length=80, unique=True)
     title = models.CharField(max_length=160)
-    summary = models.TextField(help_text="The sentence or two describing the project.")
+    summary = models.TextField(help_text="The sentence or two describing the project.", validators=[validate_inline])
     card_summary = models.TextField(
         "shorter summary for the card", blank=True,
         help_text="Only if the card needs to be shorter than the summary above. "
                   "Leave empty and the card uses the summary.",
+        validators=[validate_inline],
     )
     location = models.CharField(max_length=160)
     stage = models.CharField(max_length=80, help_text="e.g. “Installed · monitoring”.")
@@ -175,7 +178,7 @@ class ProjectParagraph(models.Model):
     """One “About the project” paragraph."""
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="paragraphs")
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:

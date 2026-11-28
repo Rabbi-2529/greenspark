@@ -34,6 +34,7 @@ class AboutPage(Singleton):
         default="Green Spark Solutions Australia drives sustainable development, clean "
                 "energy access and community empowerment, from our head office in "
                 "Rockdale, NSW, and our operations base in Manikganj, Bangladesh.",
+        validators=[validate_inline],
     )
     meet_label = models.CharField(
         "video button", max_length=60, default="Meet GSSL",
@@ -62,6 +63,7 @@ class AboutPage(Singleton):
     vision_lead = models.TextField(
         default="Green Spark Solutions Australia drives sustainable development, clean "
                 "energy access and community empowerment.",
+        validators=[validate_inline],
     )
 
     # --- our approach ---
@@ -72,6 +74,7 @@ class AboutPage(Singleton):
     )
     approach_lead = models.TextField(
         default="We focus on three things that make programmes last.",
+        validators=[validate_inline],
     )
 
     # --- who we work with ---
@@ -92,6 +95,7 @@ class AboutPage(Singleton):
         default="We work with people who care about communities and the environment, in "
                 "Australia and in Bangladesh. If that sounds like you, we would like to "
                 "hear from you.",
+        validators=[validate_inline],
     )
     roles_title = models.CharField(
         "open roles heading", max_length=120, default="Open roles",
@@ -103,6 +107,7 @@ class AboutPage(Singleton):
                 "opens.",
         help_text="Shown instead of the list whenever no role is published. The page has "
                   "to read correctly with none, because most of the time there are none.",
+        validators=[validate_inline],
     )
     cv_label = models.CharField(
         "CV button", max_length=60, default="Send your CV",
@@ -150,7 +155,7 @@ class VisionAttribute(models.Model):
     """One of the points under “Our vision”."""
 
     title = models.CharField(max_length=160)
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -196,7 +201,7 @@ class Audience(IconMixin, models.Model):
 
     icon = models.CharField(max_length=40, blank=True, choices=ICON_CHOICES, help_text=ICON_HELP)
     title = models.CharField(max_length=160)
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -212,7 +217,7 @@ class CareerArea(models.Model):
     """One of the kinds of work the Careers band describes."""
 
     title = models.CharField(max_length=160)
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -257,7 +262,7 @@ class JobOpening(models.Model):
     employment_type = models.CharField(
         "type", max_length=40, blank=True, choices=TYPE_CHOICES,
     )
-    summary = models.TextField(help_text="Two or three sentences about the role.")
+    summary = models.TextField(help_text="Two or three sentences about the role.", validators=[validate_inline])
     closes_on = models.DateField(
         "applications close", null=True, blank=True,
         help_text="Leave empty for a role with no closing date.",

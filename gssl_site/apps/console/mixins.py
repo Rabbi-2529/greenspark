@@ -27,6 +27,22 @@ SEEN_KEY = "console_seen_at"
 TOUCH_EVERY = 60
 
 
+def current_page_name(view) -> str:
+    """
+    Which page of the website the sidebar should light up.
+
+    The page screen says so itself. On a module screen there is no sidebar
+    entry of its own any more -- the module list was the half of the menu that
+    repeated itself -- so the page it belongs to is lit instead, and the
+    screen you are on still shows where you are.
+    """
+    name = getattr(view, "kwargs", {}).get("name")
+    if name:
+        return name
+    module = getattr(view, "module", None)
+    return module.pages[0] if module is not None and module.pages else ""
+
+
 def site_pages():
     """
     The website's own pages, for the sidebar, each with how many bands it
@@ -102,6 +118,9 @@ class ConsoleAccessMixin:
 
     # --- shared context ---
 
+    def current_page(self) -> str:
+        return current_page_name(self)
+
     def console_base_context(self, **kwargs) -> dict:
         """
         The shell's own context: sidebar, role, breadcrumbs.
@@ -114,6 +133,7 @@ class ConsoleAccessMixin:
                 self.request.user, getattr(self, "module", None)
             ),
             "console_pages": site_pages(),
+            "current_page": self.current_page(),
             "console_role": roles.label_of(self.request.user),
             "console_rank": roles.rank_of(self.request.user),
             "breadcrumbs": self.breadcrumbs(),

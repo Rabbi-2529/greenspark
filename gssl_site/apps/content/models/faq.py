@@ -54,6 +54,7 @@ class FaqPage(Singleton):
     hero_lead = models.TextField(
         default="Clear answers about our programmes, Gold Standard registration, "
                 "feedback and privacy.",
+        validators=[validate_inline],
     )
     closing_title = models.CharField(
         "closing heading", max_length=200, default="Still have a question?",
@@ -61,6 +62,7 @@ class FaqPage(Singleton):
     closing_text = models.TextField(
         default="Send us an enquiry or share feedback, in Bangla or English. We usually "
                 "reply within one working day.",
+        validators=[validate_inline],
     )
     enquire_label = models.CharField(max_length=60, default="Enquire")
 

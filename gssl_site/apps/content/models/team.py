@@ -14,6 +14,8 @@ deviation is recorded in CMS-PLAN.md and the band is ``TeamGroup`` alone.
 
 from django.db import models
 
+from ..richtext import validate as validate_inline
+
 from .base import Singleton
 
 
@@ -27,6 +29,7 @@ class TeamPage(Singleton):
     hero_lead = models.TextField(
         default="A team in Australia and Bangladesh, working with communities, local "
                 "government and partners on clean energy and carbon projects.",
+        validators=[validate_inline],
     )
 
     leaders_tag = models.CharField(
@@ -39,6 +42,7 @@ class TeamPage(Singleton):
         "leadership standfirst",
         default="Two companies, one team: Green Spark Solutions Australia Pty Ltd and "
                 "Green Spark Solutions Ltd in Bangladesh.",
+        validators=[validate_inline],
     )
 
     groups_tag = models.CharField("teams eyebrow", max_length=60, default="Our teams")
@@ -51,6 +55,7 @@ class TeamPage(Singleton):
                 "measured with care.",
         help_text="Counts the teams below in words, so change it if you add or remove "
                   "one.",
+        validators=[validate_inline],
     )
 
     join_tag = models.CharField("careers eyebrow", max_length=60, default="Careers")
@@ -61,6 +66,7 @@ class TeamPage(Singleton):
         "careers standfirst",
         default="We work with people who care about communities and the environment, in "
                 "Australia and in Bangladesh.",
+        validators=[validate_inline],
     )
     join_label = models.CharField(
         "careers button", max_length=60, default="Careers at GSSL",
@@ -85,7 +91,7 @@ class TeamLeader(models.Model):
         help_text="The company and the office, e.g. “Green Spark Solutions Australia "
                   "Pty Ltd · Rockdale, NSW”.",
     )
-    bio = models.TextField(blank=True, help_text="Two sentences at most.")
+    bio = models.TextField(blank=True, help_text="Two sentences at most.", validators=[validate_inline])
     initials = models.CharField(
         max_length=4, blank=True,
         help_text="Shown in the circle. Left empty it is worked out from the name, "
@@ -126,7 +132,7 @@ class TeamGroup(models.Model):
     title = models.CharField(
         max_length=160, help_text="e.g. “Field operations · Manikganj”.",
     )
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:

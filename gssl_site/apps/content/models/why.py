@@ -12,6 +12,8 @@ renders the page exactly as it rendered before.
 
 from django.db import models
 
+from ..richtext import validate as validate_inline
+
 from ..icons import CHOICES as ICON_CHOICES
 from ..icons import IconMixin
 from .base import Singleton
@@ -30,6 +32,7 @@ class WhyGsslPage(Singleton):
                 "clean-energy programmes with communities in Bangladesh, Nepal and "
                 "Cambodia. Here is what partners, buyers and communities can expect "
                 "from us.",
+        validators=[validate_inline],
     )
     enquire_label = models.CharField(max_length=60, default="Enquire")
     whatsapp_label = models.CharField(max_length=60, default="WhatsApp us")
@@ -99,7 +102,7 @@ class WhyItem(IconMixin, models.Model):
                   "The plain cards have no icon.",
     )
     title = models.CharField(max_length=160)
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:

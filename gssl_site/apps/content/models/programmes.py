@@ -13,6 +13,8 @@ route can move without anything here changing.
 
 from django.db import models
 
+from ..richtext import validate as validate_inline
+
 
 class Programme(models.Model):
     CONCEPT = "concept"
@@ -39,7 +41,7 @@ class Programme(models.Model):
         help_text="The route name of this programme's page in the site's route map.",
     )
     stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default=CONCEPT, blank=True)
-    summary = models.TextField(blank=True)
+    summary = models.TextField(blank=True, validators=[validate_inline])
 
     priority = models.BooleanField(
         "lead programme", default=False,
@@ -69,7 +71,7 @@ class ProgrammeAttribute(models.Model):
     programme = models.ForeignKey(Programme, on_delete=models.CASCADE, related_name="attributes")
     icon = models.CharField(max_length=40, blank=True)
     title = models.CharField(max_length=160)
-    text = models.TextField(blank=True)
+    text = models.TextField(blank=True, validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -84,7 +86,7 @@ class ProgrammeStep(models.Model):
 
     programme = models.ForeignKey(Programme, on_delete=models.CASCADE, related_name="steps")
     title = models.CharField(max_length=160)
-    text = models.TextField(blank=True)
+    text = models.TextField(blank=True, validators=[validate_inline])
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:

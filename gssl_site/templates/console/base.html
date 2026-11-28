@@ -25,7 +25,7 @@
         <span>Solutions Australia</span>
       </span>
     </a>
-    <a class="cns-nav__item{% if not module %} is-current{% endif %}" href="{% url 'console:dashboard' %}">
+    <a class="cns-nav__item{% if not module and not current_page %} is-current{% endif %}" href="{% url 'console:dashboard' %}">
       <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-dashboard"></use></svg>
       Overview
     </a>
@@ -44,7 +44,7 @@
         </summary>
         <div class="cns-nav__sub">
           {% for page in console_pages %}
-            <a class="cns-nav__item cns-nav__item--page"
+            <a class="cns-nav__item cns-nav__item--page{% if page.name == current_page %} is-current{% endif %}"
                href="{% url 'console:page' page.name %}">
               <span class="cns-nav__page-label">{{ page.label }}</span>
               <span class="cns-nav__count">{{ page.section_count }}</span>

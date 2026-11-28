@@ -15,6 +15,8 @@ project's own ``gs_id``. Reordering in the console cannot put them out of step.
 
 from django.db import models
 
+from ..richtext import validate as validate_inline
+
 
 class CarouselSlide(models.Model):
     """One card in the home page carousel."""
@@ -23,6 +25,7 @@ class CarouselSlide(models.Model):
     text = models.TextField(
         help_text="Two sentences at most. The card is small and the text does "
                   "not scroll.",
+        validators=[validate_inline],
     )
     project = models.ForeignKey(
         "content.Project", null=True, blank=True, on_delete=models.CASCADE,

@@ -10,6 +10,8 @@ them out of step by reordering.
 
 from django.db import models
 
+from ..richtext import validate as validate_inline
+
 from ..icons import CHOICES as ICON_CHOICES
 from ..icons import IconMixin
 from .base import Singleton
@@ -40,7 +42,7 @@ class ApproachItem(IconMixin, models.Model):
         help_text="Shown only on the About Us cards. The home page's cards have no icon.",
     )
     title = models.CharField(max_length=160)
-    body = models.TextField()
+    body = models.TextField(validators=[validate_inline])
     link_label = models.CharField(
         max_length=80, blank=True,
         help_text="Leave empty for no link.",
@@ -163,6 +165,7 @@ class HomePage(Singleton):
         default="Green Spark aggregates rooftop solar, clean cooking and safe water "
                 "into verified carbon programmes that buyers and investors can trust.",
         help_text="Two lines at most: it sits over the video and competes with it.",
+        validators=[validate_inline],
     )
     meet_label = models.CharField(
         "video button", max_length=60, default="Meet GSSL",
