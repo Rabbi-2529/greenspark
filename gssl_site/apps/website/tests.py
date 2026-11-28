@@ -384,6 +384,95 @@ class TemplateFileTests(SimpleTestCase):
                 self.assertEqual(depth, 0)
 
 
+class UploadPlumbingTests(SimpleTestCase):
+    """
+    What has to be true on the server for an uploaded photograph to be
+    reachable.
+
+    Phase 6 is the first thing on this site that writes a file. The failure it
+    invites is silent: the console saves the photo, the database row is right,
+    the page renders an <img>, and the image 404s because nginx was never told
+    about /media/. Nothing in the application can notice that, so the shipped
+    nginx config and the environment template are checked here instead.
+    """
+
+    def deploy_file(self, name: str) -> str:
+        return (settings.BASE_DIR / "deploy" / name).read_text(encoding="utf-8")
+
+    def env_example(self) -> str:
+        return (settings.BASE_DIR / ".env.example").read_text(encoding="utf-8")
+
+    def test_media_is_served_from_its_own_url_prefix(self):
+        self.assertTrue(settings.MEDIA_URL.startswith("/"))
+        self.assertNotEqual(settings.MEDIA_URL, settings.STATIC_URL)
+        # An upload reachable under /static/ would be collected, hashed and
+        # cached for a year alongside the design build's own files.
+        self.assertFalse(settings.MEDIA_URL.startswith(settings.STATIC_URL))
+        self.assertFalse(settings.STATIC_URL.startswith(settings.MEDIA_URL))
+
+    def test_nginx_serves_media_from_the_path_the_environment_names(self):
+        conf = self.deploy_file("nginx.conf")
+        block = re.search(
+            r"location\s+" + re.escape(settings.MEDIA_URL) + r"\s*\{(.*?)\n    \}",
+            conf, re.S,
+        )
+        self.assertIsNotNone(block, "deploy/nginx.conf has no location for MEDIA_URL")
+        alias = re.search(r"alias\s+(\S+);", block.group(1))
+        self.assertIsNotNone(alias, "the media location has no alias")
+        documented = re.search(r"^DJANGO_MEDIA_ROOT=(\S+)", self.env_example(), re.M)
+        self.assertIsNotNone(documented, ".env.example does not mention DJANGO_MEDIA_ROOT")
+        self.assertEqual(alias.group(1).rstrip("/"), documented.group(1).rstrip("/"))
+
+    def test_a_missing_upload_does_not_fall_through_to_django(self):
+        """
+        Without try_files the / location answers instead and Django renders
+        the site's 404 *page* for an image request -- a 404 nobody can see in
+        a log full of them.
+        """
+        conf = self.deploy_file("nginx.conf")
+        block = re.search(
+            r"location\s+" + re.escape(settings.MEDIA_URL) + r"\s*\{(.*?)\n    \}",
+            conf, re.S,
+        ).group(1)
+        self.assertIn("try_files", block)
+        self.assertIn("nosniff", block)
+
+    def test_nginx_accepts_an_upload_as_large_as_django_does(self):
+        """
+        nginx refuses an over-size body before Django ever sees it, with a
+        bare 413. Its limit has to sit above ours so the person gets the
+        console's message naming the limit instead.
+        """
+        size = re.search(r"client_max_body_size\s+(\d+)m;", self.deploy_file("nginx.conf"))
+        self.assertIsNotNone(size, "nginx.conf no longer sets client_max_body_size in MB")
+        self.assertGreater(
+            int(size.group(1)) * 1024 * 1024, settings.UPLOAD_IMAGE_MAX_BYTES,
+        )
+
+    def test_the_release_script_makes_the_upload_directory(self):
+        """collectstatic rebuilds /static/; nothing rebuilds /media/."""
+        release = self.deploy_file("release.sh")
+        self.assertIn("MEDIA_ROOT", release)
+        self.assertIn("mkdir -p", release)
+
+    def test_the_runbook_says_to_back_up_the_uploads(self):
+        """A database backup alone restores a gallery whose every photo 404s."""
+        runbook = self.deploy_file("RUNBOOK.md")
+        backups = runbook.split("## Backups")[-1]
+        self.assertIn("media", backups)
+
+    def test_only_raster_images_may_be_uploaded(self):
+        """
+        An SVG served from our own origin is a document, and the site's CSP
+        lets a same-origin document run scripts. "Upload a photo" must not be
+        a way to put one on greensparksolutions.com.
+        """
+        self.assertNotIn("svg", settings.UPLOAD_IMAGE_EXTENSIONS)
+        self.assertEqual(
+            set(settings.UPLOAD_IMAGE_EXTENSIONS), {"jpg", "jpeg", "png", "webp"},
+        )
+
+
 class ProjectPageTests(RenderedPages, TestCase):
     """
     Every project has its own page. The design build shipped one detail page
@@ -585,6 +674,9 @@ class ProductionSettingsTests(SimpleTestCase):
         "DJANGO_ALLOWED_HOSTS": "example.test",
         "DJANGO_SITE_URL": "https://example.test",
         "DJANGO_DB_PATH": "/tmp/gssl-settings-test/db.sqlite3",
+        # prod.py creates MEDIA_ROOT on import; point it somewhere disposable
+        # so running the tests never writes into the checkout.
+        "DJANGO_MEDIA_ROOT": "/tmp/gssl-settings-test/media",
     }
 
     def test_starts_with_the_required_values(self):

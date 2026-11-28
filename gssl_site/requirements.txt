@@ -3,5 +3,6 @@
 
 Django>=5.2,<6.0          # 5.2 is the current LTS
 whitenoise>=6.9            # static files straight from the app server
+Pillow>=11.0               # ImageField: reads an upload's size, scales it down
 python-dotenv>=1.0         # reads .env in development
 gunicorn>=23.0 ; sys_platform != "win32"   # production WSGI server

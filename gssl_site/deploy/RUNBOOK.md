@@ -65,8 +65,13 @@ encryption mode. `Full` or `Full (strict)` is what `ics.` already relies on.
 The systemd unit assumes these paths exactly.
 
     adduser --system --group --home /srv/gssl gssl
-    mkdir -p /srv/gssl/{app,data,static} /etc/gssl
+    mkdir -p /srv/gssl/{app,data,static,media} /etc/gssl
     chown -R gssl:gssl /srv/gssl
+
+`media` is where photographs uploaded through the console land. It is the only
+directory here with content in it that no deploy can recreate â€” `static` comes
+from `collectstatic`, `app` from git, and `data` holds the database. See
+**Uploaded photographs** below and **Backups** at the end.
 
 ## 3. The code
 
@@ -99,6 +104,7 @@ Set these. The first three are refused outright if missing or wrong:
     DJANGO_SITE_URL=https://greensparksolutions.com
     DJANGO_DB_PATH=/srv/gssl/data/db.sqlite3
     DJANGO_STATIC_ROOT=/srv/gssl/static
+    DJANGO_MEDIA_ROOT=/srv/gssl/media
     DJANGO_ADMIN_URL=admin/
     DJANGO_CONSOLE_URL=office/
     DJANGO_BEHIND_PROXY=1
@@ -124,6 +130,41 @@ It installs requirements, runs `check --deploy` refusing on any warning,
 migrates — seeding the site map, six programmes, seven projects and the home
 page content — and writes the static files. It stops at the first failure, so
 a broken release never reaches the reload.
+
+## 6b. Uploaded photographs
+
+The gallery takes photographs uploaded in the console, which is the first thing
+on this site that writes a file rather than a database row. Three things have to
+be true or an upload saves and then 404s, which is the failure that looks like a
+working feature:
+
+1. **`DJANGO_MEDIA_ROOT` is set and writable by `gssl`.** `release.sh` creates
+   it and prints the path; `/srv/gssl/media` if you followed step 2.
+2. **nginx serves it.** `deploy/nginx.conf` has a `location /media/` block
+   pointing at `/srv/gssl/media/`. Django does not serve media with `DEBUG`
+   off, so without that block every photo answers 404 â€” and `/` would hand
+   the request to Django, which renders the site's 404 *page* for an image, so
+   nothing in the logs says "missing file".
+3. **`client_max_body_size` is big enough.** It is `12m` in the shipped config,
+   a little above Django's own 10 MB limit, so somebody uploading a large photo
+   gets the console's message naming the limit rather than nginx's bare 413.
+
+Confirm it after step 8, with the site running:
+
+    sudo -u gssl touch /srv/gssl/media/probe.txt
+    curl -skI https://greensparksolutions.com/media/probe.txt | head -1   # 200
+    rm /srv/gssl/media/probe.txt
+    curl -skI https://greensparksolutions.com/media/probe.txt | head -1   # 404
+
+A 200 on the first and a 404 on the second means nginx is serving the directory
+and not falling through to Django. Anything else: check the `alias` path and
+that `gssl` owns the directory.
+
+The console scales a photo down to 1600px on its longest edge and re-encodes it
+as JPEG, so an uploaded phone photo does not become a 6 MB download. It does
+**not** make the `.webp` and multi-size set that the design build's own photos
+have â€” those were made by hand and ship in git. `DJANGO_UPLOAD_MAX_EDGE` and
+`DJANGO_UPLOAD_MAX_BYTES` change the two limits.
 
 ## 7. The first console account
 
@@ -376,3 +417,11 @@ sqlite3 rather than `cp`:
     sudo -u gssl sqlite3 /srv/gssl/data/db.sqlite3 ".backup '/srv/gssl/data/backup.sqlite3'"
 
 Put a dated version of that in cron, and copy the result off the droplet.
+
+`/srv/gssl/media/` is the other half, and it is not in the database: every
+photograph uploaded through the console lives there as a file. A backup of the
+database alone restores a gallery whose every photo 404s.
+
+    sudo tar czf /srv/gssl/data/media-$(date +%F).tar.gz -C /srv/gssl media
+
+Both of those belong in the same cron job and the same off-droplet copy.

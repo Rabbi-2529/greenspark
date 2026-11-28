@@ -162,8 +162,26 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = Path(env("DJANGO_STATIC_ROOT", str(BASE_DIR / "staticfiles")))
 
+# --- Uploads ----------------------------------------------------------------
+# Everything under {% static %} is part of the design build and ships in git.
+# MEDIA_ROOT is the other kind of file: photographs Green Spark upload through
+# the console. They are not in git and not in collectstatic's output, so the
+# directory has to exist on the server, be writable by the service account,
+# be served at MEDIA_URL by nginx, and be in the backup. deploy/RUNBOOK.md
+# covers all four; miss the nginx part and an upload saves and then 404s.
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path(env("DJANGO_MEDIA_ROOT", str(BASE_DIR / "media")))
+
+# What the console accepts for a photograph. Raster only: an SVG served from
+# our own origin is a document that the site's own CSP would let run scripts,
+# which is not what "upload a photo" should mean. Pillow refuses one anyway â€”
+# this is the error message a person sees rather than a stack trace.
+UPLOAD_IMAGE_EXTENSIONS = ("jpg", "jpeg", "png", "webp")
+UPLOAD_IMAGE_MAX_BYTES = env_int("DJANGO_UPLOAD_MAX_BYTES", 10 * 1024 * 1024)
+# A photo wider or taller than this is scaled down on save. The gallery serves
+# the file it is given, so a 4000px phone photo would otherwise be a 6 MB
+# download on a page with twenty of them.
+UPLOAD_IMAGE_MAX_EDGE = env_int("DJANGO_UPLOAD_MAX_EDGE", 1600)
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},

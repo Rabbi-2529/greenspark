@@ -20,4 +20,13 @@ cd "$(dirname "$0")/.."
 "$VENV/bin/python" manage.py migrate --noinput
 "$VENV/bin/python" manage.py collectstatic --noinput --verbosity 0
 
+# Uploaded photographs. Unlike static, nothing recreates these -- the release
+# only has to make sure the directory is there and ours, because nginx serves
+# it directly and the first upload would otherwise fail on a fresh server.
+# config.settings.prod creates it too; this prints it, so a release makes the
+# path visible rather than leaving it to be discovered when a photo 404s.
+MEDIA_ROOT="$("$VENV/bin/python" -c 'import django; django.setup(); from django.conf import settings; print(settings.MEDIA_ROOT)')"
+mkdir -p "$MEDIA_ROOT"
+echo "Uploads: $MEDIA_ROOT  (nginx must serve /media/ from here; back it up)"
+
 echo "Ready: $(git rev-parse --short HEAD). Now run: sudo systemctl reload gssl"

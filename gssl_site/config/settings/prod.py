@@ -92,3 +92,6 @@ CACHES = {
 
 # Make sure the database directory exists before Django opens the file.
 DATABASES["default"]["NAME"].parent.mkdir(parents=True, exist_ok=True)  # noqa: F405
+# And the upload directory, before anyone saves a photo into it. nginx serves
+# this path directly; see deploy/nginx.conf.
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)  # noqa: F405
