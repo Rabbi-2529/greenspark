@@ -20,6 +20,8 @@ from django.contrib.auth.models import Group
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from apps.content.models import Page
+
 from apps.website.models import Enquiry
 
 from . import roles
@@ -803,3 +805,42 @@ class RegistryTests(TestCase):
         admin = make_user("boss", roles.ADMINISTRATOR)
         names = [group["name"] for group in registry.nav(admin)]
         self.assertEqual(names, sorted(names, key=lambda n: registry.GROUP_ORDER.index(n)))
+
+
+class SidebarPagesTests(TestCase):
+    """
+    Green Spark asked for the menu to mirror the website: a page, and its
+    bands under it. The list is built from the Page table, so a page added or
+    taken offline changes the menu without anyone editing a template.
+    """
+
+    def setUp(self):
+        self.client.force_login(make_user("nav-admin", rank=roles.ADMINISTRATOR))
+
+    def body(self):
+        return self.client.get(reverse("console:dashboard")).content.decode()
+
+    def test_live_pages_are_listed(self):
+        body = self.body()
+        page = Page.objects.exclude(status="offline").filter(sections__isnull=False).first()
+        self.assertIsNotNone(page)
+        self.assertIn(page.label, body)
+        self.assertIn(f"on_page={page.name}", body)
+
+    def test_offline_pages_are_not_listed(self):
+        """An offline page answers 404; there is nothing to go and look at."""
+        page = Page.objects.filter(status="offline").first()
+        if page is None:
+            self.skipTest("nothing offline to check")
+        self.assertNotIn(f"on_page={page.name}", self.body())
+
+    def test_a_page_with_no_sections_is_not_a_dead_end(self):
+        page = Page.objects.exclude(status="offline").first()
+        page.sections.all().delete()
+        self.assertNotIn(f"on_page={page.name}", self.body())
+
+    def test_the_menu_carries_no_inline_style_or_handler(self):
+        """The console runs under the site's CSP, like every other screen."""
+        body = self.body()
+        self.assertNotIn(" style=", body)
+        self.assertNotIn("onclick=", body)

@@ -212,6 +212,22 @@
 }
 .cns-nav__sub .cns-nav__item { padding-block: var(--gs-space-2); }
 
+/* The website-pages menu is a long list, so it scrolls inside the sidebar
+   rather than pushing everything else out of reach. */
+.cns-nav__group .cns-nav__sub { max-height: 22rem; overflow-y: auto; }
+.cns-nav__item--page { justify-content: space-between; gap: var(--gs-space-2); }
+.cns-nav__page-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cns-nav__count {
+  flex: none; min-width: 1.5rem; padding: 0 var(--gs-space-1);
+  border-radius: var(--gs-radius-pill, 999px);
+  background: var(--gs-linen-100); color: var(--gs-color-text-muted);
+  font-size: var(--gs-fs-xs); font-weight: var(--gs-fw-medium);
+  line-height: 1.35rem; text-align: center;
+}
+.cns-nav__item.is-current .cns-nav__count {
+  background: var(--gs-color-surface); color: var(--gs-color-primary);
+}
+
 .cns-nav__item {
   display: flex; align-items: center; gap: var(--gs-space-3);
   padding: var(--gs-space-3) var(--gs-space-3);

@@ -13,6 +13,7 @@ import time
 
 from django.conf import settings
 from django.contrib.auth import logout
+from django.db.models import Count
 from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -24,6 +25,28 @@ from .registry import registry
 SEEN_KEY = "console_seen_at"
 # Don't rewrite the session on every single request.
 TOUCH_EVERY = 60
+
+
+def site_pages():
+    """
+    The website's own pages, for the sidebar, each with how many bands it
+    has. Green Spark asked for the menu to mirror the site: a page, and its
+    sections under it.
+
+    Pages with no sections are left out rather than listed as dead ends --
+    the menu is for getting to something editable. Offline pages are left
+    out too: they answer 404, so there is nothing to look at.
+    """
+    from apps.content.models import Page
+    from apps.content.models.pages import OFFLINE
+
+    rows = (
+        Page.objects.exclude(status=OFFLINE)
+        .annotate(section_count=Count("sections"))
+        .filter(section_count__gt=0)
+        .order_by("sort_order", "label")
+    )
+    return list(rows)
 
 
 class ConsoleAccessMixin:
@@ -90,6 +113,7 @@ class ConsoleAccessMixin:
             "console_nav": registry.nav(
                 self.request.user, getattr(self, "module", None)
             ),
+            "console_pages": site_pages(),
             "console_role": roles.label_of(self.request.user),
             "console_rank": roles.rank_of(self.request.user),
             "breadcrumbs": self.breadcrumbs(),

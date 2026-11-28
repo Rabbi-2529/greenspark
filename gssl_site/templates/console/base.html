@@ -73,6 +73,31 @@
       </details>
       {% endwith %}
     {% endfor %}
+
+    {% if console_pages %}
+      {% comment %}
+        The site's own pages, so the menu mirrors the website: pick a page,
+        get its bands. Each one opens the sections list filtered to it --
+        the filter is "on_page", not "page", which the paginator uses.
+      {% endcomment %}
+      <p class="cns-nav__eyebrow">Website pages</p>
+      <details class="cns-nav__group">
+        <summary class="cns-nav__parent">
+          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-page"></use></svg>
+          <span class="cns-nav__parent-label">Pages</span>
+          <svg class="cns-icon cns-nav__chev" aria-hidden="true"><use href="#cns-i-down"></use></svg>
+        </summary>
+        <div class="cns-nav__sub">
+          {% for page in console_pages %}
+            <a class="cns-nav__item cns-nav__item--page"
+               href="{% url 'console:list' 'sections' %}?on_page={{ page.name }}">
+              <span class="cns-nav__page-label">{{ page.label }}</span>
+              <span class="cns-nav__count">{{ page.section_count }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </details>
+    {% endif %}
   </nav>
 
   <main class="cns-main" id="cns-main">
