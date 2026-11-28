@@ -1,0 +1,55 @@
+{% extends "console/base.html" %}
+
+{% block title %}{{ page.label }}{% endblock %}
+
+{% block content %}
+  <p class="cns-eyebrow">Web</p>
+  <h1 class="cns-h1">{{ page.label }}</h1>
+  <p class="cns-lede">
+    Everything on this page. {{ page.title }}
+  </p>
+
+  <div class="cns-pagehead">
+    <span class="cns-badge cns-badge--{{ page.status }}">{{ page.get_status_display|default:page.status }}</span>
+    {% if page_url %}<a class="cns-btn cns-btn--quiet cns-btn--sm" href="{{ page_url }}">Page settings</a>{% endif %}
+  </div>
+
+  <h2 class="cns-h2">What you can edit here</h2>
+  {% if parts %}
+    <div class="cns-tiles">
+      {% for part in parts %}
+        <a class="cns-tile" href="{{ part.url }}">
+          <svg class="cns-icon cns-tile__icon" aria-hidden="true"><use href="#cns-i-{{ part.module.icon }}"></use></svg>
+          <span class="cns-tile__name">{{ part.module.label_plural }}</span>
+          <span class="cns-tile__count">
+            {% if part.single %}One record{% else %}{{ part.count }} row{{ part.count|pluralize }}{% endif %}
+          </span>
+          <span class="cns-tile__blurb">{{ part.module.blurb }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="cns-empty">
+      Nothing on this page is editable yet — its words are still in the template.
+    </p>
+  {% endif %}
+
+  <h2 class="cns-h2">Bands on this page</h2>
+  <p class="cns-lede">
+    Turning one off takes it off the website. Nothing is deleted.
+    {% if hidden_count %}<strong>{{ hidden_count }} hidden.</strong>{% endif %}
+  </p>
+  <ul class="cns-bands">
+    {% for section in sections %}
+      <li class="cns-bands__item{% if not section.visible %} is-off{% endif %}">
+        <span class="cns-bands__name">{{ section.label }}</span>
+        <span class="cns-bands__state">{% if section.visible %}On the page{% else %}Hidden{% endif %}</span>
+      </li>
+    {% empty %}
+      <li class="cns-bands__item"><span class="cns-bands__name">No bands recorded.</span></li>
+    {% endfor %}
+  </ul>
+  {% if sections_url %}
+    <p><a class="cns-btn cns-btn--quiet cns-btn--sm" href="{{ sections_url }}">Show or hide bands</a></p>
+  {% endif %}
+{% endblock %}

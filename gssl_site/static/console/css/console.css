@@ -706,3 +706,30 @@
 @media (prefers-reduced-motion: reduce) {
   .cns *, .cns *::before, .cns *::after { transition-duration: 0s !important; }
 }
+
+/* ---- One page of the website -------------------------------------------- */
+
+.cns-pagehead {
+  display: flex; align-items: center; gap: var(--gs-space-3);
+  flex-wrap: wrap; margin: var(--gs-space-4) 0 var(--gs-space-6);
+}
+
+.cns-bands {
+  list-style: none; margin: var(--gs-space-4) 0; padding: 0;
+  border: 1px solid var(--gs-color-border);
+  border-radius: var(--gs-radius-lg);
+  background: var(--gs-color-surface);
+  overflow: hidden;
+}
+.cns-bands__item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--gs-space-4);
+  padding: var(--gs-space-3) var(--gs-space-4);
+  border-bottom: 1px solid var(--gs-color-border);
+  font-size: var(--gs-fs-small);
+}
+.cns-bands__item:last-child { border-bottom: 0; }
+.cns-bands__name { font-weight: var(--gs-fw-medium); }
+.cns-bands__state { color: var(--gs-color-text-muted); font-size: var(--gs-fs-xs); }
+.cns-bands__item.is-off .cns-bands__name { color: var(--gs-color-text-muted); }
+.cns-bands__item.is-off .cns-bands__state { color: var(--gs-warning-700); }

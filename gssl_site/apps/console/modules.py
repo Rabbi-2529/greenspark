@@ -113,6 +113,7 @@ def programme_choices():
 
 registry.register(Module(
     slug="projects",
+    pages=("projects",),
     model=Project,
     label="Project",
     label_plural="Projects",
@@ -168,6 +169,14 @@ registry.register(Module(
 
 registry.register(Module(
     slug="programmes",
+    pages=(
+        "programme_improved_cookstove",
+        "programme_rooftop_solar",
+        "programme_safe_drinking_water",
+        "programme_solar_irrigation",
+        "programme_rural_productive_use_solar",
+        "programme_low_emission_rice",
+    ),
     model=Programme,
     label="Programme",
     label_plural="Programmes",
@@ -219,6 +228,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="approach",
+    pages=("home", "about"),
     model=ApproachItem,
     label="Approach point",
     label_plural="Approach points",
@@ -246,6 +256,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="counters",
+    pages=("home", "programme_improved_cookstove"),
     model=Counter,
     label="Impact figure",
     label_plural="Impact figures",
@@ -283,6 +294,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="districts",
+    pages=("home", "programme_improved_cookstove"),
     model=District,
     label="District",
     label_plural="Districts",
@@ -309,6 +321,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="about-page",
+    pages=("about",),
     model=AboutPage,
     label="About Us page",
     label_plural="About Us page",
@@ -337,6 +350,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="about-figures",
+    pages=("about",),
     model=AboutStat,
     label="About Us figure",
     label_plural="About Us figures",
@@ -360,6 +374,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="vision",
+    pages=("about",),
     model=VisionAttribute,
     label="Vision point",
     label_plural="Vision points",
@@ -382,6 +397,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="partners",
+    pages=("about",),
     model=Audience,
     label="Partner type",
     label_plural="Partner types",
@@ -405,6 +421,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="career-areas",
+    pages=("about",),
     model=CareerArea,
     label="Area of work",
     label_plural="Areas of work",
@@ -427,6 +444,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="openings",
+    pages=("about",),
     model=JobOpening,
     label="Open role",
     label_plural="Open roles",
@@ -464,6 +482,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="why-page",
+    pages=("why_gssl",),
     model=WhyGsslPage,
     label="Why GSSL page",
     label_plural="Why GSSL page",
@@ -489,6 +508,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="why-points",
+    pages=("why_gssl",),
     model=WhyItem,
     label="Why GSSL point",
     label_plural="Why GSSL points",
@@ -516,6 +536,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="team-page",
+    pages=("team",),
     model=TeamPage,
     label="Our team page",
     label_plural="Our team page",
@@ -539,6 +560,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="team-leaders",
+    pages=("team",),
     model=TeamLeader,
     label="Team leader",
     label_plural="Team leaders",
@@ -563,6 +585,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="teams",
+    pages=("team",),
     model=TeamGroup,
     label="Team",
     label_plural="Teams",
@@ -588,6 +611,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="faq-page",
+    pages=("faq",),
     model=FaqPage,
     label="FAQ page",
     label_plural="FAQ page",
@@ -611,6 +635,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="faq-topics",
+    pages=("faq", "programme_improved_cookstove"),
     model=FaqGroup,
     label="FAQ topic",
     label_plural="FAQ topics",
@@ -649,6 +674,7 @@ def faq_topic_choices():
 
 registry.register(Module(
     slug="questions",
+    pages=("faq", "programme_improved_cookstove"),
     model=FaqItem,
     label="Question",
     label_plural="All questions",
@@ -682,6 +708,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="privacy-page",
+    pages=("privacy",),
     model=PrivacyPage,
     label="Privacy policy",
     label_plural="Privacy policy",
@@ -703,6 +730,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="policy-sections",
+    pages=("privacy",),
     model=PolicySection,
     label="Policy section",
     label_plural="Policy sections",
@@ -732,6 +760,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="carousel",
+    pages=("home",),
     model=CarouselSlide,
     label="Carousel card",
     label_plural="Home carousel",
@@ -764,6 +793,7 @@ registry.register(Module(
 
 registry.register(Module(
     slug="home-page",
+    pages=("home",),
     model=HomePage,
     label="Home page",
     label_plural="Home page",

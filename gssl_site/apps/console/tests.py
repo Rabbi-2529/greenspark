@@ -825,19 +825,19 @@ class SidebarPagesTests(TestCase):
         page = Page.objects.exclude(status="offline").filter(sections__isnull=False).first()
         self.assertIsNotNone(page)
         self.assertIn(page.label, body)
-        self.assertIn(f"on_page={page.name}", body)
+        self.assertIn(f"/web/{page.name}/", body)
 
     def test_offline_pages_are_not_listed(self):
         """An offline page answers 404; there is nothing to go and look at."""
         page = Page.objects.filter(status="offline").first()
         if page is None:
             self.skipTest("nothing offline to check")
-        self.assertNotIn(f"on_page={page.name}", self.body())
+        self.assertNotIn(f"/web/{page.name}/", self.body())
 
     def test_a_page_with_no_sections_is_not_a_dead_end(self):
         page = Page.objects.exclude(status="offline").first()
         page.sections.all().delete()
-        self.assertNotIn(f"on_page={page.name}", self.body())
+        self.assertNotIn(f"/web/{page.name}/", self.body())
 
     def test_the_menu_carries_no_inline_style_or_handler(self):
         """The console runs under the site's CSP, like every other screen."""
@@ -921,3 +921,56 @@ class VendoredLibraryTests(TestCase):
         for banned in ("heading", "imageUpload", "insertTable", "blockQuote", "code"):
             with self.subTest(button=banned):
                 self.assertNotIn(banned, toolbar)
+
+
+class PageScreenTests(TestCase):
+    """
+    One page of the website, and everything on it. The console's other screens
+    are organised by model; this one is organised the way Green Spark think
+    about the site, which is the way they asked for.
+    """
+
+    def setUp(self):
+        self.client.force_login(make_user("page-admin", rank=roles.ADMINISTRATOR))
+
+    def get(self, name="home"):
+        return self.client.get(reverse("console:page", args=[name]))
+
+    def tiles(self, name="home"):
+        """Just the tiles, not the sidebar -- which lists every module."""
+        body = self.get(name).content.decode()
+        start = body.index('class="cns-tiles"')
+        return body[start:body.index("</div>", start)]
+
+    def test_it_lists_what_is_editable_on_that_page(self):
+        tiles = self.tiles()
+        for expected in ("Home page", "Approach points", "Impact figures", "Districts",
+                         "Home carousel"):
+            with self.subTest(part=expected):
+                self.assertIn(expected, tiles)
+
+    def test_it_leaves_out_what_belongs_to_other_pages(self):
+        tiles = self.tiles()
+        for other in ("Policy sections", "Team leaders", "Open roles"):
+            with self.subTest(part=other):
+                self.assertNotIn(other, tiles)
+
+    def test_content_shared_by_two_pages_appears_on_both(self):
+        """The impact figures are on the home page and the cookstove page."""
+        for name in ("home", "programme_improved_cookstove"):
+            with self.subTest(page=name):
+                self.assertIn("Impact figures", self.tiles(name))
+
+    def test_it_lists_the_bands_and_says_which_are_hidden(self):
+        body = self.get("home").content.decode()
+        self.assertIn("Bands on this page", body)
+        self.assertIn("Hidden", body)
+
+    def test_an_unknown_page_is_a_404(self):
+        self.assertEqual(self.get("not-a-page").status_code, 404)
+
+    def test_it_needs_a_sign_in(self):
+        self.client.logout()
+        response = self.get("home")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("sign-in", response["Location"])

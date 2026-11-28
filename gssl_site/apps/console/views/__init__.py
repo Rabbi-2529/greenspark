@@ -6,6 +6,7 @@ from .auth import (
     ConsolePasswordChangeView,
     StaffPasswordView,
 )
+from .page import PageDetailView
 from .crud import (
     ModuleDataView,
     ModuleDeleteView,
@@ -18,6 +19,7 @@ from .crud import (
 from .dashboard import DashboardView
 
 __all__ = [
+    "PageDetailView",
     "ConsoleLoginView",
     "ConsoleLogoutView",
     "ConsolePasswordChangeView",

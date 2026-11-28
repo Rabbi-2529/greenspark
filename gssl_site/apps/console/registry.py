@@ -172,6 +172,13 @@ class Module:
 
     view_rank: int = roles.VIEWER
     edit_rank: int = roles.EDITOR
+
+    # Which pages of the website this content appears on, by the page
+    # names in apps/website/pages.py. It drives the per-page screen:
+    # "go to Home page and see everything on it", which is how Green
+    # Spark think about the site, rather than knowing that the hero is a
+    # HomePage row and the counters are something else.
+    pages: tuple[str, ...] = ()
     delete_rank: int = roles.PUBLISHER
 
     extra: dict = field(default_factory=dict)
@@ -369,6 +376,13 @@ class Registry:
         "People": "people",
     }
 
+    def for_page(self, user, page_name: str) -> list["Module"]:
+        """Everything this user may edit that shows up on one page."""
+        return [
+            m for m in self._modules.values()
+            if page_name in m.pages and m.may_view(user)
+        ]
+
     def nav(self, user, current=None) -> list[dict]:
         """
         The sidebar: groups in GROUP_ORDER, holding what this user may see.
@@ -376,7 +390,13 @@ class Registry:
         Each group carries its icon and whether it holds the page being looked
         at, so the template can open that one and leave the rest closed.
         """
-        visible = [m for m in self._modules.values() if m.may_view(user)]
+        # Anything that belongs to a page is reached through that page's own
+        # screen, so listing it here as well is the same menu twice -- which is
+        # what made the sidebar confusing. What is left is the site-wide
+        # things: settings, enquiries, staff, the page list itself.
+        visible = [
+            m for m in self._modules.values() if m.may_view(user) and not m.pages
+        ]
         groups: dict[str, list[Module]] = {}
         for module in visible:
             groups.setdefault(module.group, []).append(module)

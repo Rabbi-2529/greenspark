@@ -21,6 +21,10 @@ urlpatterns = [
     path("password/", views.ConsolePasswordChangeView.as_view(), name="password_change"),
     path("staff/<int:pk>/password/", views.StaffPasswordView.as_view(), name="staff_password"),
 
+    # One page of the website and everything on it. Above the module
+    # routes on purpose: "web" would otherwise be read as a module slug.
+    path("web/<slug:name>/", views.PageDetailView.as_view(), name="page"),
+
     # Every module, through the same six views.
     path("<slug:slug>/", views.ModuleListView.as_view(), name="list"),
     path("<slug:slug>/data/", views.ModuleDataView.as_view(), name="data"),

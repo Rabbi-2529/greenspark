@@ -45,7 +45,7 @@
         <div class="cns-nav__sub">
           {% for page in console_pages %}
             <a class="cns-nav__item cns-nav__item--page"
-               href="{% url 'console:list' 'sections' %}?on_page={{ page.name }}">
+               href="{% url 'console:page' page.name %}">
               <span class="cns-nav__page-label">{{ page.label }}</span>
               <span class="cns-nav__count">{{ page.section_count }}</span>
             </a>
