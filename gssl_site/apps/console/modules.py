@@ -18,9 +18,10 @@ from .models import AuditEntry
 from .registry import Column, Filter, Inline, Module, registry
 
 from apps.content.models import (
-    ApproachItem, ContactDetails, Counter, District, NoticeBar, Page, Programme, ProgrammeAttribute, ProgrammeStep,
-    Project, ProjectAttribute, ProjectImage, ProjectParagraph, Section, SiteSettings,
-    SocialLinks,
+    ApproachItem, ContactDetails, Counter, District, HomePage, NoticeBar,
+    Page, Programme, ProgrammeAttribute, ProgrammeStep, Project,
+    ProjectAttribute, ProjectImage, ProjectParagraph, Section,
+    SiteSettings, SocialLinks
 )
 from apps.website.models import ENQUIRY_SUBJECTS, ENQUIRY_TYPES, Enquiry
 
@@ -301,6 +302,27 @@ registry.register(Module(
 
 
 # --- Settings ---------------------------------------------------------------
+
+registry.register(Module(
+    slug="home-page",
+    model=HomePage,
+    label="Home page",
+    label_plural="Home page",
+    group="Content",
+    icon="page",
+    blurb="The hero: its wording, and which video plays behind it.",
+    singleton=True,
+    can_create=False,
+    can_delete=False,
+    fields=(
+        "title", "welcome_tag", "welcome_text", "lead", "meet_label",
+        "scroll_label", "heading", "pause_label", "video_name",
+    ),
+    columns=(Column("title", "Headline", link=True),),
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
 
 registry.register(Module(
     slug="site-settings",

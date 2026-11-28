@@ -160,7 +160,7 @@ against the plan.
 | 1 The console shell | built, except the vendored widgets (Select2, DataTables, FullCalendar, SortableJS, a rich-text editor still need downloading into `static/console/vendor/`) |
 | 2 Site map, hideable sections, settings | mostly built. `SiteSettings` / `ContactDetails` / `SocialLinks` / `NoticeBar` exist but only `show_topbar` is wired into a template; the rest of the chrome still reads literals |
 | 3 Programmes and Projects | built |
-| 4 Home page and impact data | **started — this is where to pick up** |
+| 4 Home page and impact data | built, bar the project carousel |
 | 5–10 | not started |
 
 ### Phase 4, precisely where it stops
@@ -181,14 +181,16 @@ rewired, and the pages re-rendered under the same conditions — byte for byte
 identical — then the database put back as it ships. Do the same for anything
 else that lives inside a hidden section.
 
+The hero is a `HomePage` singleton: headline, welcome line, lead, button and
+scroll labels, the hidden `<h1>`, and the video. One `video_name` drives all
+six files and the two preload hints in `<head>`. The hero band is visible, so
+the golden harness proves it directly.
+
 Not built:
 
 - The Bangladesh map SVG hard-codes its ten active districts as
   `class="bd-map__district is-active"`. The list is dynamic now; the map is
   not, so a district added in the console will not light up on it.
-- `HeroSlide` and the `HomePage` singleton — hero wording, the video, section
-  headings. The hero copy and its CSS have been hand-edited twice at Green
-  Spark's request this week, which is the argument for building this next.
 - The home page project carousel, carried over from Phase 3. It is a different
   component from the Projects grid: `fcard` markup, five of the seven projects,
   slide indices in `aria-label="1 of 5"`.

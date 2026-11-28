@@ -4,8 +4,8 @@
 {% block head_meta %}{% include "partials/page_meta.html" with title="Green Spark Solutions Australia | Carbon projects & clean energy in Bangladesh" description="Green Spark Solutions Australia develops carbon projects and clean-energy programmes with communities in Bangladesh, Nepal and Cambodia, including cookstove projects registered with Gold Standard." og_image="img/illustrations/dawn-paddy-1280.jpg" %}{% endblock %}
 {% block body_class %}has-dark-hero page-home{% endblock %}
 {% block head_preload %}
-  <link rel="preload" as="image" href="{% static 'video/hero/gs-hero-poster.webp' %}" type="image/webp" media="(min-aspect-ratio: 4/5)" fetchpriority="high">
-  <link rel="preload" as="image" href="{% static 'video/hero/gs-hero-mobile-poster.webp' %}" type="image/webp" media="(max-aspect-ratio: 4/5)" fetchpriority="high">
+  <link rel="preload" as="image" href="{% static home.poster_wide|add:'.webp' %}" type="image/webp" media="(min-aspect-ratio: 4/5)" fetchpriority="high">
+  <link rel="preload" as="image" href="{% static home.poster_tall|add:'.webp' %}" type="image/webp" media="(max-aspect-ratio: 4/5)" fetchpriority="high">
 {% endblock %}
 {% block component_scripts %}
   <script src="{% static 'js/components/video-hero.js' %}" defer></script>
@@ -14,38 +14,38 @@
 
 {% block content %}
 {% if sections.hero %}<section class="gs-vhero grain" data-vhero aria-labelledby="hero-title">
-  <h1 class="visually-hidden">Green Spark Solutions Australia: carbon projects and clean energy for communities in Bangladesh, Nepal and Cambodia</h1>
+  <h1 class="visually-hidden">{{ home.heading }}</h1>
   <div class="gs-vhero__media" aria-hidden="true">
     <picture>
-      <source media="(max-aspect-ratio: 4/5)" srcset="{% static 'video/hero/gs-hero-mobile-poster.webp' %}" type="image/webp">
-      <source media="(max-aspect-ratio: 4/5)" srcset="{% static 'video/hero/gs-hero-mobile-poster.jpg' %}">
-      <source srcset="{% static 'video/hero/gs-hero-poster.webp' %}" type="image/webp">
-      <img src="{% static 'video/hero/gs-hero-poster.jpg' %}" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+      <source media="(max-aspect-ratio: 4/5)" srcset="{% static home.poster_tall|add:'.webp' %}" type="image/webp">
+      <source media="(max-aspect-ratio: 4/5)" srcset="{% static home.poster_tall|add:'.jpg' %}">
+      <source srcset="{% static home.poster_wide|add:'.webp' %}" type="image/webp">
+      <img src="{% static home.poster_wide|add:'.jpg' %}" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
     </picture>
     <!-- CMS: hero video (wide 1920×1080 + tall 720×1280, WebM + MP4) -->
     <video muted loop playsinline disablepictureinpicture preload="none" tabindex="-1"
-      data-wide-webm="{% static 'video/hero/gs-hero.webm' %}" data-wide-mp4="{% static 'video/hero/gs-hero.mp4' %}"
-      data-tall-webm="{% static 'video/hero/gs-hero-mobile.webm' %}" data-tall-mp4="{% static 'video/hero/gs-hero-mobile.mp4' %}"></video>
+      data-wide-webm="{% static home.video_wide|add:'.webm' %}" data-wide-mp4="{% static home.video_wide|add:'.mp4' %}"
+      data-tall-webm="{% static home.video_tall|add:'.webm' %}" data-tall-mp4="{% static home.video_tall|add:'.mp4' %}"></video>
   </div>
   <div class="gs-vhero__shade" aria-hidden="true"></div>
   <div class="gs-vhero__inner container-gs">
     <div class="gs-vhero__copy">
-      <p class="hero__welcome"><span class="hero__welcome-tag">Welcome</span><span class="hero__welcome-text">to Green Spark Solutions</span></p>
-      <h2 class="gs-vhero__title" id="hero-title">Climate impact, measured and verified.</h2>
+      <p class="hero__welcome"><span class="hero__welcome-tag">{{ home.welcome_tag }}</span><span class="hero__welcome-text">{{ home.welcome_text }}</span></p>
+      <h2 class="gs-vhero__title" id="hero-title">{{ home.title }}</h2>
     </div>
     <div class="gs-vhero__line" aria-hidden="true"></div>
     <div class="gs-vhero__bottom">
       <div>
-        <p class="gs-vhero__text">Green Spark aggregates rooftop solar, clean cooking and safe water into verified carbon programmes that buyers and investors can trust.</p>
-        <div class="gs-vhero__actions"><button class="btn btn--primary btn--meet" type="button" data-modal-open="meet-gssl"><span class="btn__play" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9 7.2v9.6a.6.6 0 0 0 .9.5l7.6-4.8a.6.6 0 0 0 0-1L9.9 6.7a.6.6 0 0 0-.9.5z"/></svg></span><span class="btn__label">Meet GSSL</span></button></div>
+        <p class="gs-vhero__text">{{ home.lead }}</p>
+        <div class="gs-vhero__actions"><button class="btn btn--primary btn--meet" type="button" data-modal-open="meet-gssl"><span class="btn__play" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9 7.2v9.6a.6.6 0 0 0 .9.5l7.6-4.8a.6.6 0 0 0 0-1L9.9 6.7a.6.6 0 0 0-.9.5z"/></svg></span><span class="btn__label">{{ home.meet_label }}</span></button></div>
       </div>
-      <button class="gs-vhero__toggle" type="button" aria-pressed="false" aria-label="Pause background video" hidden>
+      <button class="gs-vhero__toggle" type="button" aria-pressed="false" aria-label="{{ home.pause_label }}" hidden>
           <svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>
           <svg class="i-play" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 2.5v11a.8.8 0 0 0 1.2.7l9-5.5a.8.8 0 0 0 0-1.4l-9-5.5A.8.8 0 0 0 4 2.5Z"/></svg>
         </button>
     </div>
   </div>
-  <p class="hero__scroll" aria-hidden="true">Scroll</p>
+  <p class="hero__scroll" aria-hidden="true">{{ home.scroll_label }}</p>
 </section>{% endif %}
 {% if sections.intro %}<section class="section intro" aria-labelledby="intro-title">
   <div class="container-gs">

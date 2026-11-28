@@ -21,7 +21,7 @@ from django.views.decorators.http import require_GET
 from django.views.generic import TemplateView
 
 from apps.content.models import Page as PageRecord
-from apps.content.models import ApproachItem, Counter, District, Project
+from apps.content.models import ApproachItem, Counter, District, HomePage, Project
 
 from .forms import EnquiryForm
 from .mail import notify_enquiry
@@ -86,10 +86,13 @@ class ImpactBandMixin:
 
 
 class HomeView(ImpactBandMixin, StaticPageView):
-    """The home page. Its approach cards come from the database."""
+    """The home page. Its hero and approach cards come from the database."""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # filter().first() rather than load(): rendering a page must not write
+        # a row, and an unsaved instance carries the same defaults.
+        context["home"] = HomePage.objects.filter(pk=1).first() or HomePage()
         context["approach_highlights"] = ApproachItem.objects.filter(
             kind=ApproachItem.HIGHLIGHT
         )

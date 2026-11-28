@@ -6,7 +6,7 @@ project grows. Phase 2 lands the site map, the hideable sections and the four
 settings records; the rest arrive with their phases (see CMS-PLAN.md §6).
 """
 
-from .home import ApproachItem, Counter, District
+from .home import ApproachItem, Counter, District, HomePage
 from .pages import Page, Section, SectionVisibility
 from .programmes import Programme, ProgrammeAttribute, ProgrammeStep
 from .projects import Project, ProjectAttribute, ProjectImage, ProjectParagraph
@@ -17,6 +17,7 @@ __all__ = [
     "ContactDetails",
     "Counter",
     "District",
+    "HomePage",
     "NoticeBar",
     "Page",
     "Programme",

@@ -306,7 +306,7 @@ would be a pile of conditionals for no gain to Green Spark. They stay as six.
 different component from the grid — `fcard` markup, only 5 of the 7 projects,
 and slide indices in `aria-label="1 of 5"` — so it needs its own pass.
 
-### Phase 4 — Home page and impact data — **mostly built**
+### Phase 4 — Home page and impact data — **built, bar the carousel**
 
 Done:
 
@@ -337,13 +337,24 @@ Done:
   **byte for byte identical**, 213,998 and 214,072 bytes. The database was
   then put back as it ships.
 
+- **The hero is a `HomePage` singleton**: the headline, the welcome line, the
+  lead, the button and scroll labels, the hidden `<h1>` and the video. One
+  `video_name` drives all six files — `<name>-poster.jpg/.webp`,
+  `<name>.webm/.mp4` and the `-mobile` pair — including the two preload hints
+  in `<head>`, which would otherwise keep pointing at the old poster and
+  fetch a file that is no longer used. The hero band is visible, so the
+  golden harness proved this one directly: all 26 pages still match.
+
+  No `HeroSlide`. The plan assumed a slideshow; there is one hero with a
+  background video, and a model for slides that never have more than one row
+  is a worse thing to hand Green Spark than a form with nine fields on it.
+
 Still open:
 
-- `HeroSlide` and the `HomePage` singleton (hero wording, video, section
-  headings) are not built. This is now the most valuable piece left: the hero
-  copy and its CSS have been hand-edited three times at Green Spark's
-  request, each one a developer and a deploy for what should be a text field.
 - The project carousel, carried over from Phase 3.
+- The intro band below the hero. Its reveal paragraph contains a `<mark>`
+  element, so making it editable means first deciding how much HTML an editor
+  may type — which is Phase 9's question, not this one's.
 - The Bangladesh map SVG hard-codes its ten active districts as
   `class="bd-map__district is-active"`. The district *list* is now dynamic;
   the map's highlighting is not, so a district added in the console appears

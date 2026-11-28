@@ -17,7 +17,8 @@ from django.utils import timezone
 from apps.website import parity
 
 from .models import (
-    ApproachItem, ContactDetails, Counter, District, NoticeBar, Page, Section,
+    ApproachItem, ContactDetails, Counter, District, HomePage, NoticeBar, Page,
+    Section,
     SectionVisibility, SiteSettings, SocialLinks,
 )
 from .models.pages import LIVE, OFFLINE, UNLISTED
@@ -567,3 +568,79 @@ class ImpactBandTests(TestCase):
         names = [d.name for d in District.objects.all()]
         positions = [body.index(f'data-district-row="{n}"') for n in names]
         self.assertEqual(positions, sorted(positions))
+
+
+class HomePageHeroTests(TestCase):
+    """
+    The hero wording and the video behind it. This is the band that has been
+    hand-edited three times at Green Spark's request, which is why it is a
+    record rather than a template.
+    """
+
+    def body(self):
+        return self.client.get(reverse("website:home")).content.decode()
+
+    def test_the_defaults_are_what_the_template_carried(self):
+        hero = HomePage()
+        self.assertEqual(hero.title, "Climate impact, measured and verified.")
+        self.assertEqual(hero.welcome_tag, "Welcome")
+        self.assertEqual(hero.video_name, "gs-hero")
+
+    def test_it_renders_without_a_row(self):
+        """A fresh database has no row; the page still has to render."""
+        HomePage.objects.all().delete()
+        self.assertContains(
+            self.client.get(reverse("website:home")),
+            "Climate impact, measured and verified.",
+        )
+
+    def test_changing_the_headline_changes_the_page(self):
+        hero = HomePage.load()
+        hero.title = "Verified climate impact, at scale."
+        hero.save()
+        body = self.body()
+        self.assertIn(
+            '<h2 class="gs-vhero__title" id="hero-title">'
+            "Verified climate impact, at scale.</h2>",
+            body,
+        )
+        self.assertNotIn("Climate impact, measured and verified.", body)
+
+    def test_the_hidden_heading_is_editable_and_still_hidden(self):
+        hero = HomePage.load()
+        hero.heading = "Green Spark Solutions Australia"
+        hero.save()
+        self.assertIn(
+            '<h1 class="visually-hidden">Green Spark Solutions Australia</h1>', self.body()
+        )
+
+    def test_one_name_moves_all_six_video_files(self):
+        hero = HomePage.load()
+        hero.video_name = "gs-hero-2027"
+        hero.save()
+        body = self.body()
+        for suffix in (
+            "gs-hero-2027-poster.webp", "gs-hero-2027-poster.jpg",
+            "gs-hero-2027-mobile-poster.webp", "gs-hero-2027-mobile-poster.jpg",
+            "gs-hero-2027.webm", "gs-hero-2027.mp4",
+            "gs-hero-2027-mobile.webm", "gs-hero-2027-mobile.mp4",
+        ):
+            with self.subTest(file=suffix):
+                self.assertIn(suffix, body)
+        self.assertNotIn("gs-hero-poster.webp", body)
+
+    def test_the_preload_hints_follow_the_video_set(self):
+        """A preload pointing at the old poster would fetch a file twice."""
+        hero = HomePage.load()
+        hero.video_name = "gs-hero-2027"
+        hero.save()
+        body = self.body()
+        head = body[: body.index("</head>")]
+        self.assertIn("gs-hero-2027-poster.webp", head)
+        self.assertIn("gs-hero-2027-mobile-poster.webp", head)
+
+    def test_there_is_only_ever_one(self):
+        HomePage.load()
+        HomePage(title="A second one").save()
+        self.assertEqual(HomePage.objects.count(), 1)
+        self.assertEqual(HomePage.load().title, "A second one")

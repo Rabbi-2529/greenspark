@@ -10,6 +10,8 @@ them out of step by reordering.
 
 from django.db import models
 
+from .base import Singleton
+
 
 class ApproachItem(models.Model):
     """
@@ -117,3 +119,76 @@ class District(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class HomePage(Singleton):
+    """
+    The home page's hero: the wording, and which video plays behind it.
+
+    Every default below is the text the template carried, so a fresh database
+    renders the page exactly as it rendered before — which is what the golden
+    HTML test checks.
+
+    The six video and poster files follow the design build's naming, so one
+    name covers all of them: <name>-poster.jpg/.webp and <name>.webm/.mp4 for
+    the wide crop, and <name>-mobile-poster.* and <name>-mobile.* for the tall
+    one. Uploading a new set means six files with matching names, not six
+    fields to keep in step.
+    """
+
+    heading = models.CharField(
+        "page heading", max_length=250,
+        default="Green Spark Solutions Australia: carbon projects and clean energy "
+                "for communities in Bangladesh, Nepal and Cambodia",
+        help_text="The page's real <h1>. It is read by search engines and screen "
+                  "readers but not shown, so it can be fuller than the headline.",
+    )
+    welcome_tag = models.CharField(max_length=40, default="Welcome")
+    welcome_text = models.CharField(
+        max_length=120, default="to Green Spark Solutions",
+    )
+    title = models.CharField(
+        "headline", max_length=160, default="Climate impact, measured and verified.",
+    )
+    lead = models.TextField(
+        default="Green Spark aggregates rooftop solar, clean cooking and safe water "
+                "into verified carbon programmes that buyers and investors can trust.",
+        help_text="Two lines at most: it sits over the video and competes with it.",
+    )
+    meet_label = models.CharField(
+        "video button", max_length=60, default="Meet GSSL",
+        help_text="Opens the introduction video.",
+    )
+    scroll_label = models.CharField(max_length=40, default="Scroll")
+    pause_label = models.CharField(
+        max_length=80, default="Pause background video",
+        help_text="Read out by screen readers; not shown on the page.",
+    )
+    video_name = models.SlugField(
+        "video set", max_length=60, default="gs-hero",
+        help_text="The shared name of the six files in static/video/hero/.",
+    )
+
+    class Meta:
+        verbose_name = "home page"
+        verbose_name_plural = "home page"
+
+    def __str__(self) -> str:
+        return self.title
+
+    # The six files, derived rather than stored, so they cannot drift apart.
+    @property
+    def poster_wide(self) -> str:
+        return f"video/hero/{self.video_name}-poster"
+
+    @property
+    def poster_tall(self) -> str:
+        return f"video/hero/{self.video_name}-mobile-poster"
+
+    @property
+    def video_wide(self) -> str:
+        return f"video/hero/{self.video_name}"
+
+    @property
+    def video_tall(self) -> str:
+        return f"video/hero/{self.video_name}-mobile"
