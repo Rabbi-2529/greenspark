@@ -124,6 +124,20 @@ class Project(models.Model):
         return BADGE_CLASSES.get(chips[0] if chips else "", "badge--type")
 
     @property
+    def registry_url(self) -> str:
+        """The project's page on the Gold Standard Impact Registry."""
+        if not self.gs_id:
+            return ""
+        return (
+            "https://registry.goldstandard.org/projects"
+            f"?q={self.gs_id}&page=1&countries=BD"
+        )
+
+    @property
+    def registry_label(self) -> str:
+        return f"Gold Standard registry · {self.gs_id}" if self.gs_id else ""
+
+    @property
     def is_registered(self) -> bool:
         """
         Only a registered project may claim registration. The template asks

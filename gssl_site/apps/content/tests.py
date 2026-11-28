@@ -7,6 +7,7 @@ golden-HTML test in apps.website proves the second half when nothing is
 hidden; these prove the first half, and that the default is always "shown".
 """
 
+import re
 from datetime import timedelta
 
 from django.conf import settings
@@ -17,7 +18,8 @@ from django.utils import timezone
 from apps.website import parity
 
 from .models import (
-    ApproachItem, ContactDetails, Counter, District, HomePage, NoticeBar, Page,
+    ApproachItem, CarouselSlide, ContactDetails, Counter, District, HomePage,
+    NoticeBar, Page,
     Section,
     SectionVisibility, SiteSettings, SocialLinks,
 )
@@ -644,3 +646,71 @@ class HomePageHeroTests(TestCase):
         HomePage(title="A second one").save()
         self.assertEqual(HomePage.objects.count(), 1)
         self.assertEqual(HomePage.load().title, "A second one")
+
+
+class CarouselTests(TestCase):
+    """
+    The home page carousel. Five cards, in an order someone chose, with their
+    own shorter copy — not the Projects grid with different styling.
+    """
+
+    def body(self):
+        return self.client.get(reverse("website:home")).content.decode()
+
+    def test_the_seeded_cards_are_there_in_order(self):
+        titles = list(CarouselSlide.objects.values_list("title", flat=True))
+        self.assertEqual(len(titles), 5)
+        body = self.body()
+        positions = [body.index(f'<h3 class="fcard__title">{t}</h3>') for t in titles]
+        self.assertEqual(positions, sorted(positions))
+
+    def test_the_slide_numbers_follow_the_order(self):
+        """Nothing stores "3 of 5": reordering cannot put the labels out of step."""
+        body = self.body()
+        labels = re.findall(r'aria-label="(\d+ of \d+)"', body)
+        self.assertEqual(labels[:5], ["1 of 5", "2 of 5", "3 of 5", "4 of 5", "5 of 5"])
+
+    def test_only_the_first_card_is_active(self):
+        self.assertEqual(self.body().count("fcarousel__slide is-active"), 1)
+
+    def test_reordering_moves_the_active_card_with_it(self):
+        last = CarouselSlide.objects.order_by("-sort_order").first()
+        last.sort_order = 0
+        last.save()
+        body = self.body()
+        head = body[body.index("fcarousel__slide is-active"):]
+        self.assertIn(f'<h3 class="fcard__title">{last.title}</h3>', head[:1200])
+
+    def test_a_registered_card_links_to_the_gold_standard_registry(self):
+        slide = CarouselSlide.objects.get(title__endswith="Phase 1")
+        self.assertTrue(slide.registered)
+        self.assertIn("GS13141", slide.registry_url)
+        body = self.body()
+        self.assertIn(
+            "https://registry.goldstandard.org/projects?q=GS13141&amp;"
+            "page=1&amp;countries=BD",
+            body,
+        )
+        self.assertIn("Gold Standard registry · GS13141", body)
+
+    def test_a_card_with_no_registration_has_no_registry_button(self):
+        slide = CarouselSlide.objects.get(title="Rooftop Solar MRV")
+        self.assertEqual(slide.registry_url, "")
+
+    def test_a_card_can_point_at_a_programme_instead_of_a_project(self):
+        slide = CarouselSlide.objects.get(title="Rooftop Solar MRV")
+        self.assertIsNone(slide.project)
+        self.assertEqual(slide.url_name, "website:programme_rooftop_solar")
+        self.assertIn('href="/what-we-do/rooftop-solar/">View programme', self.body())
+
+    def test_a_card_linking_nowhere_does_not_break_the_page(self):
+        """
+        An editor can save a card before choosing its target. That must not
+        take the home page down with a NoReverseMatch.
+        """
+        CarouselSlide.objects.create(
+            title="Not decided yet", text="Draft.", sort_order=99
+        )
+        response = self.client.get(reverse("website:home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Not decided yet", response.content.decode())

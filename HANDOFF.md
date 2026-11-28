@@ -160,8 +160,8 @@ against the plan.
 | 1 The console shell | built, except the vendored widgets (Select2, DataTables, FullCalendar, SortableJS, a rich-text editor still need downloading into `static/console/vendor/`) |
 | 2 Site map, hideable sections, settings | mostly built. `SiteSettings` / `ContactDetails` / `SocialLinks` / `NoticeBar` exist but only `show_topbar` is wired into a template; the rest of the chrome still reads literals |
 | 3 Programmes and Projects | built |
-| 4 Home page and impact data | built, bar the project carousel |
-| 5–10 | not started |
+| 4 Home page and impact data | **done** |
+| 5–10 | not started — **Phase 5 is where to pick up** |
 
 ### Phase 4, precisely where it stops
 

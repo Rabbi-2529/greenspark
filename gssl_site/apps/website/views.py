@@ -21,7 +21,9 @@ from django.views.decorators.http import require_GET
 from django.views.generic import TemplateView
 
 from apps.content.models import Page as PageRecord
-from apps.content.models import ApproachItem, Counter, District, HomePage, Project
+from apps.content.models import (
+    ApproachItem, CarouselSlide, Counter, District, HomePage, Project,
+)
 
 from .forms import EnquiryForm
 from .mail import notify_enquiry
@@ -93,6 +95,9 @@ class HomeView(ImpactBandMixin, StaticPageView):
         # filter().first() rather than load(): rendering a page must not write
         # a row, and an unsaved instance carries the same defaults.
         context["home"] = HomePage.objects.filter(pk=1).first() or HomePage()
+        context["carousel_slides"] = CarouselSlide.objects.prefetch_related(
+            "badges", "facts"
+        ).select_related("project", "programme")
         context["approach_highlights"] = ApproachItem.objects.filter(
             kind=ApproachItem.HIGHLIGHT
         )

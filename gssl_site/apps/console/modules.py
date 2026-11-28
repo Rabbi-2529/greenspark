@@ -18,10 +18,11 @@ from .models import AuditEntry
 from .registry import Column, Filter, Inline, Module, registry
 
 from apps.content.models import (
-    ApproachItem, ContactDetails, Counter, District, HomePage, NoticeBar,
-    Page, Programme, ProgrammeAttribute, ProgrammeStep, Project,
-    ProjectAttribute, ProjectImage, ProjectParagraph, Section,
-    SiteSettings, SocialLinks
+    ApproachItem, CarouselSlide, ContactDetails, Counter, District,
+    HomePage, NoticeBar, Page, Programme, ProgrammeAttribute,
+    ProgrammeStep, Project, ProjectAttribute, ProjectImage,
+    ProjectParagraph, Section, SiteSettings, SlideBadge, SlideFact,
+    SocialLinks
 )
 from apps.website.models import ENQUIRY_SUBJECTS, ENQUIRY_TYPES, Enquiry
 
@@ -302,6 +303,38 @@ registry.register(Module(
 
 
 # --- Settings ---------------------------------------------------------------
+
+registry.register(Module(
+    slug="carousel",
+    model=CarouselSlide,
+    label="Carousel card",
+    label_plural="Home carousel",
+    group="Content",
+    icon="page",
+    blurb="The five project cards that slide across the home page.",
+    fields=("title", "text", "project", "programme", "link_label", "registered",
+            "sort_order"),
+    inlines=(
+        Inline(
+            model=SlideBadge, label="Badge", label_plural="Badges",
+            fields=("label", "variant", "sort_order"),
+            fk_name="slide", order_field="sort_order", extra=1,
+        ),
+        Inline(
+            model=SlideFact, label="Fact", label_plural="Facts",
+            fields=("label", "value", "sort_order"),
+            fk_name="slide", order_field="sort_order", extra=1,
+        ),
+    ),
+    columns=(
+        Column("title", "Card", link=True),
+        Column("link_label", "Links to"),
+    ),
+    order_field="sort_order",
+    view_rank=roles.EDITOR,
+    edit_rank=roles.EDITOR,
+))
+
 
 registry.register(Module(
     slug="home-page",

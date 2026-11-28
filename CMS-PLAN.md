@@ -306,7 +306,7 @@ would be a pile of conditionals for no gain to Green Spark. They stay as six.
 different component from the grid — `fcard` markup, only 5 of the 7 projects,
 and slide indices in `aria-label="1 of 5"` — so it needs its own pass.
 
-### Phase 4 — Home page and impact data — **built, bar the carousel**
+### Phase 4 — Home page and impact data — **built**
 
 Done:
 
@@ -349,9 +349,17 @@ Done:
   background video, and a model for slides that never have more than one row
   is a worse thing to hand Green Spark than a form with nine fields on it.
 
-Still open:
+- **The project carousel** is `CarouselSlide`, with its badges and its three
+  facts as inline rows. It is not the Projects grid filtered: it shows five of
+  the seven, in a chosen order, with shorter copy, facts picked per card
+  (“Stoves: 20,000+ installed”, “Visits: Every year”) and one card pointing at
+  a programme rather than a project. The slide number, the active flag and the
+  Gold Standard registry link are all derived — from row order and from the
+  project's own `gs_id` — so reordering cannot put them out of step. A card
+  saved before its target is chosen renders without a link rather than taking
+  the home page down with a `NoReverseMatch`; there is a test for that.
 
-- The project carousel, carried over from Phase 3.
+Still open:
 - The intro band below the hero. Its reveal paragraph contains a `<mark>`
   element, so making it editable means first deciding how much HTML an editor
   may type — which is Phase 9's question, not this one's.
