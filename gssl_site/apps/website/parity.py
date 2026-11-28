@@ -32,6 +32,10 @@ MASKS = (
     # A fresh CSRF token every time.
     (re.compile(r'(name="csrfmiddlewaretoken" value=")[^"]*(")'), r"\1CSRF-TOKEN\2"),
     (re.compile(r'(<meta name="csrf-token" content=")[^"]*(")'), r"\1CSRF-TOKEN\2"),
+    # base.html stamps every page with today's date. Without this mask the
+    # harness fails on all 26 pages the day after the golden files were
+    # recorded -- which is exactly what happened, two days later.
+    (re.compile(r'(data-now=")[^"]*(")'), r"\1DATE\2"),
 )
 
 

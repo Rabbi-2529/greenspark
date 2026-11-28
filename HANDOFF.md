@@ -171,16 +171,21 @@ carry an "as of" date and an approval flag and are seeded **unapproved**,
 because the design build's README lists every one as sample data awaiting
 Green Spark's sign-off.
 
+The impact figures and the district list are now database-driven too, on both
+the home page and the cookstove page, which share them through
+`ImpactBandMixin`. Only approved figures are listed, so the band ships
+showing none. Proving that was awkward, because both bands are hidden and the
+golden harness therefore cannot see them: the band was switched on and every
+figure approved in a scratch database, both pages recorded, the templates
+rewired, and the pages re-rendered under the same conditions — byte for byte
+identical — then the database put back as it ships. Do the same for anything
+else that lives inside a hidden section.
+
 Not built:
 
-- The `impact-counters` and `areas` loops in `home.html` and
-  `programme_improved_cookstove.html` are still hand-written markup. The models
-  and the view context exist; the templates were never switched over, so
-  editing a counter in the console changes nothing. Both bands sit inside
-  hidden sections, so nothing on the live site is stale.
-- A gotcha found while starting this: the Bangladesh map SVG hard-codes its ten
-  active districts as `class="bd-map__district is-active"`. Making the district
-  list dynamic will not light up the map without more work.
+- The Bangladesh map SVG hard-codes its ten active districts as
+  `class="bd-map__district is-active"`. The list is dynamic now; the map is
+  not, so a district added in the console will not light up on it.
 - `HeroSlide` and the `HomePage` singleton — hero wording, the video, section
   headings. The hero copy and its CSS have been hand-edited twice at Green
   Spark's request this week, which is the argument for building this next.

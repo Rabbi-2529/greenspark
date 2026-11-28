@@ -95,6 +95,11 @@ class Counter(models.Model):
     def __str__(self) -> str:
         return f"{self.display} {self.label}"
 
+    @property
+    def is_pending(self) -> bool:
+        """No number to count up to yet, so the page says so instead."""
+        return self.count is None
+
 
 class District(models.Model):
     """A district highlighted on the Bangladesh map."""

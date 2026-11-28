@@ -497,3 +497,73 @@ class NavProjectTests(TestCase):
         body = self.client.get(reverse("website:home")).content.decode()
         self.assertIn("<strong>A New One</strong>", body)
         self.assertIn('href="/projects/a-new-one/"', body)
+
+
+class ImpactBandTests(TestCase):
+    """
+    The impact figures and the district map appear on the home page and the
+    cookstove programme page. Both bands are hidden as shipped, so these tests
+    turn the band on first -- otherwise they would pass against markup that is
+    never rendered.
+    """
+
+    URLS = ("website:home", "website:programme_improved_cookstove")
+
+    def setUp(self):
+        Section.objects.filter(key="where").update(visible=True)
+
+    def body(self, route):
+        return self.client.get(reverse(route)).content.decode()
+
+    def test_an_unapproved_figure_is_not_shown(self):
+        counter = Counter.objects.filter(published=False).first()
+        self.assertIsNotNone(counter, "every figure is seeded unapproved")
+        for route in self.URLS:
+            with self.subTest(page=route):
+                self.assertNotIn(counter.label, self.body(route))
+
+    def test_approving_a_figure_puts_it_on_both_pages(self):
+        counter = Counter.objects.get(label="Years of experience")
+        counter.published = True
+        counter.save()
+        for route in self.URLS:
+            with self.subTest(page=route):
+                body = self.body(route)
+                self.assertIn(f'<span class="stat__label">{counter.label}</span>', body)
+                self.assertIn(f'data-count="{counter.count}"', body)
+
+    def test_a_figure_with_no_number_says_so_instead_of_counting(self):
+        counter = Counter.objects.get(label="Firewood saved per year")
+        self.assertTrue(counter.is_pending)
+        counter.published = True
+        counter.save()
+        body = self.body("website:home")
+        self.assertIn("Published once measured", body)
+        # nothing for the counter animation to count up to
+        self.assertNotIn('data-count="None"', body)
+
+    def test_an_estimate_is_badged_as_one(self):
+        counter = Counter.objects.get(label="People benefiting")
+        self.assertTrue(counter.estimated)
+        counter.published = True
+        counter.save()
+        self.assertIn(
+            '<span class="badge badge--estimated">Estimated</span>', self.body("website:home")
+        )
+
+    def test_a_district_added_in_the_console_appears_on_both_pages(self):
+        District.objects.create(name="Jamalpur", division="Mymensingh division", sort_order=99)
+        for route in self.URLS:
+            with self.subTest(page=route):
+                body = self.body(route)
+                self.assertIn(
+                    '<li data-district-row="Jamalpur">Jamalpur'
+                    "<span>Mymensingh division</span></li>",
+                    body,
+                )
+
+    def test_the_district_list_follows_the_console_order(self):
+        body = self.body("website:home")
+        names = [d.name for d in District.objects.all()]
+        positions = [body.index(f'data-district-row="{n}"') for n in names]
+        self.assertEqual(positions, sorted(positions))

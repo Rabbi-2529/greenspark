@@ -106,13 +106,8 @@
         </div>
         <div class="mt-5" data-reveal><div class="stats-strip stats-strip--2">
 <!-- loop:start impact-counters -->
-<div class="stat "><span class="stat__value" data-count="8" data-suffix="+">8+</span><span class="stat__label">Years of experience</span></div>
-<div class="stat "><span class="stat__value" data-count="20000" data-suffix="+">20,000+</span><span class="stat__label">Improved cookstoves installed (Phase 1)</span></div>
-<div class="stat "><span class="stat__value" data-count="95000">95,000</span><span class="stat__label">People benefiting</span><span class="stat__flags"><span class="badge badge--estimated">Estimated</span></span></div>
-<div class="stat "><span class="stat__value" data-count="10">10</span><span class="stat__label">Districts reached</span></div>
-<div class="stat "><span class="stat__value" data-count="38400">38,400</span><span class="stat__label">Monitoring visits</span></div>
-<div class="stat "><span class="stat__value">—</span><span class="stat__label">Firewood saved per year</span><span class="stat__flags"><span class="badge badge--development">Published once measured</span></span></div>
-<!-- loop:end impact-counters -->
+{% for c in counters %}<div class="stat "><span class="stat__value"{% if not c.is_pending %} data-count="{{ c.count }}"{% endif %}{% if c.suffix %} data-suffix="{{ c.suffix }}"{% endif %}>{{ c.display }}</span><span class="stat__label">{{ c.label }}</span>{% if c.estimated or c.is_pending %}<span class="stat__flags">{% if c.estimated %}<span class="badge badge--estimated">Estimated</span>{% endif %}{% if c.is_pending %}<span class="badge badge--development">Published once measured</span>{% endif %}</span>{% endif %}</div>
+{% endfor %}<!-- loop:end impact-counters -->
 </div></div>
         <div class="mt-3"><p class="asof"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.32 5.4C8.98 5.15 14.65 5.25 20.47 5.59M20.55 5.43C20.62 10.43 20.59 15.43 20.52 20.49M20.39 20.43C14.72 20.22 9.06 20.3 3.34 20.44M3.58 20.53C3.81 15.53 3.72 10.53 3.5 5.54M3.39 10.08C9.05 9.81 14.72 9.91 20.72 9.98M7.99 2.65C7.74 4.11 7.84 5.58 7.89 7.42M16.06 2.99C16.18 4.45 16.13 5.92 15.97 7.62M8.42 14l.1 .15M12 14l.1 .15M15.42 14l.1 .15M8.54 17.2l.1 .15"/><path class="icon__echo" d="M3.38 5.79C9.05 5.78 14.71 5.79 20.49 5.88M20.2 5.39C20.28 10.39 20.24 15.39 20.12 20.61M20.82 19.99C15.15 19.83 9.48 19.89 3.24 20.08M3.86 20.49C3.87 15.49 3.86 10.49 3.87 5.44M6.61 10.42C11.17 10.34 15.74 10.37 21.06 10.52"/></svg><span>Figures as of <time datetime="2026-09-30">30 September 2026</time></span></p></div>
       </div>
@@ -124,17 +119,8 @@
 <details class="bd-map__list"><summary>View districts as a list <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.91 8.98C7.84 11.06 9.87 13.03 11.99 15.05M11.86 15.04C13.9 13.09 15.88 11.07 18.06 8.9"/></svg></summary>
   <ul>
 <!-- loop:start areas -->
-<li data-district-row="Dhaka">Dhaka<span>Dhaka division</span></li>
-<li data-district-row="Faridpur">Faridpur<span>Dhaka division</span></li>
-<li data-district-row="Gazipur">Gazipur<span>Dhaka division</span></li>
-<li data-district-row="Manikganj">Manikganj<span>Operations base</span></li>
-<li data-district-row="Munshiganj">Munshiganj<span>Dhaka division</span></li>
-<li data-district-row="Narayanganj">Narayanganj<span>Dhaka division</span></li>
-<li data-district-row="Pabna">Pabna<span>Rajshahi division</span></li>
-<li data-district-row="Rajbari">Rajbari<span>Dhaka division</span></li>
-<li data-district-row="Sirajganj">Sirajganj<span>Rajshahi division</span></li>
-<li data-district-row="Tangail">Tangail<span>Dhaka division</span></li>
-<!-- loop:end areas -->
+{% for d in districts %}<li data-district-row="{{ d.name }}">{{ d.name }}<span>{{ d.division }}</span></li>
+{% endfor %}<!-- loop:end areas -->
   </ul>
 </details></div>
     </div>

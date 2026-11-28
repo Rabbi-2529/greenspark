@@ -306,7 +306,7 @@ would be a pile of conditionals for no gain to Green Spark. They stay as six.
 different component from the grid — `fcard` markup, only 5 of the 7 projects,
 and slide indices in `aria-label="1 of 5"` — so it needs its own pass.
 
-### Phase 4 — Home page and impact data — **started**
+### Phase 4 — Home page and impact data — **mostly built**
 
 Done:
 
@@ -323,16 +323,31 @@ Done:
   Green Spark's sign-off. Approving a figure needs the publisher role, not the
   editor role: a number on that page is a claim about impact.
 
+- **The impact figures and the district map are database-driven** on both the
+  home page and the cookstove programme page, which share the band through
+  `ImpactBandMixin`. Only approved figures are listed, so as shipped the band
+  renders no numbers at all — that is the point of the approval flag.
+  A figure with no number yet (`is_pending`) is badged “Published once
+  measured” rather than animating to zero.
+
+  Both bands are hidden, so the golden harness could not see them and could
+  not prove the loops were faithful. Instead the band was switched on and
+  every figure approved in a scratch database, both pages recorded, the
+  templates rewired, and the pages re-rendered under the same conditions:
+  **byte for byte identical**, 213,998 and 214,072 bytes. The database was
+  then put back as it ships.
+
 Still open:
 
-- The `impact-counters` and `areas` loops in `home.html` and
-  `programme_improved_cookstove.html` are still hand-written. The models and
-  the view context exist; the templates have not been switched over. Both sit
-  inside bands that are currently hidden, so nothing is visibly stale — but
-  editing a counter in the console does not yet change the markup.
 - `HeroSlide` and the `HomePage` singleton (hero wording, video, section
-  headings) are not built.
+  headings) are not built. This is now the most valuable piece left: the hero
+  copy and its CSS have been hand-edited three times at Green Spark's
+  request, each one a developer and a deploy for what should be a text field.
 - The project carousel, carried over from Phase 3.
+- The Bangladesh map SVG hard-codes its ten active districts as
+  `class="bd-map__district is-active"`. The district *list* is now dynamic;
+  the map's highlighting is not, so a district added in the console appears
+  in the list but does not light up on the map.
 
 ### Phase 5 — About, Why GSSL, Team, FAQ, Careers, Privacy
 

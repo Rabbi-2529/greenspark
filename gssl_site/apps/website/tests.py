@@ -710,3 +710,26 @@ def _first_difference(expected: str, actual: str) -> str:
             f"  first extra line ({which}): {longer[min(len(old), len(new))][:160]}"
         )
     return "  the two differ in trailing whitespace only"
+
+
+class ParityMaskTests(SimpleTestCase):
+    """
+    The harness is only useful if it fails for real reasons. Anything that
+    legitimately differs between two renders of the same page has to be masked,
+    or the golden files rot and people learn to re-record them without looking.
+    """
+
+    def test_the_date_stamp_is_masked(self):
+        before = parity.normalise('<body data-now="2026-11-26">')
+        after = parity.normalise('<body data-now="2027-03-01">')
+        self.assertEqual(before, after)
+        self.assertIn('data-now="DATE"', before)
+
+    def test_the_csrf_token_is_masked(self):
+        a = parity.normalise('<input name="csrfmiddlewaretoken" value="aaa">')
+        b = parity.normalise('<input name="csrfmiddlewaretoken" value="bbb">')
+        self.assertEqual(a, b)
+
+    def test_real_content_is_left_alone(self):
+        html = '<h1>Climate impact, measured and verified.</h1>'
+        self.assertEqual(parity.normalise(html), html)

@@ -5,14 +5,19 @@ from django.views.generic import RedirectView
 
 from .pages import PAGES
 from .views import (
-    EnquireView, HomeView, ProjectDetailView, ProjectsView, StaticPageView,
-    robots_txt, sitemap_xml,
+    EnquireView, HomeView, ImprovedCookstoveView, ProjectDetailView,
+    ProjectsView, StaticPageView, robots_txt, sitemap_xml,
 )
 
 app_name = "website"
 
 # Pages with a view of their own; every other row uses StaticPageView.
-VIEWS = {"enquire": EnquireView, "home": HomeView, "projects": ProjectsView}
+VIEWS = {
+    "enquire": EnquireView,
+    "home": HomeView,
+    "programme_improved_cookstove": ImprovedCookstoveView,
+    "projects": ProjectsView,
+}
 
 urlpatterns = [
     # Offline pages stay registered so {% url %} keeps resolving; their view

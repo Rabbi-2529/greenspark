@@ -67,7 +67,25 @@ class StaticPageView(TemplateView):
         return context
 
 
-class HomeView(StaticPageView):
+class ImpactBandMixin:
+    """
+    The "where we work" band -- impact figures and the district map -- is on
+    the home page and the cookstove programme page, so both views need it.
+
+    Only approved figures are listed. The design build's README has every
+    current number down as sample data awaiting Green Spark's sign-off, and a
+    figure on that page is a claim about their impact, so it appears when
+    someone has ticked it and not before.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["counters"] = Counter.objects.filter(published=True)
+        context["districts"] = District.objects.all()
+        return context
+
+
+class HomeView(ImpactBandMixin, StaticPageView):
     """The home page. Its approach cards come from the database."""
 
     def get_context_data(self, **kwargs):
@@ -78,9 +96,11 @@ class HomeView(StaticPageView):
         context["approach_attributes"] = ApproachItem.objects.filter(
             kind=ApproachItem.ATTRIBUTE
         )
-        context["counters"] = Counter.objects.filter(published=True)
-        context["districts"] = District.objects.all()
         return context
+
+
+class ImprovedCookstoveView(ImpactBandMixin, StaticPageView):
+    """The cookstove programme page, which repeats the impact band."""
 
 
 class ProjectsView(StaticPageView):
