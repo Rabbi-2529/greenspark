@@ -844,3 +844,80 @@ class SidebarPagesTests(TestCase):
         body = self.body()
         self.assertNotIn(" style=", body)
         self.assertNotIn("onclick=", body)
+
+
+class VendoredLibraryTests(TestCase):
+    """
+    DataTables, Select2 and CKEditor are committed into the repository, not
+    loaded from a CDN: the console runs under `default-src 'self'`, so a CDN
+    tag would simply be refused by the browser.
+    """
+
+    VENDOR = settings.BASE_DIR / "static" / "console" / "vendor"
+    FILES = (
+        "jquery-3.7.1.min.js",
+        "datatables-2.3.7.min.js", "datatables-2.3.7.min.css",
+        "select2-4.0.13.min.js", "select2-4.0.13.min.css",
+        "ckeditor5-44.3.0.umd.js", "ckeditor5-44.3.0.css",
+    )
+
+    def test_every_library_is_present(self):
+        for name in self.FILES:
+            with self.subTest(file=name):
+                path = self.VENDOR / name
+                self.assertTrue(path.exists(), f"{name} is not vendored")
+                self.assertGreater(path.stat().st_size, 1000)
+
+    def test_nothing_is_fetched_from_a_cdn(self):
+        """A stylesheet or script pointing off-site would be blocked anyway."""
+        for template in (settings.BASE_DIR / "templates" / "console").rglob("*.html"):
+            body = template.read_text(encoding="utf-8")
+            for tag in ("<script src=\"http", "<link rel=\"stylesheet\" href=\"http"):
+                with self.subTest(template=template.name, tag=tag):
+                    self.assertNotIn(tag, body)
+
+    def test_no_vendored_file_points_at_a_source_map(self):
+        """
+        Production stores static files under hashed names and resolves every
+        reference inside them. A sourceMappingURL naming a .map we did not
+        vendor fails collectstatic, which fails release.sh, which blocks the
+        deploy -- and the first anyone would know is a broken release.
+        """
+        for name in self.FILES:
+            with self.subTest(file=name):
+                body = (self.VENDOR / name).read_bytes()
+                self.assertNotIn(b"sourceMappingURL", body)
+
+    def test_ckeditor_ships_its_css_as_a_file(self):
+        """
+        The reason this version was chosen. Builds that inject their stylesheet
+        from JavaScript cannot run under `style-src 'self'`, and weakening that
+        for the console was not on the table.
+        """
+        css = self.VENDOR / "ckeditor5-44.3.0.css"
+        self.assertTrue(css.exists())
+        self.assertGreater(css.stat().st_size, 100_000)
+
+    def test_the_editor_toolbar_matches_the_allowed_tags(self):
+        """
+        A button that produces a tag the validator refuses means an editor
+        loses work at save time. The toolbar is bold, italic, link and the two
+        lists; every one of those maps to an allowed tag.
+        """
+        from apps.content.richtext import ALLOWED
+
+        js = (settings.BASE_DIR / "static" / "console" / "js" / "enhance.js").read_text(
+            encoding="utf-8"
+        )
+        toolbar = js.split('toolbar: [')[1].split(']')[0]
+        produced = {
+            "bold": "strong", "italic": "em", "link": "a",
+            "bulletedList": "ul", "numberedList": "ol",
+        }
+        for button, tag in produced.items():
+            with self.subTest(button=button):
+                if button in toolbar:
+                    self.assertIn(tag, ALLOWED, f"{button} makes <{tag}>, which is refused")
+        for banned in ("heading", "imageUpload", "insertTable", "blockQuote", "code"):
+            with self.subTest(button=banned):
+                self.assertNotIn(banned, toolbar)

@@ -9,6 +9,7 @@
   <link rel="icon" href="{% static 'img/favicon/favicon.svg' %}" type="image/svg+xml">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'console/css/console.css' %}">
+  {% block console_styles %}{% endblock %}
 </head>
 <body class="cns">
 {% include "console/partials/icons.html" %}
@@ -123,6 +124,9 @@
   </main>
 </div>
 
+<script src="{% static 'console/vendor/jquery-3.7.1.min.js' %}" defer></script>
+{% block console_vendor %}{% endblock %}
 <script src="{% static 'console/js/console.js' %}" defer></script>
+<script src="{% static 'console/js/enhance.js' %}" defer></script>
 </body>
 </html>

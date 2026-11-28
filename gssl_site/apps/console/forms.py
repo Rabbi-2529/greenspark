@@ -9,6 +9,8 @@ styles, no inline scripts. A test enforces it.
 from __future__ import annotations
 
 from django import forms
+
+from apps.content.richtext import validate as validate_inline
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, SetPasswordForm
 
@@ -42,6 +44,17 @@ def theme(form: forms.BaseForm) -> None:
 
         if isinstance(widget, forms.Textarea):
             widget.attrs.setdefault("rows", 4)
+            # A field that runs the limited-HTML validator is the one an editor
+            # should get a rich-text box for. Marked here rather than listed by
+            # name in JavaScript, so a new one is picked up by having the
+            # validator, not by somebody remembering to add it to a list.
+            if any(v is validate_inline for v in field.validators):
+                widget.attrs["data-richtext"] = "true"
+        # Select2 attaches to these. A plain <select> still works without it.
+        if isinstance(widget, forms.Select) and not isinstance(
+            widget, (forms.RadioSelect, forms.CheckboxSelectMultiple)
+        ):
+            widget.attrs.setdefault("data-enhance", "select")
         if field.required and not isinstance(widget, (forms.CheckboxInput, forms.RadioSelect)):
             widget.attrs.setdefault("required", "required")
         if form.errors.get(name):
@@ -52,6 +65,16 @@ class ConsoleFormMixin:
     """Themes the form and exposes the fieldsets the template groups by."""
 
     fieldsets: tuple = ()
+
+    @property
+    def has_richtext(self) -> bool:
+        """
+        Whether any field wants the editor. The editor is a megabyte and a
+        half, so a form without one of these fields never asks for it.
+        """
+        return any(
+            f.widget.attrs.get("data-richtext") for f in self.fields.values()
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
