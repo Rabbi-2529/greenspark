@@ -13,6 +13,7 @@ from .carousel import CarouselSlide, SlideBadge, SlideFact
 from .faq import FaqGroup, FaqItem, FaqPage
 from .home import ApproachItem, Counter, District, HomePage
 from .pages import Page, Section, SectionVisibility
+from .privacy import PolicySection, PrivacyPage
 from .programmes import Programme, ProgrammeAttribute, ProgrammeStep
 from .projects import Project, ProjectAttribute, ProjectImage, ProjectParagraph
 from .site import ContactDetails, NoticeBar, SiteSettings, SocialLinks
@@ -38,6 +39,8 @@ __all__ = [
     "SlideFact",
     "NoticeBar",
     "Page",
+    "PolicySection",
+    "PrivacyPage",
     "Programme",
     "ProgrammeAttribute",
     "ProgrammeStep",

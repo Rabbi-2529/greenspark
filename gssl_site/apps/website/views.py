@@ -24,8 +24,8 @@ from apps.content.models import Page as PageRecord
 from apps.content.models import (
     AboutPage, AboutStat, ApproachItem, Audience, CareerArea, CarouselSlide,
     Counter, District, FaqGroup, FaqItem, FaqPage, HomePage, JobOpening,
-    Project, TeamGroup, TeamLeader, TeamPage, VisionAttribute, WhyGsslPage,
-    WhyItem,
+    PolicySection, PrivacyPage, Project, TeamGroup, TeamLeader, TeamPage,
+    VisionAttribute, WhyGsslPage, WhyItem,
 )
 from apps.content.models.faq import number_questions
 
@@ -144,6 +144,23 @@ class FaqView(StaticPageView):
         context = super().get_context_data(**kwargs)
         context["faq"] = FaqPage.objects.filter(pk=1).first() or FaqPage()
         context["faq_groups"] = FaqGroup.with_questions()
+        return context
+
+
+class PrivacyView(StaticPageView):
+    """
+    The privacy policy.
+
+    The contents list at the top of the page is the same thirteen rows as the
+    sections below it, so a renamed section renames its own link -- the usual
+    way a policy page goes wrong is a heading edited and the link to it left
+    behind.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["privacy"] = PrivacyPage.objects.filter(pk=1).first() or PrivacyPage()
+        context["policy_sections"] = PolicySection.objects.all()
         return context
 
 

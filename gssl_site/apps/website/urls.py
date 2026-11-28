@@ -6,8 +6,8 @@ from django.views.generic import RedirectView
 from .pages import PAGES
 from .views import (
     AboutView, EnquireView, FaqView, HomeView, ImprovedCookstoveView,
-    ProjectDetailView, ProjectsView, StaticPageView, TeamView, WhyGsslView,
-    robots_txt, sitemap_xml,
+    PrivacyView, ProjectDetailView, ProjectsView, StaticPageView, TeamView,
+    WhyGsslView, robots_txt, sitemap_xml,
 )
 
 app_name = "website"
@@ -18,6 +18,7 @@ VIEWS = {
     "enquire": EnquireView,
     "faq": FaqView,
     "home": HomeView,
+    "privacy": PrivacyView,
     "programme_improved_cookstove": ImprovedCookstoveView,
     "projects": ProjectsView,
     "team": TeamView,

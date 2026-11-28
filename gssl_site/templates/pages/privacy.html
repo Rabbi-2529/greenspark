@@ -8,63 +8,20 @@
 {% if sections.page_hero %}<section class="page-hero page-hero--light">
   <div class="page-hero__inner container-gs">
     <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'website:home' %}">Home</a></li><li aria-current="page">Privacy policy</li></ol></nav>
-    <p class="eyebrow">Legal</p>
-    <h1>Privacy policy</h1>
-    <p class="lead">Last updated <time datetime="2026-11-25">25 November 2026</time></p>
+    <p class="eyebrow">{{ privacy.hero_tag }}</p>
+    <h1>{{ privacy.hero_title }}</h1>
+    <p class="lead">{{ privacy.updated_label }} <time datetime="{{ privacy.updated_on|date:"Y-m-d" }}">{{ privacy.updated_on|date:"j F Y" }}</time></p>
   </div>
 </section>{% endif %}
 {% if sections.policy %}<section class="section section--flush-top">
   <div class="container-gs">
     <div class="policy">
-      <nav class="policy__toc" aria-label="On this page"><a href="#about">About this policy</a><a href="#collect">Information we collect</a><a href="#how">How we collect it</a><a href="#use">How we use it</a><a href="#share">Who we share it with</a><a href="#overseas">Overseas disclosure</a><a href="#cookies">Cookies and browser storage</a><a href="#security">Storage and security</a><a href="#retention">How long we keep it</a><a href="#access">Access and correction</a><a href="#complaints">Privacy complaints</a><a href="#changes">Changes to this policy</a><a href="#contact">Contact us</a></nav>
+      <nav class="policy__toc" aria-label="On this page">{% for section in policy_sections %}<a href="#{{ section.anchor }}">{{ section.title }}</a>{% endfor %}</nav>
       <div class="policy__body">
         {% comment %} HIDDEN: internal note, not for visitors. The instruction still stands: have this policy legally reviewed before launch. <p class="policy__note">Draft for GSSL legal review. Please have this policy checked before the site goes public.</p> {% endcomment %}
-<h2 id="about">About this policy</h2>
-<p>This policy explains how <strong>Green Spark Solutions Australia Pty Ltd</strong> (“Green Spark”, “we”, “us”) handles personal information collected through this website and through our programmes. Our related company in Bangladesh, Green Spark Solutions Ltd, runs our field operations and follows this policy.</p>
-<p>We aim to handle personal information in line with the Australian Privacy Principles in the <em>Privacy Act 1988</em> (Cth) and the privacy laws that apply where we work.</p>
-<h2 id="collect">Information we collect</h2>
-<p>We collect only what we need. Depending on how you deal with us, this can include:</p>
-<ul><li><strong>Enquiries:</strong> your name, organisation, email address, phone number and message.</li>
-<li><strong>Feedback and grievances:</strong> your comments and, if you choose to give them, your name and how to reach you. You can give feedback without your name.</li>
-<li><strong>Events and consultations:</strong> registration details and attendance records.</li>
-<li><strong>Programme records:</strong> for households taking part in our programmes, the details needed to install, maintain and monitor equipment, collected with consent by our field team.</li>
-<li><strong>Job applications:</strong> your CV and the details you send us.</li>
-<li><strong>Website use:</strong> basic technical information such as browser type and pages visited, held in server logs.</li></ul>
-<h2 id="how">How we collect it</h2>
-<p>We collect information directly from you: when you fill in a form on this website, send us an email or WhatsApp message, call us, attend a consultation or take part in a programme. We do not buy personal information from third parties.</p>
-<h2 id="use">How we use it</h2>
-<ul><li>To reply to enquiries and feedback, and to record and answer grievances.</li>
-<li>To run, monitor and improve our programmes, including the household visits that carbon standards require.</li>
-<li>To prepare monitoring reports and the evidence independent verifiers review.</li>
-<li>To consider job applications.</li>
-<li>To keep this website secure and working well.</li></ul>
-<p><strong>We never publish household names, phone numbers or village-level locations.</strong> Figures shown on this website are totals, shown at district level or above.</p>
-<h2 id="share">Who we share it with</h2>
-<p>We do not sell or rent personal information. We share it only when needed, with:</p>
-<ul><li>our related company in Bangladesh, Green Spark Solutions Ltd;</li>
-<li>independent verifiers and the carbon standard that registers our projects, for monitoring and verification;</li>
-<li>service providers who host this website or help us run our programmes, under confidentiality obligations;</li>
-<li>government bodies, where the law requires it.</li></ul>
-<h2 id="overseas">Overseas disclosure</h2>
-<p>Our team works in Australia and Bangladesh, so personal information may be held or accessed in both countries. Website and email providers may store data in other countries. We take reasonable steps so that anyone who receives your information protects it in line with this policy.</p>
-<h2 id="cookies">Cookies and browser storage</h2>
-<p>This website does not use advertising or social media trackers, and it does not embed third-party maps or video players. Every photo, video, font and script on the site is served from our own server, so loading a page does not send your details to anyone else. The site may also store a small setting in your browser, for example to remember that you closed a notice. Our server keeps standard security logs.</p>
-<p>If we add website analytics in future, we will update this policy first.</p>
-<h2 id="security">Storage and security</h2>
-<p>We store personal information on secure systems with access limited to the staff who need it. Forms on this website are sent over an encrypted connection, and form data is never placed in web addresses.</p>
-<h2 id="retention">How long we keep it</h2>
-<p>We keep personal information only as long as we need it for the purpose it was collected, or as long as the law or a carbon standard requires (for example, programme monitoring records for the life of a project). After that we delete or de-identify it.</p>
-<h2 id="access">Access and correction</h2>
-<p>You can ask to see the personal information we hold about you, or ask us to correct it. Contact us using the details below. We will reply within 30 days.</p>
-<h2 id="complaints">Privacy complaints</h2>
-<p>If you have a concern about how we have handled your personal information, contact us first and we will try to resolve it. If you are not satisfied with our response, you can contact the Office of the Australian Information Commissioner at <a href="https://www.oaic.gov.au" target="_blank" rel="noopener">oaic.gov.au<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
-<h2 id="changes">Changes to this policy</h2>
-<p>We may update this policy from time to time. The latest version is always on this page, with the date it was last updated.</p>
-<h2 id="contact">Contact us</h2>
-<p><strong>Green Spark Solutions Australia Pty Ltd</strong><br>Suite 4 &amp; 5, 498 Princes Highway, Rockdale NSW 2216, Australia</p>
-<p><strong>Operations base, Bangladesh</strong><br>19/1 Poully, Joynagar, Gilondo (Monno City), Manikganj Sadar, Manikganj</p>
-<p>Email <a href="mailto:info@greensparksolutions.com">info@greensparksolutions.com</a> · Phone <a href="tel:+61402832972">+61 402 832 972</a></p>
-      </div>
+{% for section in policy_sections %}<h2 id="{{ section.anchor }}">{{ section.title }}</h2>
+{{ section.body_html }}
+{% endfor %}      </div>
     </div>
   </div>
 </section>{% endif %}

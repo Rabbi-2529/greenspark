@@ -20,7 +20,7 @@ from .registry import Column, Filter, Inline, Module, registry
 from apps.content.models import (
     AboutPage, AboutStat, ApproachItem, Audience, CarouselSlide, CareerArea,
     ContactDetails, Counter, District, FaqGroup, FaqItem, FaqPage, HomePage,
-    JobOpening, NoticeBar, Page,
+    JobOpening, NoticeBar, Page, PolicySection, PrivacyPage,
     Programme, ProgrammeAttribute, ProgrammeStep, Project, ProjectAttribute,
     ProjectImage, ProjectParagraph, Section, SiteSettings, SlideBadge,
     SlideFact, SocialLinks, TeamGroup, TeamLeader, TeamPage,
@@ -675,6 +675,56 @@ registry.register(Module(
     per_page=50,
     view_rank=roles.EDITOR,
     edit_rank=roles.EDITOR,
+))
+
+
+# --- The privacy policy -----------------------------------------------------
+
+registry.register(Module(
+    slug="privacy-page",
+    model=PrivacyPage,
+    label="Privacy policy",
+    label_plural="Privacy policy",
+    group="Content",
+    icon="page",
+    blurb="The heading and the “last updated” date. Change the date whenever "
+          "you change a section below.",
+    singleton=True,
+    can_create=False,
+    can_delete=False,
+    fields=("hero_tag", "hero_title", "updated_label", "updated_on"),
+    columns=(Column("hero_title", "Heading", link=True),),
+    view_rank=roles.EDITOR,
+    # A privacy policy is a legal statement about what Green Spark does with
+    # people's information, so changing one takes a publisher.
+    edit_rank=roles.PUBLISHER,
+))
+
+
+registry.register(Module(
+    slug="policy-sections",
+    model=PolicySection,
+    label="Policy section",
+    label_plural="Policy sections",
+    group="Content",
+    icon="layers",
+    blurb="The thirteen sections of the privacy policy. The contents list at "
+          "the top of the page is built from these, so renaming one renames "
+          "its own link.",
+    fields=("title", "anchor", "body", "sort_order"),
+    columns=(
+        Column("title", "Section", link=True),
+        Column("anchor", "Link", kind="muted"),
+        Column("body_words", "Wording", kind="muted", sortable=False, truncate=60),
+        Column("sort_order", "Order", align="center"),
+    ),
+    search_fields=("title", "anchor", "body"),
+    ordering=("sort_order", "pk"),
+    order_field="sort_order",
+    per_page=30,
+    view_rank=roles.EDITOR,
+    edit_rank=roles.PUBLISHER,
+    delete_rank=roles.ADMINISTRATOR,
 ))
 
 
