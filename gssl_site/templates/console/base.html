@@ -15,45 +15,52 @@
 {% include "console/partials/icons.html" %}
 <a class="cns-skip" href="#cns-main">Skip to the content</a>
 
-<header class="cns-top">
-  <a class="cns-brand" href="{% url 'console:dashboard' %}">
-    <span class="cns-brand__mark" aria-hidden="true"></span>
-    <span class="cns-brand__text">
-      <strong>Green Spark</strong>
-      <span>Website console</span>
-    </span>
-  </a>
-
-  <div class="cns-top__right">
-    <a class="cns-top__link" href="{{ site_url }}/" rel="noopener" target="_blank">
-      <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-external"></use></svg>
-      View the site
-    </a>
-    <span class="cns-who">
-      <span class="cns-who__name">{{ user.get_username }}</span>
-      <span class="cns-who__role">{{ console_role }}</span>
-    </span>
-    <a class="cns-top__link" href="{% url 'console:password_change' %}">Password</a>
-    <form class="cns-top__form" method="post" action="{% url 'console:logout' %}">
-      {% csrf_token %}
-      <button class="cns-btn cns-btn--quiet" type="submit">Sign out</button>
-    </form>
-  </div>
-</header>
 
 <div class="cns-shell">
   <nav class="cns-side" aria-label="Console sections">
+    <a class="cns-brand" href="{% url 'console:dashboard' %}">
+      <span class="cns-brand__mark" aria-hidden="true"></span>
+      <span class="cns-brand__text">
+        <strong>Green Spark</strong>
+        <span>Solutions Australia</span>
+      </span>
+    </a>
     <a class="cns-nav__item{% if not module %} is-current{% endif %}" href="{% url 'console:dashboard' %}">
       <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-dashboard"></use></svg>
       Overview
     </a>
     <p class="cns-nav__eyebrow">Main menu</p>
+    {% if console_pages %}
+      {% comment %}
+        The site's own pages, so the menu mirrors the website: pick a page,
+        get its bands. Each one opens the sections list filtered to it --
+        the filter is "on_page", not "page", which the paginator uses.
+      {% endcomment %}
+      <details class="cns-nav__group" open>
+        <summary class="cns-nav__parent">
+          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-page"></use></svg>
+          <span class="cns-nav__parent-label">Web</span>
+          <svg class="cns-icon cns-nav__chev" aria-hidden="true"><use href="#cns-i-down"></use></svg>
+        </summary>
+        <div class="cns-nav__sub">
+          {% for page in console_pages %}
+            <a class="cns-nav__item cns-nav__item--page"
+               href="{% url 'console:list' 'sections' %}?on_page={{ page.name }}">
+              <span class="cns-nav__page-label">{{ page.label }}</span>
+              <span class="cns-nav__count">{{ page.section_count }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </details>
+    {% endif %}
+
     {% comment %}
       details/summary rather than a button and a script: the panel runs under
       the site's CSP, which forbids inline handlers, and this way the menus
       open and close with no JavaScript at all. The group holding the page
       you are on starts open.
     {% endcomment %}
+    <p class="cns-nav__eyebrow">All content</p>
     {% for group in console_nav %}
       {% with open=group.has_current %}
       <details class="cns-nav__group"{% if open %} open{% endif %}>
@@ -75,33 +82,40 @@
       {% endwith %}
     {% endfor %}
 
-    {% if console_pages %}
-      {% comment %}
-        The site's own pages, so the menu mirrors the website: pick a page,
-        get its bands. Each one opens the sections list filtered to it --
-        the filter is "on_page", not "page", which the paginator uses.
-      {% endcomment %}
-      <p class="cns-nav__eyebrow">Website pages</p>
-      <details class="cns-nav__group">
-        <summary class="cns-nav__parent">
-          <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-page"></use></svg>
-          <span class="cns-nav__parent-label">Pages</span>
-          <svg class="cns-icon cns-nav__chev" aria-hidden="true"><use href="#cns-i-down"></use></svg>
-        </summary>
-        <div class="cns-nav__sub">
-          {% for page in console_pages %}
-            <a class="cns-nav__item cns-nav__item--page"
-               href="{% url 'console:list' 'sections' %}?on_page={{ page.name }}">
-              <span class="cns-nav__page-label">{{ page.label }}</span>
-              <span class="cns-nav__count">{{ page.section_count }}</span>
-            </a>
-          {% endfor %}
-        </div>
-      </details>
-    {% endif %}
   </nav>
 
+  {% comment %}
+    The brand sits in the sidebar, not the bar, and the bar carries the
+    account: the shape of the panel Green Spark had before. The account menu
+    is details/summary so it opens without JavaScript and without an inline
+    handler the CSP would refuse.
+  {% endcomment %}
+  <header class="cns-top">
+    <a class="cns-top__link" href="{{ site_url }}/" rel="noopener" target="_blank">
+      <svg class="cns-icon" aria-hidden="true"><use href="#cns-i-external"></use></svg>
+      View the site
+    </a>
+
+    <details class="cns-account">
+      <summary class="cns-account__chip">
+        <span class="cns-account__avatar" aria-hidden="true">{{ user.get_username|slice:":1"|upper }}</span>
+        <span class="cns-account__who">
+          <span class="cns-account__name">{{ user.get_username }}</span>
+          <span class="cns-account__role">{{ console_role }}</span>
+        </span>
+        <svg class="cns-icon cns-account__chev" aria-hidden="true"><use href="#cns-i-down"></use></svg>
+      </summary>
+      <div class="cns-account__menu">
+        <a class="cns-account__item" href="{% url 'console:password_change' %}">Change password</a>
+        <form method="post" action="{% url 'console:logout' %}">
+          {% csrf_token %}
+          <button class="cns-account__item cns-account__item--danger" type="submit">Sign out</button>
+        </form>
+      </div>
+    </details>
+  </header>
   <main class="cns-main" id="cns-main">
+    <div class="cns-page">
     {% if breadcrumbs %}
       <nav class="cns-crumbs" aria-label="Breadcrumb">
         <a href="{% url 'console:dashboard' %}">Console</a>
@@ -121,6 +135,7 @@
     {% endif %}
 
     {% block content %}{% endblock %}
+    </div>
   </main>
 </div>
 

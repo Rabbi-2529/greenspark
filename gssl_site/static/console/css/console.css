@@ -6,6 +6,15 @@
    No inline styles anywhere: the console runs under the site's CSP.
    ========================================================================== */
 
+/* Satoshi, the typeface the panel Green Spark had before is set in, copied
+   from their own admin project (E:\greensparkdmin/src/fonts). Only the
+   four upright weights the console uses -- not the italics, not the twelve
+   other files -- so this costs about 100KB rather than a megabyte. */
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 300; font-display: swap; src: url("../fonts/Satoshi-Light.woff2") format("woff2"); }
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 400; font-display: swap; src: url("../fonts/Satoshi-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 500; font-display: swap; src: url("../fonts/Satoshi-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Satoshi"; font-style: normal; font-weight: 700; font-display: swap; src: url("../fonts/Satoshi-Bold.woff2") format("woff2"); }
+
 @font-face { font-family: "Open Sauce Sans"; font-style: normal; font-weight: 300; font-display: swap; src: url("../../fonts/open-sauce-sans-light-latin.woff2") format("woff2"); }
 @font-face { font-family: "Open Sauce Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("../../fonts/open-sauce-sans-regular-latin.woff2") format("woff2"); }
 @font-face { font-family: "Open Sauce Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("../../fonts/open-sauce-sans-medium-latin.woff2") format("woff2"); }
@@ -19,7 +28,7 @@
   margin: 0;
   background: var(--gs-color-bg);
   color: var(--gs-color-text);
-  font-family: var(--gs-font-sans);
+  font-family: "Satoshi", var(--gs-font-sans);
   font-size: var(--gs-fs-body);
   line-height: var(--gs-lh-body);
   -webkit-font-smoothing: antialiased;
@@ -108,59 +117,117 @@
 
 /* ---- Top bar ------------------------------------------------------------- */
 
+/* The bar sits over the content, not across the top of the window: the
+   sidebar runs the full height, which is the shape of the panel Green
+   Spark had before. */
+
 .cns-top {
   position: sticky; top: 0; z-index: var(--gs-z-header);
-  display: flex; align-items: center; justify-content: space-between; gap: var(--gs-space-4);
-  min-height: var(--cns-top-h);
-  padding: 0 var(--gs-space-5);
-  background: var(--gs-ink-900);
-  color: var(--gs-color-inverse-text);
-  box-shadow: var(--gs-shadow-md);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--gs-space-4);
+  min-height: 76px;
+  padding: 0 var(--gs-space-6);
+  background: var(--gs-color-surface);
+  border-bottom: 1px solid var(--gs-color-border);
 }
-
-.cns-brand {
-  display: inline-flex; align-items: center; gap: var(--gs-space-3);
-  color: inherit; text-decoration: none;
-}
-.cns-brand__mark {
-  width: 1.75rem; height: 1.75rem; border-radius: var(--gs-radius-sm);
-  background: var(--gs-leaf-500);
-  box-shadow: inset 0 0 0 3px var(--gs-ink-900), 0 0 0 1px var(--gs-leaf-600);
-}
-.cns-brand__text { display: flex; flex-direction: column; line-height: 1.15; }
-.cns-brand__text strong { font-weight: var(--gs-fw-semibold); font-size: var(--gs-fs-small); }
-.cns-brand__text span { font-size: var(--gs-fs-xs); color: var(--gs-color-inverse-muted); }
-
-.cns-top__right { display: flex; align-items: center; gap: var(--gs-space-4); }
-.cns-top__form { margin: 0; }
 
 .cns-top__link {
   display: inline-flex; align-items: center; gap: var(--gs-space-2);
-  color: var(--gs-color-inverse-text); font-size: var(--gs-fs-small);
-  text-decoration: none; border-bottom: 1px solid transparent;
+  color: var(--gs-color-text-muted); font-size: var(--gs-fs-small);
+  font-weight: var(--gs-fw-medium); text-decoration: none;
+  padding: var(--gs-space-2) var(--gs-space-3);
+  border-radius: var(--gs-radius-md);
+  transition: background var(--gs-dur-fast) var(--gs-ease);
 }
-.cns-top__link:hover { border-bottom-color: var(--gs-spark-400); }
+.cns-top__link:hover { background: var(--gs-linen-100); color: var(--gs-color-text); }
 
-.cns-who { display: flex; flex-direction: column; line-height: 1.2; text-align: right; }
-.cns-who__name { font-size: var(--gs-fs-small); font-weight: var(--gs-fw-medium); }
-.cns-who__role {
-  font-size: var(--gs-fs-xs); letter-spacing: var(--gs-ls-caps);
-  text-transform: uppercase; color: var(--gs-spark-400);
+/* ---- The account chip --------------------------------------------------- */
+
+.cns-account { position: relative; }
+.cns-account__chip {
+  display: flex; align-items: center; gap: var(--gs-space-3);
+  padding: var(--gs-space-2) var(--gs-space-3);
+  border-radius: var(--gs-radius-lg);
+  cursor: pointer; list-style: none;
+  transition: background var(--gs-dur-fast) var(--gs-ease);
 }
+.cns-account__chip::-webkit-details-marker { display: none; }
+.cns-account__chip:hover { background: var(--gs-linen-100); }
 
+.cns-account__avatar {
+  flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--gs-color-primary); color: var(--gs-color-on-primary);
+  font-weight: var(--gs-fw-semibold); font-size: var(--gs-fs-small);
+}
+.cns-account__who { display: flex; flex-direction: column; line-height: 1.25; }
+.cns-account__name {
+  font-size: var(--gs-fs-small); font-weight: var(--gs-fw-semibold);
+  color: var(--gs-color-text);
+}
+.cns-account__role {
+  font-size: var(--gs-fs-xs); color: var(--gs-color-text-muted);
+}
+.cns-account__chev { flex: none; opacity: .6; }
+.cns-account[open] .cns-account__chev { transform: rotate(180deg); }
+
+.cns-account__menu {
+  position: absolute; right: 0; top: calc(100% + var(--gs-space-2));
+  min-width: 13rem; padding: var(--gs-space-2);
+  background: var(--gs-color-surface);
+  border: 1px solid var(--gs-color-border);
+  border-radius: var(--gs-radius-lg);
+  box-shadow: var(--gs-shadow-md);
+  z-index: var(--gs-z-header);
+}
+.cns-account__menu form { margin: 0; }
+.cns-account__item {
+  display: block; width: 100%; text-align: left;
+  padding: var(--gs-space-2) var(--gs-space-3);
+  border: 0; background: none; border-radius: var(--gs-radius-md);
+  color: var(--gs-color-text); font: inherit; font-size: var(--gs-fs-small);
+  text-decoration: none; cursor: pointer;
+}
+.cns-account__item:hover { background: var(--gs-linen-100); }
+.cns-account__item--danger { color: var(--gs-danger-700); }
+
+/* ---- The brand, now at the top of the sidebar --------------------------- */
+
+.cns-brand {
+  display: flex; align-items: center; gap: var(--gs-space-3);
+  padding: var(--gs-space-5) var(--gs-space-4) var(--gs-space-4);
+  color: var(--gs-color-text); text-decoration: none;
+}
+.cns-brand__mark {
+  flex: none; width: 2.25rem; height: 2.25rem; border-radius: var(--gs-radius-md);
+  background: var(--gs-color-primary);
+  box-shadow: inset 0 0 0 3px var(--gs-color-surface), 0 0 0 1px var(--gs-leaf-600);
+}
+.cns-brand__text { display: flex; flex-direction: column; line-height: 1.2; }
+.cns-brand__text strong {
+  font-weight: var(--gs-fw-semibold); font-size: var(--gs-fs-body);
+}
+.cns-brand__text span {
+  font-size: var(--gs-fs-xs); color: var(--gs-color-text-muted);
+}
 /* ---- Shell --------------------------------------------------------------- */
 
+/* The sidebar is the full height of the window and the bar lives inside the
+   content column, so the brand sits above the menu rather than across the
+   top of everything. */
 .cns-shell {
   display: grid;
   grid-template-columns: var(--cns-side-w) minmax(0, 1fr);
-  align-items: start;
-  min-height: calc(100vh - var(--cns-top-h));
+  align-items: stretch;
+  min-height: 100vh;
 }
 
+.cns-main { display: flex; flex-direction: column; min-width: 0; }
+
 .cns-side {
-  position: sticky; top: var(--cns-top-h);
+  position: sticky; top: 0;
   display: flex; flex-direction: column; gap: 2px;
-  max-height: calc(100vh - var(--cns-top-h));
+  max-height: 100vh;
   padding: var(--gs-space-5) var(--gs-space-3);
   overflow-y: auto;
   background: var(--gs-color-surface);
@@ -243,7 +310,9 @@
   box-shadow: inset 3px 0 0 var(--gs-leaf-500);
 }
 
-.cns-main {
+/* The padding is on the content, not on <main>: the bar is inside main now
+   and runs edge to edge. */
+.cns-page {
   min-width: 0;
   padding: var(--gs-space-6) var(--gs-gutter) var(--gs-space-20);
 }

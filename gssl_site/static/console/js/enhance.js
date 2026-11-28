@@ -37,38 +37,16 @@
   }
 
   /* ---- Lists ------------------------------------------------------------
-     The table is already rendered by Django and already paged, sorted and
-     filtered on the server. DataTables is pointed at the same endpoint the
-     markup carries, so it never pulls the whole table into the browser. */
+     DataTables is vendored but not attached yet, deliberately.
 
-  function enhanceTables() {
-    if (!$ || !$.fn || !$.fn.DataTable) return;
-    $("table[data-source]").each(function () {
-      var table = this;
-      if (table.dataset.dtDone) return;
-      table.dataset.dtDone = "1";
-
-      var columns = [].map.call(table.tHead.rows[0].cells, function (th) {
-        return { orderable: th.dataset.sort !== undefined, data: th.dataset.sort || null };
-      });
-
-      $(table).DataTable({
-        serverSide: true,
-        processing: true,
-        searching: false,   /* the list has its own search box and filters */
-        lengthChange: false,
-        ajax: { url: table.dataset.source, type: "GET" },
-        columns: columns,
-        language: {
-          emptyTable: "Nothing here yet.",
-          zeroRecords: "Nothing matches that.",
-          info: "_START_–_END_ of _TOTAL_",
-          infoEmpty: "0 of 0",
-          processing: "Loading…"
-        }
-      });
-    });
-  }
+     ModuleDataView answers with rows shaped {pk, url, cells:[{kind, text,
+     truthy}]} -- its own shape, not DataTables' -- so a column definition
+     has to render from row.cells[i] and escape the text itself, and the
+     ordering parameters DataTables sends (order[0][column]) are not the
+     ones apply_sort reads. Wiring it half-way renders every cell as
+     [object Object], which is what happened. The server-rendered table
+     already pages, sorts, searches and filters correctly; it stays until
+     the adapter is written and tested properly. */
 
   /* ---- Limited-HTML fields ----------------------------------------------
      The toolbar is exactly what apps/content/richtext.py allows: bold,
@@ -103,7 +81,6 @@
 
   function start() {
     enhanceSelects(document);
-    enhanceTables();
     enhanceEditors();
   }
 
